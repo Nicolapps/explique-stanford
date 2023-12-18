@@ -1,0 +1,24 @@
+{
+  "name": "no-name-ai",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@gitlab.epfl.ch:ic-it/no-name-ai.git",
+  "author": "...",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "method-override": "^3.0.0",
+    "morgan": "^1.10.0",
+    "passport": "^0.7.0",
+    "passport-strategy": "^1.0.0",
+    "passport-tequila": "^1.0.4",
+    "pem": "^1.14.8"
+  },
+  "scripts": {
+    "start": "node ./index.js"
+  }
+}
