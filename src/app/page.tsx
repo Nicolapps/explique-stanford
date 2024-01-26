@@ -41,7 +41,7 @@ function ExerciseLink({
           className={clsx(
             "absolute top-0 right-0 w-24 h-24 tr-corner flex text-white",
             exercise.completed &&
-              "bg-gradient-to-b from-green-500 to-green-600",
+            "bg-gradient-to-b from-green-500 to-green-600",
             !exercise.completed && "bg-gray-500",
           )}
         >
@@ -71,11 +71,19 @@ function Login() {
   if (!user) return null;
 
   return (
-    <div className="p-4 absolute right-0 top-0 flex items-center gap-6">
-      <div className="flex flex-col leading-snug text-gray-700">
+    <div className="p-4 absolute right-0 top-0 flex items-center gap-2">
+      <div className="flex flex-col leading-snug text-gray-700 px-2">
         <p className="text-gray-800 font-semibold">{user.name}</p>
         <p>{user.email}</p>
       </div>
+      {user.isAdmin && (
+        <Link
+          href="/admin"
+          className="font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200"
+        >
+          Admin
+        </Link>
+      )}
       <button
         className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200"
         onClick={() => setSessionId(null)}
