@@ -3,18 +3,38 @@ import {
   internalAction,
   internalMutation,
   mutation,
+  DatabaseReader,
 } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
 import { MessageContentText } from "openai/resources/beta/threads/messages/messages";
+import { mutationWithAuth, queryWithAuth } from "./withAuth";
+import { Id } from "./_generated/dataModel";
+import { Session } from "lucia";
+
+export async function getAttemptIfAuthorized(db: DatabaseReader, session: Session | null, attemptId: Id<"attempts">) {
+  if (!session) {
+    throw new ConvexError("Logged out");
+  }
+
+  const attempt = await db.get(attemptId);
+  if (attempt === null) throw new ConvexError("Unknown attempt");
+  if (attempt.userId !== session.user._id && !session.user.isAdmin) {
+    throw new ConvexError("Forbidden");
+  }
+
+  return attempt;
+}
 
 // Returns the messages for attempt
-export const getMessages = query({
+export const getMessages = queryWithAuth({
   args: {
     attemptId: v.id("attempts"),
   },
-  handler: async ({ db }, { attemptId }) => {
+  handler: async ({ db, session }, { attemptId }) => {
+    await getAttemptIfAuthorized(db, session, attemptId);
+
     return await db
       .query("messages")
       .withIndex("by_attempt", (x) => x.eq("attemptId", attemptId))
@@ -34,14 +54,13 @@ export const insertMessage = internalMutation({
   },
 });
 
-export const sendMessage = mutation({
+export const sendMessage = mutationWithAuth({
   args: {
     attemptId: v.id("attempts"),
     message: v.string(),
   },
-  handler: async ({ db, scheduler }, { attemptId, message }) => {
-    const attempt = await db.get(attemptId);
-    if (!attempt) throw new Error(`Attempt ${attemptId} not found`);
+  handler: async ({ db, scheduler, session }, { attemptId, message }) => {
+    const attempt = await getAttemptIfAuthorized(db, session, attemptId);
 
     const exercise = await db.get(attempt.exerciseId);
     if (!exercise) throw new Error(`Exercise ${attempt.exerciseId} not found`);

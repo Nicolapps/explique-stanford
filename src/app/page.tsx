@@ -6,8 +6,7 @@ import { Welcome } from "@/components/Welcome";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Doc } from "../../convex/_generated/dataModel";
 import clsx from "clsx";
-import { useQuery as useQueryWithSession } from "@/usingSession";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSetSessionId } from "@/components/SessionProvider";
@@ -59,7 +58,7 @@ function ExerciseLink({
 
 function Login() {
   const router = useRouter();
-  const user = useQueryWithSession(api.auth.get, {});
+  const user = useQuery(api.auth.get, {});
   useEffect(() => {
     if (user === null) {
       router.push("/login");
@@ -95,7 +94,7 @@ function Login() {
 }
 
 export default function Home() {
-  const exercises = useQuery(api.exercises.list);
+  const exercises = useQuery(api.exercises.list, {});
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">

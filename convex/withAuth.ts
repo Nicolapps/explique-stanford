@@ -1,9 +1,11 @@
 import { ObjectType, PropertyValidators, v } from "convex/values";
 import { Session } from "lucia";
 import {
+  ActionCtx,
   DatabaseWriter,
   MutationCtx,
   QueryCtx,
+  action,
   internalMutation,
   internalQuery,
   mutation,
@@ -11,6 +13,7 @@ import {
 } from "./_generated/server";
 import { Auth, getAuth } from "./lucia";
 import { mutationAuthDbWriter } from "./authDbWriter";
+import { internal } from "./_generated/api";
 
 export function queryWithAuth<
   ArgsValidator extends PropertyValidators,
@@ -104,6 +107,44 @@ export function internalMutationWithAuth<
     },
   });
 }
+
+export function actionWithAuth<
+  ArgsValidator extends PropertyValidators,
+  Output,
+>({
+  args,
+  handler,
+}: {
+  args: ArgsValidator;
+  handler: (
+    ctx: Omit<ActionCtx, "auth"> & { session: Session | null },
+    args: ObjectType<ArgsValidator>,
+  ) => Output;
+}) {
+  return action({
+    args: {
+      ...args,
+      sessionId: v.union(v.null(), v.string()),
+    },
+    handler: async (ctx, args: any) => {
+      const session = await ctx.runQuery(internal.withAuth.getValidExistingSessionQuery, {
+        sessionId: args.sessionId,
+      }) as Session | null;
+      // const session = null; // @todo
+      return handler({ ...ctx, session }, args);
+    },
+  });
+}
+
+export const getValidExistingSessionQuery = internalQuery({
+  args: {
+    sessionId: v.union(v.null(), v.string()),
+  },
+  handler: async (ctx, { sessionId }) => {
+    const result: Session | null = await getValidExistingSession(ctx, sessionId);
+    return result;
+  },
+});
 
 async function getValidExistingSession(
   ctx: QueryCtx,

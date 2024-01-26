@@ -1,6 +1,5 @@
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import clsx from "clsx";
 import Markdown from "react-markdown";
 import Link from "next/link";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { useMutation, useQuery } from "@/usingSession";
 
 export default function Page({ params }: { params: { id: string } }) {
   const attemptId = params.id as Id<"attempts">;
@@ -79,7 +79,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     "p-4 rounded-xl shadow",
                     message.system && "bg-white mr-6 rounded-bl-none",
                     !message.system &&
-                      "bg-gradient-to-b from-purple-500 to-purple-600 ml-6 text-white rounded-br-none",
+                    "bg-gradient-to-b from-purple-500 to-purple-600 ml-6 text-white rounded-br-none",
                   )}
                 >
                   {message.system ? (

@@ -1,6 +1,7 @@
 import {
   useQuery as useConvexQuery,
   useMutation as useConvexMutation,
+  useAction as useConvexAction,
   ReactMutation,
 } from "convex/react";
 import { FunctionReference } from "convex/server";
@@ -33,5 +34,23 @@ export function useMutation<
       return doMutation({ ...args, sessionId } as any);
     },
     [doMutation, sessionId],
+  ) as any; // We don't support optimistic updates
+}
+
+export function useAction<
+  Args extends { sessionId: string | null },
+  Action extends FunctionReference<"action", "public", Args>,
+>(
+  action: Action,
+): ReactMutation<
+  FunctionReference<"mutation", "public", Omit<Action["_args"], "sessionId">>
+> {
+  const doAction = useConvexAction(action);
+  const sessionId = useSessionId();
+  return useCallback(
+    (args: Omit<Action["_args"], "sessionId">) => {
+      return doAction({ ...args, sessionId } as any);
+    },
+    [doAction, sessionId],
   ) as any; // We don't support optimistic updates
 }
