@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name:  APPLICATION-NAME-pvc
+  namespace: hotcrp
+spec:
+  volumeName: APPLICATION-NAME-pv
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi

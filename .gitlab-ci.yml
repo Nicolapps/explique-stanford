@@ -1,0 +1,58 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  HARBOR_REGISTRY: "ic-registry.epfl.ch"
+  APPLICATION_NAME: "xxx" 
+  REPO_NAME: "cs250"
+  IMAGE_NAME: "xxxx"
+  TAG: "test"
+  REGISTRY_ROBOT: 'robot$$CS250-gitlab'
+  DOCKERFILE_PATH: "prod.Dockerfile"
+  DOCKER_AUTH_CONFIG: "{\"auths\":{\"$HARBOR_REGISTRY\":{\"username\":\"$REGISTRY_ROBOT\",\"password\":\"$HARBOR_PASSWORD\"}}}"
+
+.EXEC_SCRIPT: &EXEC_SCRIPT
+  - mkdir -p ~/.kube
+  - echo "$KUBERNETESCONFIG" > ~/.kube/config
+  - kubectl delete secret $APPLICATION_NAME-regcred --ignore-not-found -n cs250
+  - kubectl create secret docker-registry $APPLICATION_NAME-regcred --docker-server="$HARBOR_REGISTRY" --docker-username=$REGISTRY_ROBOT --docker-password="$HARBOR_PASSWORD" --docker-email=support-icit@epfl.ch -n cs250
+  - sed -i "s%APPLICATION-HOSTS-FQDN%$FQDN%g" $CI_PROJECT_DIR/k8s/ingress.yaml
+  - sed -i "s%APPLICATION-IMAGE%$HARBOR_REGISTRY/$REPO_NAME/$IMAGE_NAME:$TAG%g" $CI_PROJECT_DIR/k8s/deployment.yaml
+  - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/deployment.yaml
+  - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/ingress.yaml
+  - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/persistentvolume.yaml
+  - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/persistentvolumeclaim.yaml
+  - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/service.yaml
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/ingress.yaml -n cs250
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/persistentvolumeclaim.yaml -n cs250
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/service.yaml -n cs250
+  - kubectl delete -f $CI_PROJECT_DIR/k8s/deployment.yaml --ignore-not-found -n cs250
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/deployment.yaml -n cs250
+
+
+build-a-docker:
+  stage: build
+  only:
+    refs:
+      - main
+
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo $DOCKER_AUTH_CONFIG > /kaniko/.docker/config.json
+    - env
+    - cat /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/$DOCKERFILE_PATH --destination $HARBOR_REGISTRY/$REPO_NAME/$APPLICATION_NAME:$TAG
+
+deploy-to-prod:
+  stage: deploy
+  when: manual
+
+  image:
+    name: ic-registry.epfl.ch/tools/helm-kubectl-docker:latest
+    entrypoint: [""]
+  script:
+    - *EXEC_SCRIPT
