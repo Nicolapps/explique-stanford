@@ -11,6 +11,7 @@ variables:
   REGISTRY_ROBOT: 'robot$$CS250-gitlab'
   DOCKERFILE_PATH: "prod.Dockerfile"
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"$HARBOR_REGISTRY\":{\"username\":\"$REGISTRY_ROBOT\",\"password\":\"$HARBOR_PASSWORD\"}}}"
+  FQDN: cs250.epfl.ch
 
 .EXEC_SCRIPT: &EXEC_SCRIPT
   - mkdir -p ~/.kube
