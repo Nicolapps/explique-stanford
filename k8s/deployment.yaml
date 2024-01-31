@@ -23,9 +23,6 @@ spec:
         env:
         - name: EXAMPLE
           value: "Your example value"
-        volumeMounts:
-        - mountPath: /code/tmp_files
-          name: shared-data
       volumes:
       - name: shared-data
         persistentVolumeClaim:
