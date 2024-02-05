@@ -127,9 +127,12 @@ export function actionWithAuth<
       sessionId: v.union(v.null(), v.string()),
     },
     handler: async (ctx, args: any) => {
-      const session = await ctx.runQuery(internal.withAuth.getValidExistingSessionQuery, {
-        sessionId: args.sessionId,
-      }) as Session | null;
+      const session = (await ctx.runQuery(
+        internal.withAuth.getValidExistingSessionQuery,
+        {
+          sessionId: args.sessionId,
+        },
+      )) as Session | null;
       // const session = null; // @todo
       return handler({ ...ctx, session }, args);
     },
@@ -141,7 +144,10 @@ export const getValidExistingSessionQuery = internalQuery({
     sessionId: v.union(v.null(), v.string()),
   },
   handler: async (ctx, { sessionId }) => {
-    const result: Session | null = await getValidExistingSession(ctx, sessionId);
+    const result: Session | null = await getValidExistingSession(
+      ctx,
+      sessionId,
+    );
     return result;
   },
 });

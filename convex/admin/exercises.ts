@@ -20,11 +20,11 @@ export const list = queryWithAuth({
     const weeks = await db.query("weeks").collect();
     const exercises = await db.query("exercises").collect();
 
-    return weeks.map(week => ({
+    return weeks.map((week) => ({
       ...week,
-      exercises: exercises.filter(exercise => exercise.weekId === week._id),
+      exercises: exercises.filter((exercise) => exercise.weekId === week._id),
     }));
-  }
+  },
 });
 
 export const insertExercise = internalMutation({
@@ -48,12 +48,10 @@ export const createWeek = mutationWithAuth({
     endDate: v.number(),
     endDateExtraTime: v.number(),
   },
-  handler: async ({ db, session }, {
-    name,
-    startDate,
-    endDate,
-    endDateExtraTime,
-  }) => {
+  handler: async (
+    { db, session },
+    { name, startDate, endDate, endDateExtraTime },
+  ) => {
     validateAdminSession(session);
 
     await db.insert("weeks", {
@@ -74,14 +72,10 @@ export const create = actionWithAuth({
     text: v.optional(v.string()),
     quiz: v.optional(quizSchema),
   },
-  handler: async ({ runMutation, session }, {
-    name,
-    instructions,
-    model,
-    weekId,
-    text,
-    quiz,
-  }) => {
+  handler: async (
+    { runMutation, session },
+    { name, instructions, model, weekId, text, quiz },
+  ) => {
     validateAdminSession(session);
 
     const openai = new OpenAI();

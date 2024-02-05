@@ -33,15 +33,15 @@ export default function NewWeek() {
     endDate.setTime(endDate.getTime() + timeIncrement);
 
     endDateExtraTime = new Date(startDate);
-    endDateExtraTime.setTime(endDateExtraTime.getTime() + timeIncrement * 4 / 3);
+    endDateExtraTime.setTime(
+      endDateExtraTime.getTime() + (timeIncrement * 4) / 3,
+    );
   }
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <h1 className="font-semibold text-4xl tracking-tight mb-8">
-          New Week
-        </h1>
+        <h1 className="font-semibold text-4xl tracking-tight mb-8">New Week</h1>
 
         <form
           onSubmit={async (e) => {
@@ -95,7 +95,8 @@ export default function NewWeek() {
                 <div className="mb-4 border p-4 rounded bg-slate-50">
                   <p>
                     Due date: <strong>{formatDate(endDate)}</strong>
-                    <br />(<strong>{formatDate(endDateExtraTime)}</strong> for students with extra time)
+                    <br />(<strong>{formatDate(endDateExtraTime)}</strong> for
+                    students with extra time)
                   </p>
                 </div>
               )}

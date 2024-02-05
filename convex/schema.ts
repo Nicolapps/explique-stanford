@@ -3,10 +3,12 @@ import { v } from "convex/values";
 
 export const quizSchema = v.object({
   question: v.string(),
-  answers: v.array(v.object({
-    text: v.string(),
-    correct: v.boolean(),
-  })),
+  answers: v.array(
+    v.object({
+      text: v.string(),
+      correct: v.boolean(),
+    }),
+  ),
 });
 
 export default defineSchema(

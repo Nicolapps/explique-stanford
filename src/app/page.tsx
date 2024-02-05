@@ -41,7 +41,7 @@ function ExerciseLink({
           className={clsx(
             "absolute top-0 right-0 w-24 h-24 tr-corner flex text-white",
             exercise.completed &&
-            "bg-gradient-to-b from-green-500 to-green-600",
+              "bg-gradient-to-b from-green-500 to-green-600",
             !exercise.completed && "bg-gray-500",
           )}
         >
@@ -119,28 +119,27 @@ export default function Home() {
 function ProjectGrid() {
   const weeks = useQuery(api.exercises.list, {});
 
-  return (
-    weeks?.map((week) => (
-      <div key={week.id}>
-        <h2 className="font-light text-3xl tracking-tight mb-1">
-          {week.name}
-        </h2>
-        <p className="text-gray-700">
-          Due on{' '}
-          <strong className="font-medium text-gray-800">{new Date(week.endDate).toLocaleDateString()} {new Date(week.endDate).toLocaleTimeString()}</strong>
-          {Date.now() < week.endDate && (
-            <span> ({timeFromNow(new Date(week.endDate))})</span>
-          )}
-        </p>
+  return weeks?.map((week) => (
+    <div key={week.id}>
+      <h2 className="font-light text-3xl tracking-tight mb-1">{week.name}</h2>
+      <p className="text-gray-700">
+        Due on{" "}
+        <strong className="font-medium text-gray-800">
+          {new Date(week.endDate).toLocaleDateString()}{" "}
+          {new Date(week.endDate).toLocaleTimeString()}
+        </strong>
+        {Date.now() < week.endDate && (
+          <span> ({timeFromNow(new Date(week.endDate))})</span>
+        )}
+      </p>
 
-        {/* @TODO Completion badge */}
+      {/* @TODO Completion badge */}
 
-        <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
-          {week.exercises.map((exercise) => (
-            <ExerciseLink exercise={exercise} key={exercise._id} />
-          ))}
-        </div>
+      <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+        {week.exercises.map((exercise) => (
+          <ExerciseLink exercise={exercise} key={exercise._id} />
+        ))}
       </div>
-    ))
-  );
+    </div>
+  ));
 }

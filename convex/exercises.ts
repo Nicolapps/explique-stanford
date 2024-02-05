@@ -1,7 +1,5 @@
 import { ConvexError, v } from "convex/values";
-import {
-  internalMutation,
-} from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
@@ -9,18 +7,22 @@ import { actionWithAuth, queryWithAuth } from "./withAuth";
 
 export const list = queryWithAuth({
   args: {},
-  handler: async ({ db, session }, { }) => {
+  handler: async ({ db, session }, {}) => {
     if (!session) throw new ConvexError("Not logged in");
 
     const { user } = session;
 
-    const weeks = await db.query("weeks").withIndex("startDate", x => x.gte("startDate", +new Date())).order("desc").collect();
+    const weeks = await db
+      .query("weeks")
+      .withIndex("startDate", (x) => x.gte("startDate", +new Date()))
+      .order("desc")
+      .collect();
     const exercises = await db.query("exercises").collect();
 
     const result = [];
     for (const week of weeks) {
       const exercisesResult = [];
-      for (const exercise of exercises.filter(x => x.weekId === week._id)) {
+      for (const exercise of exercises.filter((x) => x.weekId === week._id)) {
         const attempt = await db
           .query("attempts")
           .withIndex("by_key", (x) =>

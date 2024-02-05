@@ -11,9 +11,7 @@ export default function Admin() {
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
         <div className="flex mb-8 gap-4 flex-wrap items-center justify-between">
-          <h1 className="font-semibold text-4xl tracking-tight">
-            Weeks
-          </h1>
+          <h1 className="font-semibold text-4xl tracking-tight">Weeks</h1>
 
           <Link
             href="/admin/newWeek"
@@ -23,9 +21,11 @@ export default function Admin() {
           </Link>
         </div>
 
-        {weeks?.map((week) => (<div key={week._id}>
-          <h2>{week.name}</h2>
-        </div>))}
+        {weeks?.map((week) => (
+          <div key={week._id}>
+            <h2 className="text-xl font-bold py-2">{week.name}</h2>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -79,7 +79,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     "p-4 rounded-xl shadow",
                     message.system && "bg-white mr-6 rounded-bl-none",
                     !message.system &&
-                    "bg-gradient-to-b from-purple-500 to-purple-600 ml-6 text-white rounded-br-none",
+                      "bg-gradient-to-b from-purple-500 to-purple-600 ml-6 text-white rounded-br-none",
                   )}
                 >
                   {message.system ? (

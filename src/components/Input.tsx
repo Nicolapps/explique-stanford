@@ -14,7 +14,10 @@ export default function Input({
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
   const id = useId();
   return (
-    <label htmlFor={id} className="block mb-4 text-sm font-medium text-slate-700">
+    <label
+      htmlFor={id}
+      className="block mb-4 text-sm font-medium text-slate-700"
+    >
       {label}
 
       <input
