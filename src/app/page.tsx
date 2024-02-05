@@ -10,6 +10,7 @@ import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSetSessionId } from "@/components/SessionProvider";
+import { timeFromNow } from "@/util/date";
 
 function ExerciseLink({
   exercise,
@@ -103,7 +104,7 @@ export default function Home() {
       <div className="max-w-6xl flex-1">
         <Login />
 
-        <h1 className="font-semibold text-4xl tracking-tight mb-8">
+        <h1 className="font-semibold text-4xl tracking-tight my-8">
           Algorithms
         </h1>
 
@@ -116,11 +117,30 @@ export default function Home() {
 }
 
 function ProjectGrid() {
-  const exercises = useQuery(api.exercises.list, {});
+  const weeks = useQuery(api.exercises.list, {});
 
-  return (<div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
-    {exercises?.map((exercise) => (
-      <ExerciseLink exercise={exercise} key={exercise._id} />
-    ))}
-  </div>)
+  return (
+    weeks?.map((week) => (
+      <div key={week.id}>
+        <h2 className="font-light text-3xl tracking-tight mb-1">
+          {week.name}
+        </h2>
+        <p className="text-gray-700">
+          Due on{' '}
+          <strong className="font-medium text-gray-800">{new Date(week.endDate).toLocaleDateString()} {new Date(week.endDate).toLocaleTimeString()}</strong>
+          {Date.now() < week.endDate && (
+            <span> ({timeFromNow(new Date(week.endDate))})</span>
+          )}
+        </p>
+
+        {/* @TODO Completion badge */}
+
+        <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+          {week.exercises.map((exercise) => (
+            <ExerciseLink exercise={exercise} key={exercise._id} />
+          ))}
+        </div>
+      </div>
+    ))
+  );
 }
