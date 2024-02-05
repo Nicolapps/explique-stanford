@@ -3,6 +3,7 @@
 import { useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
+import { formatTimestampFull } from "@/util/date";
 
 export default function Admin() {
   const weeks = useQuery(api.admin.exercises.list, {});
@@ -23,7 +24,21 @@ export default function Admin() {
 
         {weeks?.map((week) => (
           <div key={week._id}>
-            <h2 className="text-xl font-bold py-2">{week.name}</h2>
+            <h2 className="text-2xl font-medium mt-8 mb-4">{week.name}</h2>
+            <p className="text-gray-700">
+              <strong className="font-medium text-gray-800">
+                {formatTimestampFull(week.startDate)}
+              </strong>{" "}
+              to{" "}
+              <strong className="font-medium text-gray-800">
+                {formatTimestampFull(week.endDate)}
+              </strong>{" "}
+              (extra time:{" "}
+              <strong className="font-medium text-gray-800">
+                {formatTimestampFull(week.endDateExtraTime)}
+              </strong>
+              )
+            </p>
           </div>
         ))}
       </div>

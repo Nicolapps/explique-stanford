@@ -2,19 +2,10 @@
 
 import { useMutation } from "@/usingSession";
 import { api } from "../../../../convex/_generated/api";
-import React, { useId, useState } from "react";
+import React, { useState } from "react";
 import Input from "@/components/Input";
 import { useRouter } from "next/navigation";
-
-function formatDate(date: Date) {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
-
-  return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
-}
+import { formatDateTime } from "@/util/date";
 
 export default function NewWeek() {
   const router = useRouter();
@@ -94,9 +85,11 @@ export default function NewWeek() {
               {endDate && endDateExtraTime && (
                 <div className="mb-4 border p-4 rounded bg-slate-50">
                   <p>
-                    Due date: <strong>{formatDate(endDate)}</strong>
-                    <br />(<strong>{formatDate(endDateExtraTime)}</strong> for
-                    students with extra time)
+                    Due date: <strong>{formatDateTime(endDate)}</strong>
+                    <br />(<strong>
+                      {formatDateTime(endDateExtraTime)}
+                    </strong>{" "}
+                    for students with extra time)
                   </p>
                 </div>
               )}

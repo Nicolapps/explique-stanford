@@ -10,7 +10,7 @@ import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSetSessionId } from "@/components/SessionProvider";
-import { timeFromNow } from "@/util/date";
+import { formatTimestampFull, timeFromNow } from "@/util/date";
 
 function ExerciseLink({
   exercise,
@@ -121,12 +121,11 @@ function ProjectGrid() {
 
   return weeks?.map((week) => (
     <div key={week.id}>
-      <h2 className="font-light text-3xl tracking-tight mb-1">{week.name}</h2>
+      <h2 className="font-medium text-3xl tracking-tight mb-1">{week.name}</h2>
       <p className="text-gray-700">
         Due on{" "}
         <strong className="font-medium text-gray-800">
-          {new Date(week.endDate).toLocaleDateString()}{" "}
-          {new Date(week.endDate).toLocaleTimeString()}
+          {formatTimestampFull(week.endDate)}
         </strong>
         {Date.now() < week.endDate && (
           <span> ({timeFromNow(new Date(week.endDate))})</span>
