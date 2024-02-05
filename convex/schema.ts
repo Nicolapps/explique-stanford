@@ -1,6 +1,14 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
+export const quizSchema = v.object({
+  question: v.string(),
+  answers: v.array(v.object({
+    text: v.string(),
+    correct: v.boolean(),
+  })),
+});
+
 export default defineSchema(
   {
     attempts: defineTable({
@@ -9,10 +17,19 @@ export default defineSchema(
       userId: v.id("users"),
       threadId: v.string(),
     }).index("by_key", ["userId", "exerciseId"]),
+    weeks: defineTable({
+      name: v.string(),
+      startDate: v.number(),
+      endDate: v.number(),
+      endDateExtraTime: v.number(),
+    }).index("startDate", ["startDate"]),
     exercises: defineTable({
       name: v.string(),
       instructions: v.string(),
       assistantId: v.string(),
+      weekId: v.id("weeks"),
+      text: v.optional(v.string()),
+      quiz: v.optional(quizSchema),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),

@@ -1,9 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import {
-  action,
   internalMutation,
-  internalQuery,
-  query,
 } from "./_generated/server";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
