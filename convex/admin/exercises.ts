@@ -4,10 +4,27 @@ import OpenAI from "openai";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { quizSchema } from "../schema";
-import { actionWithAuth, mutationWithAuth } from "../withAuth";
+import { actionWithAuth, mutationWithAuth, queryWithAuth } from "../withAuth";
+import { Session } from "lucia";
 
-export const list = query(async (ctx) => {
-  return await ctx.db.query("exercises").collect();
+function validateAdminSession(session: Session | null) {
+  if (!session) throw new ConvexError("Not logged in");
+  if (!session.user.isAdmin) throw new ConvexError("Forbidden");
+}
+
+export const list = queryWithAuth({
+  args: {},
+  handler: async ({ db, session }) => {
+    validateAdminSession(session);
+
+    const weeks = await db.query("weeks").collect();
+    const exercises = await db.query("exercises").collect();
+
+    return weeks.map(week => ({
+      ...week,
+      exercises: exercises.filter(exercise => exercise.weekId === week._id),
+    }));
+  }
 });
 
 export const insertExercise = internalMutation({
@@ -31,10 +48,20 @@ export const createWeek = mutationWithAuth({
     endDate: v.number(),
     endDateExtraTime: v.number(),
   },
-  handler: async ({ db, session }, row) => {
-    if (!session) throw new ConvexError("Not logged in");
-    if (!session.user.isAdmin) throw new ConvexError("Forbidden");
-    await db.insert("weeks", row);
+  handler: async ({ db, session }, {
+    name,
+    startDate,
+    endDate,
+    endDateExtraTime,
+  }) => {
+    validateAdminSession(session);
+
+    await db.insert("weeks", {
+      name,
+      startDate,
+      endDate,
+      endDateExtraTime,
+    });
   },
 });
 
@@ -55,8 +82,7 @@ export const create = actionWithAuth({
     text,
     quiz,
   }) => {
-    if (!session) throw new ConvexError("Not logged in");
-    if (!session.user.isAdmin) throw new ConvexError("Forbidden");
+    validateAdminSession(session);
 
     const openai = new OpenAI();
     const assistant = await openai.beta.assistants.create({
