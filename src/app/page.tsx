@@ -94,7 +94,7 @@ function Login() {
 }
 
 export default function Home() {
-  const exercises = useQuery(api.exercises.list, {});
+  const user = useQuery(api.auth.get, {});
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
@@ -107,13 +107,20 @@ export default function Home() {
           Algorithms
         </h1>
 
-        <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
-          {exercises?.map((exercise) => (
-            <ExerciseLink exercise={exercise} key={exercise._id} />
-          ))}
-        </div>
-        <div className="h-10"></div>
+        {user && <ProjectGrid />}
+
+        <div className="h-10" />
       </div>
     </div>
   );
+}
+
+function ProjectGrid() {
+  const exercises = useQuery(api.exercises.list, {});
+
+  return (<div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
+    {exercises?.map((exercise) => (
+      <ExerciseLink exercise={exercise} key={exercise._id} />
+    ))}
+  </div>)
 }
