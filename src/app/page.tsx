@@ -89,12 +89,6 @@ function Login() {
           Admin
         </Link>
       )}
-      <button
-        className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200"
-        onClick={() => setSessionId(null)}
-      >
-        Logout
-      </button>
     </div>
   );
 }

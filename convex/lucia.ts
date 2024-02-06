@@ -6,8 +6,8 @@ import {
   UserSchema,
   lucia,
 } from "lucia";
-import { google } from "@lucia-auth/oauth/providers";
 import { AuthDbWriter } from "./authDbWriter";
+import { epfl } from "./lucia_epfl";
 
 type SessionId = string;
 type UserId = string;
@@ -40,7 +40,7 @@ export function getAuth(db: AuthDbWriter) {
 }
 
 export function getGoogleAuth(db: AuthDbWriter) {
-  return google(getAuth(db), {
+  return epfl(getAuth(db), {
     clientId: process.env.GOOGLE_CLIENT_ID ?? "",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     redirectUri:
