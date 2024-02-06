@@ -43,7 +43,8 @@ export function getGoogleAuth(db: AuthDbWriter) {
   return google(getAuth(db), {
     clientId: process.env.GOOGLE_CLIENT_ID ?? "",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    redirectUri: "http://localhost:3000/authRedirect",
+    redirectUri:
+      (process.env.BASE_URL ?? "http://localhost:3000") + "/authRedirect",
     scope: [
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile",
