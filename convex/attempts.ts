@@ -3,7 +3,7 @@ import { internalMutation, internalQuery } from "./_generated/server";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
-import { actionWithAuth, queryWithAuth } from "./withAuth";
+import { actionWithAuth, mutationWithAuth, queryWithAuth } from "./withAuth";
 
 export const get = queryWithAuth({
   args: {
@@ -33,9 +33,10 @@ export const get = queryWithAuth({
         attempt.status === "quiz" || attempt.status === "quizCompleted"
           ? {
               question: exercise.quiz.question,
-              answers: exercise.quiz.answers.map((a) => a.text), // @TODO Randomize order
+              answers: exercise.quiz.answers.map((a) => a.text),
             }
           : null,
+      lastQuizSubmission: attempt.lastQuizSubmission ?? null,
     };
   },
 });
@@ -97,5 +98,46 @@ export const isUsingExplainVariant = internalQuery({
   },
   handler: async ({ db }, { exerciseId, userId }) => {
     return true; // @TODO
+  },
+});
+
+export const submitQuiz = mutationWithAuth({
+  args: {
+    attemptId: v.id("attempts"),
+    answer: v.number(),
+  },
+  handler: async ({ db, session }, { attemptId, answer }) => {
+    if (!session) throw new ConvexError("Not logged in");
+    const userId = session.user._id;
+
+    const attempt = await db.get(attemptId);
+    if (attempt === null) throw new ConvexError("Unknown attempt");
+
+    if (attempt.userId !== session.user._id && !session.user.isAdmin) {
+      throw new Error("Attempt from someone else");
+    }
+
+    const exercise = await db.get(attempt.exerciseId);
+    if (exercise === null) throw new Error("No exercise");
+
+    if (attempt.status !== "quiz") {
+      throw new ConvexError("Incorrect status " + attempt.status);
+    }
+
+    const correctAnswer = exercise.quiz.answers.findIndex((a) => a.correct);
+    if (correctAnswer === -1) throw new ConvexError("No correct answer");
+
+    const isCorrect = correctAnswer === answer;
+    if (isCorrect) {
+      await db.patch(attemptId, {
+        status: "quizCompleted",
+      });
+    } else {
+      await db.patch(attemptId, {
+        lastQuizSubmission: Date.now(),
+      });
+    }
+
+    return { isCorrect };
   },
 });

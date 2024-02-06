@@ -8,6 +8,7 @@ import {
 import { useMutation, useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
+import Markdown from "react-markdown";
 
 export default function ExplainExercise({
   title,

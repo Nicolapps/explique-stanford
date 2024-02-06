@@ -23,6 +23,7 @@ export default defineSchema(
       exerciseId: v.id("exercises"),
       userId: v.id("users"),
       threadId: v.union(v.string(), v.null()), // null: reading variant, otherwise: explain variant
+      lastQuizSubmission: v.optional(v.number()),
     }).index("by_key", ["userId", "exerciseId"]),
     weeks: defineTable({
       name: v.string(),
