@@ -12,7 +12,7 @@ import {
   query,
 } from "./_generated/server";
 import { Auth, getAuth } from "./lucia";
-import { mutationAuthDbWriter } from "./authDbWriter";
+import { actionAuthDbWriter, mutationAuthDbWriter } from "./authDbWriter";
 import { internal } from "./_generated/api";
 
 export function queryWithAuth<
@@ -127,30 +127,14 @@ export function actionWithAuth<
       sessionId: v.union(v.null(), v.string()),
     },
     handler: async (ctx, args: any) => {
-      const session = (await ctx.runQuery(
-        internal.withAuth.getValidExistingSessionQuery,
-        {
-          sessionId: args.sessionId,
-        },
-      )) as Session | null;
+      const auth = getAuth(actionAuthDbWriter(ctx));
+      const session = await getValidSessionAndRenew(auth, args.sessionId);
+
       // const session = null; // @todo
       return handler({ ...ctx, session }, args);
     },
   });
 }
-
-export const getValidExistingSessionQuery = internalQuery({
-  args: {
-    sessionId: v.union(v.null(), v.string()),
-  },
-  handler: async (ctx, { sessionId }) => {
-    const result: Session | null = await getValidExistingSession(
-      ctx,
-      sessionId,
-    );
-    return result;
-  },
-});
 
 async function getValidExistingSession(
   ctx: QueryCtx,
