@@ -4,6 +4,10 @@ import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 import { Welcome } from "@/components/Welcome";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  CheckIcon as CheckIconSmall,
+  XMarkIcon as XMarkIconSmall,
+} from "@heroicons/react/20/solid";
 import { Doc } from "../../convex/_generated/dataModel";
 import clsx from "clsx";
 import { useQuery } from "@/usingSession";
@@ -24,7 +28,7 @@ function ExerciseLink({
       href={`/a/${exercise.attemptId ?? `new?exerciseId=${exercise._id}`}`}
       className="block bg-white overflow-hidden rounded-3xl shadow-lg transition hover:scale-105 hover:shadow-2xl"
     >
-      <div className="relative bg-slate-500 pb-[100%]">
+      <div className="relative bg-slate-500 pb-[60%]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="absolute inset-0 object-cover"
@@ -120,28 +124,43 @@ export default function Home() {
 function ProjectGrid() {
   const weeks = useQuery(api.exercises.list, {});
 
-  return weeks?.map((week) => (
-    <div key={week.id}>
-      <h2 className="font-medium text-3xl tracking-tight mt-8 mb-4">
-        {week.name}
-      </h2>
-      <p className="text-gray-700">
-        Due on{" "}
-        <strong className="font-medium text-gray-800">
-          {formatTimestampFull(week.endDate)}
-        </strong>
-        {Date.now() < week.endDate && (
-          <span> ({timeFromNow(new Date(week.endDate))})</span>
-        )}
-      </p>
+  return weeks?.map((week) => {
+    const isCompleted = week.exercises.every((exercise) => exercise.completed);
 
-      {/* @TODO Completion badge */}
+    return (
+      <div key={week.id}>
+        <header className="flex gap-4 flex-wrap mt-12 mb-4 items-center justify-between">
+          <h2 className="font-medium text-3xl tracking-tight">{week.name}</h2>
 
-      <div className="grid gap-6 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
-        {week.exercises.map((exercise) => (
-          <ExerciseLink exercise={exercise} key={exercise._id} />
-        ))}
+          {isCompleted ? (
+            <p className="bg-gradient-to-b from-green-500 to-green-600 py-2 px-3 text-xs rounded-full font-semibold text-white tracking-wide inline-flex items-center gap-1">
+              <CheckIconSmall className="w-5 h-5" />
+              Completed
+            </p>
+          ) : (
+            <p className="bg-gray-500 py-2 px-3 text-xs rounded-full font-semibold text-white tracking-wide inline-flex items-center gap-1">
+              <XMarkIconSmall className="w-5 h-5" />
+              Not Completed
+            </p>
+          )}
+        </header>
+
+        <p className="text-gray-700 my-4">
+          Due on{" "}
+          <strong className="font-medium text-gray-800">
+            {formatTimestampFull(week.endDate)}
+          </strong>
+          {Date.now() < week.endDate && (
+            <span> ({timeFromNow(new Date(week.endDate))})</span>
+          )}
+        </p>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {week.exercises.map((exercise) => (
+            <ExerciseLink exercise={exercise} key={exercise._id} />
+          ))}
+        </div>
       </div>
-    </div>
-  ));
+    );
+  });
 }
