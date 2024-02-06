@@ -57,7 +57,11 @@ export default function Page({ params }: { params: { id: string } }) {
             succeeded={metadata.status === "quizCompleted"}
           />
         ) : metadata.text ? (
-          <ReadingExercise title={metadata.exerciseName} text={metadata.text} />
+          <ReadingExercise
+            title={metadata.exerciseName}
+            text={metadata.text}
+            attemptId={attemptId}
+          />
         ) : (
           <ExplainExercise
             title={metadata.exerciseName}

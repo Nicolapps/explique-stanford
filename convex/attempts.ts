@@ -97,7 +97,41 @@ export const isUsingExplainVariant = internalQuery({
     userId: v.id("users"),
   },
   handler: async ({ db }, { exerciseId, userId }) => {
-    return true; // @TODO
+    // @TODO Random assignment
+    // @TODO Support restarting an explain exercise
+
+    return true;
+  },
+});
+
+export const goToQuiz = mutationWithAuth({
+  args: {
+    attemptId: v.id("attempts"),
+  },
+  handler: async ({ db, session }, { attemptId }) => {
+    if (!session) throw new ConvexError("Not logged in");
+    const userId = session.user._id;
+
+    const attempt = await db.get(attemptId);
+    if (attempt === null) throw new ConvexError("Unknown attempt");
+
+    if (attempt.userId !== session.user._id && !session.user.isAdmin) {
+      throw new Error("Attempt from someone else");
+    }
+
+    const exercise = await db.get(attempt.exerciseId);
+    if (exercise === null) throw new Error("No exercise");
+
+    if (
+      attempt.status !== "exercise" &&
+      attempt.status !== "exerciseCompleted"
+    ) {
+      throw new Error("Unexpected state " + attempt.status);
+    }
+
+    await db.patch(attemptId, {
+      status: "quiz",
+    });
   },
 });
 

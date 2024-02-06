@@ -9,6 +9,7 @@ import { useMutation, useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import Markdown from "react-markdown";
+import { ArrowRightIcon } from "@heroicons/react/16/solid";
 
 export default function ExplainExercise({
   title,
@@ -20,6 +21,7 @@ export default function ExplainExercise({
   isCompleted: boolean;
 }) {
   const chat = useQuery(api.chat.getMessages, { attemptId });
+  const goToQuiz = useMutation(api.attempts.goToQuiz);
 
   useEffect(() => {
     setTimeout(() => {
@@ -44,18 +46,30 @@ export default function ExplainExercise({
         {chat?.map((message) => (
           <div key={message._id}>
             {message.appearance === "finished" ? (
-              <p className="text-lg font-light flex items-center justify-center gap-1">
-                <CheckCircleIcon
-                  className="w-6 h-6 text-purple-700"
-                  aria-hidden="true"
-                />
-                <span>
-                  <strong className="font-medium text-purple-700">
-                    Congratulations!
-                  </strong>{" "}
-                  You have finished this exercise.
-                </span>
-              </p>
+              <div className="flex flex-col items-center gap-4">
+                <p className="text-lg font-light flex items-center justify-center gap-1">
+                  <CheckCircleIcon
+                    className="w-6 h-6 text-purple-700"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <strong className="font-medium text-purple-700">
+                      Great!
+                    </strong>{" "}
+                    Now, let’s go on to a quiz question.
+                  </span>
+                </p>
+
+                <button
+                  className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                  onClick={async () => {
+                    await goToQuiz({ attemptId });
+                  }}
+                >
+                  Continue
+                  <ArrowRightIcon className="w-5 h-5" />
+                </button>
+              </div>
             ) : (
               <div
                 className={clsx(

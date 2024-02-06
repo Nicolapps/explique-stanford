@@ -1,14 +1,21 @@
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import Markdown from "react-markdown";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { Id } from "../../../convex/_generated/dataModel";
+import { api } from "../../../convex/_generated/api";
+import { useMutation } from "@/usingSession";
 
 export default function ReadingExercise({
   title,
   text,
+  attemptId,
 }: {
   title: string;
   text: string;
+  attemptId: Id<"attempts">;
 }) {
+  const goToQuiz = useMutation(api.attempts.goToQuiz);
+
   return (
     <>
       <p className="text-lg font-light flex items-center justify-center gap-1 my-8">
@@ -27,8 +34,13 @@ export default function ReadingExercise({
       <Markdown className="prose">{text}</Markdown>
 
       <footer className="flex justify-center mt-8">
-        <button className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700">
-          I’m ready
+        <button
+          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+          onClick={async () => {
+            await goToQuiz({ attemptId });
+          }}
+        >
+          Continue
           <ArrowRightIcon className="w-5 h-5" />
         </button>
       </footer>
