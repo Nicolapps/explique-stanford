@@ -37,11 +37,13 @@ export function Textarea({
   onChange,
   label,
   hint,
+  required = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   label: string;
   type?: string;
+  required?: boolean;
   hint?: ReactNode;
 }) {
   const id = useId();
@@ -57,6 +59,7 @@ export function Textarea({
         className="mt-1 p-2 w-full border border-slate-300 rounded-md resize-none h-52 text-base"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        required={required}
       />
 
       {hint && <p className="text-slate-500 mt-2">{hint}</p>}

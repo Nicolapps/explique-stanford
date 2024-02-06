@@ -26,12 +26,12 @@ function ExerciseLink({
     <Link
       key={exercise._id}
       href={`/a/${exercise.attemptId ?? `new?exerciseId=${exercise._id}`}`}
-      className="block bg-white overflow-hidden rounded-3xl shadow-lg transition hover:scale-105 hover:shadow-2xl"
+      className="block bg-white overflow-hidden rounded-3xl shadow-lg transition hover:scale-105 hover:shadow-2xl group"
     >
       <div className="relative bg-slate-500 pb-[60%]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          className="absolute inset-0 object-cover"
+          className="absolute inset-0 object-cover group-hover:scale-105 transition-transform"
           src={`/levels/${exercise.name.replace(/ /g, "")}.png`}
           alt=""
         />

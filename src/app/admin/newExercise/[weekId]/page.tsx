@@ -7,6 +7,9 @@ import Input, { Select, Textarea } from "@/components/Input";
 import { useParams, useRouter } from "next/navigation";
 import Markdown from "react-markdown";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import Quiz from "@/components/Quiz";
+import { PlusIcon } from "@heroicons/react/16/solid";
+import { TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
 
 export default function NewExercise() {
   const router = useRouter();
@@ -31,7 +34,16 @@ export default function NewExercise() {
   const [model, setModel] = useState("gpt-4-0125-preview");
   const [text, setText] = useState("");
 
-  // @TODO Quiz
+  const [quizQuestion, setQuizQuestion] = useState("Question");
+  const [quizAnswers, setQuizAnswers] = useState<string[]>([
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Answer 4",
+  ]);
+  const [quizCorrectAnswerIndex, setQuizCorrectAnswerIndex] = useState<
+    number | null
+  >(null);
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
@@ -44,13 +56,19 @@ export default function NewExercise() {
           onSubmit={async (e) => {
             e.preventDefault();
 
-            // @TODO Submit
             await create({
               name,
               instructions,
               model,
               text,
               weekId: weekId as Id<"weeks">,
+              quiz: {
+                question: quizQuestion,
+                answers: quizAnswers.map((text, index) => ({
+                  text,
+                  correct: index === quizCorrectAnswerIndex,
+                })),
+              },
             });
 
             router.push("/admin");
@@ -61,6 +79,7 @@ export default function NewExercise() {
             value={name}
             onChange={setName}
             placeholder="Bogo Sort"
+            required
           />
 
           <Input
@@ -78,6 +97,7 @@ export default function NewExercise() {
               label="Instructions"
               value={instructions}
               onChange={setInstructions}
+              required
             />
             <Select
               label="Model"
@@ -114,7 +134,7 @@ export default function NewExercise() {
             <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
               Reading Exercise
             </h2>
-            <div className="grid md:grid-cols-2 gap-x-8">
+            <div className="grid md:grid-cols-2 gap-x-12">
               <Textarea
                 label="Text"
                 value={text}
@@ -131,6 +151,7 @@ export default function NewExercise() {
                     syntax is supported.
                   </>
                 }
+                required
               />
 
               <div>
@@ -143,7 +164,97 @@ export default function NewExercise() {
             <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
               Validation Quiz
             </h2>
-            @TODO
+
+            <div className="grid md:grid-cols-2 gap-x-12 items-center">
+              <div>
+                <Input
+                  label="Question"
+                  value={quizQuestion}
+                  onChange={setQuizQuestion}
+                  required
+                />
+
+                <fieldset>
+                  <legend className="block text-sm font-medium text-slate-800">
+                    Answers
+                  </legend>
+                  {quizAnswers.map((answer, index) => (
+                    <div key={index} className="mb-1 flex">
+                      <label className="flex items-center pr-4">
+                        <input
+                          type="radio"
+                          name="correct-answer"
+                          value={index}
+                          checked={quizCorrectAnswerIndex === index}
+                          onChange={() => setQuizCorrectAnswerIndex(index)}
+                          required
+                        />
+                      </label>
+
+                      <input
+                        type="text"
+                        className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed"
+                        value={answer}
+                        onChange={(e) => {
+                          setQuizAnswers((answers) => {
+                            const newAnswers = [...answers];
+                            newAnswers[index] = e.target.value;
+                            return newAnswers;
+                          });
+                        }}
+                        required
+                      />
+
+                      {quizAnswers.length > 1 && (
+                        <button
+                          type="button"
+                          className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
+                          onClick={() => {
+                            setQuizAnswers((answers) => {
+                              const newAnswers = [...answers];
+                              newAnswers.splice(index, 1);
+                              return newAnswers;
+                            });
+                          }}
+                        >
+                          <XMarkIcon className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="font-medium text-blue-800 flex items-center py-2"
+                    onClick={() => {
+                      setQuizAnswers((answers) => [...answers, ""]);
+                    }}
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    Add Answer
+                  </button>
+                </fieldset>
+
+                <p className="text-slate-500 mt-2 text-sm">
+                  <a
+                    className="underline font-semibold"
+                    href="https://www.markdownguide.org/basic-syntax/"
+                    target="_blank"
+                  >
+                    Markdown
+                  </a>{" "}
+                  syntax is supported.
+                </p>
+              </div>
+
+              <div>
+                <Quiz
+                  question={quizQuestion}
+                  answers={quizAnswers}
+                  selectedAnswerIndex={quizCorrectAnswerIndex}
+                  disabled
+                />
+              </div>
+            </div>
           </section>
 
           <hr className="my-4 border-slate-300" />
