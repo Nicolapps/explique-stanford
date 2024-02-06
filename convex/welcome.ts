@@ -3,7 +3,7 @@ import { mutationWithAuth, queryWithAuth } from "./withAuth";
 export default queryWithAuth({
   args: {},
   handler: async (ctx) => {
-    return ctx.session?.user.accepted ?? false;
+    return ctx.session?.user.accepted ?? true;
   },
 });
 
