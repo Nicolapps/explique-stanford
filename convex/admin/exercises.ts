@@ -17,13 +17,24 @@ export const list = queryWithAuth({
   handler: async ({ db, session }) => {
     validateAdminSession(session);
 
-    const weeks = await db.query("weeks").collect();
+    const weeks = await db.query("weeks").withIndex("startDate").collect();
     const exercises = await db.query("exercises").collect();
 
     return weeks.map((week) => ({
       ...week,
       exercises: exercises.filter((exercise) => exercise.weekId === week._id),
     }));
+  },
+});
+
+export const getWeekName = queryWithAuth({
+  args: {
+    weekId: v.id("weeks"),
+  },
+  handler: async ({ db, session }, { weekId }) => {
+    validateAdminSession(session);
+
+    return (await db.get(weekId))?.name;
   },
 });
 

@@ -13,10 +13,13 @@ export function useQuery<
   Query extends FunctionReference<"query", "public", Args>,
 >(
   query: Query,
-  args: Omit<Query["_args"], "sessionId">,
+  args: Omit<Query["_args"], "sessionId"> | "skip",
 ): Query["_returnType"] | undefined {
   const sessionId = useSessionId();
-  return useConvexQuery(query, { ...args, sessionId } as any);
+  return useConvexQuery(
+    query,
+    args === "skip" ? "skip" : ({ ...args, sessionId } as any),
+  );
 }
 
 export function useMutation<

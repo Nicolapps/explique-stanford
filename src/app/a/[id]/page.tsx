@@ -83,14 +83,7 @@ export default function Page({ params }: { params: { id: string } }) {
                   )}
                 >
                   {message.system ? (
-                    <Markdown
-                      className={clsx(
-                        "prose",
-                        !message.system && "prose-invert",
-                      )}
-                    >
-                      {message.content}
-                    </Markdown>
+                    <Markdown className={"prose"}>{message.content}</Markdown>
                   ) : (
                     <p className="prose text-white">{message.content}</p>
                   )}

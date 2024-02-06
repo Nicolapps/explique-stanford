@@ -4,6 +4,7 @@ import { useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
 import { formatTimestampFull } from "@/util/date";
+import { PlusIcon } from "@heroicons/react/20/solid";
 
 export default function Admin() {
   const weeks = useQuery(api.admin.exercises.list, {});
@@ -39,6 +40,24 @@ export default function Admin() {
               </strong>
               )
             </p>
+
+            <div className="mt-4 divide-y">
+              {week.exercises.map((exercise) => (
+                <div key={exercise._id} className="py-3">
+                  {exercise.name}
+                </div>
+              ))}
+
+              <div className="py-3">
+                <Link
+                  href={`/admin/newExercise/${week._id}`}
+                  className="font-medium text-blue-800 flex items-center"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                  Add Exercise
+                </Link>
+              </div>
+            </div>
           </div>
         ))}
       </div>

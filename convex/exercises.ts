@@ -14,7 +14,7 @@ export const list = queryWithAuth({
 
     const weeks = await db
       .query("weeks")
-      .withIndex("startDate", (x) => x.gte("startDate", +new Date()))
+      .withIndex("startDate", (x) => x.lte("startDate", +new Date()))
       .order("desc")
       .collect();
     const exercises = await db.query("exercises").collect();
