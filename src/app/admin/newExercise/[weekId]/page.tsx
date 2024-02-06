@@ -7,9 +7,9 @@ import Input, { Select, Textarea } from "@/components/Input";
 import { useParams, useRouter } from "next/navigation";
 import Markdown from "react-markdown";
 import { Id } from "../../../../../convex/_generated/dataModel";
-import Quiz from "@/components/Quiz";
 import { PlusIcon } from "@heroicons/react/16/solid";
-import { TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/20/solid";
+import { QuizContents } from "@/components/exercises/QuizExercise";
 
 export default function NewExercise() {
   const router = useRouter();
@@ -247,7 +247,7 @@ export default function NewExercise() {
               </div>
 
               <div>
-                <Quiz
+                <QuizContents
                   question={quizQuestion}
                   answers={quizAnswers}
                   selectedAnswerIndex={quizCorrectAnswerIndex}
