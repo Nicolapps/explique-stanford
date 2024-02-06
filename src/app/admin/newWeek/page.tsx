@@ -9,7 +9,7 @@ import { formatDateTime } from "@/util/date";
 
 export default function NewWeek() {
   const router = useRouter();
-  const create = useMutation(api.admin.exercises.createWeek);
+  const create = useMutation(api.admin.weeks.create);
 
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");

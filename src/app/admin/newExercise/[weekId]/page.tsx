@@ -15,7 +15,7 @@ export default function NewExercise() {
 
   const create = useAction(api.admin.exercises.create);
   const weekName = useQuery(
-    api.admin.exercises.getWeekName,
+    api.admin.weeks.getName,
     typeof weekId === "string"
       ? {
           weekId: weekId as Id<"weeks">,

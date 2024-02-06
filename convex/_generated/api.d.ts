@@ -15,6 +15,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as admin_exercises from "../admin/exercises.js";
+import type * as admin_weeks from "../admin/weeks.js";
 import type * as attempts from "../attempts.js";
 import type * as auth from "../auth.js";
 import type * as authDbWriter from "../authDbWriter.js";
@@ -35,6 +36,7 @@ import type * as withAuth from "../withAuth.js";
  */
 declare const fullApi: ApiFromModules<{
   "admin/exercises": typeof admin_exercises;
+  "admin/weeks": typeof admin_weeks;
   attempts: typeof attempts;
   auth: typeof auth;
   authDbWriter: typeof authDbWriter;

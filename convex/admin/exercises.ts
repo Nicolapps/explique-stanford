@@ -1,13 +1,13 @@
 import { ConvexError, v } from "convex/values";
-import { internalAction, internalMutation, query } from "../_generated/server";
+import { internalMutation } from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
 import { Id } from "../_generated/dataModel";
 import { quizSchema } from "../schema";
-import { actionWithAuth, mutationWithAuth, queryWithAuth } from "../withAuth";
+import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
 
-function validateAdminSession(session: Session | null) {
+export function validateAdminSession(session: Session | null) {
   if (!session) throw new ConvexError("Not logged in");
   if (!session.user.isAdmin) throw new ConvexError("Forbidden");
 }
@@ -27,17 +27,6 @@ export const list = queryWithAuth({
   },
 });
 
-export const getWeekName = queryWithAuth({
-  args: {
-    weekId: v.id("weeks"),
-  },
-  handler: async ({ db, session }, { weekId }) => {
-    validateAdminSession(session);
-
-    return (await db.get(weekId))?.name;
-  },
-});
-
 export const insertExercise = internalMutation({
   args: {
     name: v.string(),
@@ -49,28 +38,6 @@ export const insertExercise = internalMutation({
   },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
-  },
-});
-
-export const createWeek = mutationWithAuth({
-  args: {
-    name: v.string(),
-    startDate: v.number(),
-    endDate: v.number(),
-    endDateExtraTime: v.number(),
-  },
-  handler: async (
-    { db, session },
-    { name, startDate, endDate, endDateExtraTime },
-  ) => {
-    validateAdminSession(session);
-
-    await db.insert("weeks", {
-      name,
-      startDate,
-      endDate,
-      endDateExtraTime,
-    });
   },
 });
 
