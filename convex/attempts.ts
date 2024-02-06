@@ -100,7 +100,7 @@ export const isUsingExplainVariant = internalQuery({
     // @TODO Random assignment
     // @TODO Support restarting an explain exercise
 
-    return true;
+    return Math.random() < 0.5;
   },
 });
 
