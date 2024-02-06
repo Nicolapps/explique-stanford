@@ -36,7 +36,7 @@ export default defineSchema(
       assistantId: v.string(),
       weekId: v.id("weeks"),
       text: v.optional(v.string()),
-      quiz: v.optional(quizSchema),
+      quiz: quizSchema,
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),

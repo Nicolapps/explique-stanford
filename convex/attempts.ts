@@ -10,10 +10,14 @@ export const get = queryWithAuth({
     id: v.id("attempts"),
   },
   handler: async ({ db, session }, { id }) => {
+    if (!session) {
+      throw new ConvexError("Not logged in");
+    }
+
     const attempt = await db.get(id);
     if (attempt === null) throw new ConvexError("Unknown attempt");
 
-    if (attempt.userId !== session?.user._id && !session?.user.isAdmin) {
+    if (attempt.userId !== session.user._id && !session.user.isAdmin) {
       throw new Error("Attempt from someone else");
     }
 
@@ -21,8 +25,17 @@ export const get = queryWithAuth({
     if (exercise === null) throw new Error("No exercise");
 
     return {
-      attempt,
-      exercise,
+      exerciseId: exercise._id,
+      exerciseName: exercise.name,
+      status: attempt.status,
+      text: attempt.threadId === null ? exercise.text : null,
+      quiz:
+        attempt.status === "quiz" || attempt.status === "quizCompleted"
+          ? {
+              question: exercise.quiz.question,
+              answers: exercise.quiz.answers.map((a) => a.text), // @TODO Randomize order
+            }
+          : null,
     };
   },
 });

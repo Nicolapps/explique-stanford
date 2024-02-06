@@ -34,7 +34,7 @@ export const insertExercise = internalMutation({
     assistantId: v.string(),
     weekId: v.id("weeks"),
     text: v.optional(v.string()),
-    quiz: v.optional(quizSchema),
+    quiz: quizSchema,
   },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
@@ -48,7 +48,7 @@ export const create = actionWithAuth({
     model: v.optional(v.string()),
     weekId: v.id("weeks"),
     text: v.optional(v.string()),
-    quiz: v.optional(quizSchema),
+    quiz: quizSchema,
   },
   handler: async (
     { runMutation, session },

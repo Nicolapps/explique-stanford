@@ -4,11 +4,13 @@ export default function Quiz({
   question,
   answers,
   selectedAnswerIndex,
+  onChange,
   disabled = false,
 }: {
   question: string;
   answers: string[];
   selectedAnswerIndex: number | null;
+  onChange?: (index: number) => void;
   disabled?: boolean;
 }) {
   return (
@@ -29,6 +31,7 @@ export default function Quiz({
                 checked={selectedAnswerIndex === index}
                 disabled={disabled}
                 className="mr-2"
+                onChange={(e) => onChange?.(parseInt(e.target.value, 10))}
               />
 
               <Markdown className="prose">{answer}</Markdown>
