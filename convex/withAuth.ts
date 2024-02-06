@@ -129,8 +129,6 @@ export function actionWithAuth<
     handler: async (ctx, args: any) => {
       const auth = getAuth(actionAuthDbWriter(ctx));
       const session = await getValidSessionAndRenew(auth, args.sessionId);
-
-      // const session = null; // @todo
       return handler({ ...ctx, session }, args);
     },
   });
