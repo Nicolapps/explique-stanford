@@ -3,10 +3,6 @@ import {
   createOAuth2AuthorizationUrl,
   validateOAuth2AuthorizationCode,
 } from "@lucia-auth/oauth";
-import {
-  LuciaDatabaseUserAttributes,
-  LuciaUser,
-} from "@lucia-auth/oauth/dist/lucia";
 import type { Auth, Key, LuciaError } from "lucia";
 
 const PROVIDER_ID = "google";
@@ -37,7 +33,7 @@ class ProviderUserAuth<_Auth extends Auth = Auth> {
     this.providerUserId = providerUserId;
   }
 
-  public getExistingUser = async (): Promise<LuciaUser<_Auth> | null> => {
+  public getExistingUser = async () => {
     try {
       const key = await this.auth.useKey(
         this.providerId,
@@ -45,7 +41,7 @@ class ProviderUserAuth<_Auth extends Auth = Auth> {
         null,
       );
       const user = await this.auth.getUser(key.userId);
-      return user as LuciaUser<_Auth>;
+      return user;
     } catch (e) {
       const error = e as Partial<LuciaError>;
       if (error?.message !== "AUTH_INVALID_KEY_ID") throw e;
@@ -62,10 +58,7 @@ class ProviderUserAuth<_Auth extends Auth = Auth> {
     });
   };
 
-  public createUser = async (options: {
-    userId?: string;
-    attributes: LuciaDatabaseUserAttributes<_Auth>;
-  }): Promise<LuciaUser<_Auth>> => {
+  public createUser = async (options: { userId?: string; attributes: any }) => {
     const user = await this.auth.createUser({
       key: {
         providerId: this.providerId,
@@ -74,7 +67,7 @@ class ProviderUserAuth<_Auth extends Auth = Auth> {
       },
       ...options,
     });
-    return user as LuciaUser<_Auth>;
+    return user;
   };
 }
 
