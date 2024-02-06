@@ -8,7 +8,7 @@ import { useAction } from "@/usingSession";
 
 export default function Page() {
   const router = useRouter();
-  const startAttempt = useAction(api.exercises.startAttempt);
+  const startAttempt = useAction(api.attempts.start);
 
   const executed = useRef(false);
   useEffect(() => {
@@ -23,7 +23,6 @@ export default function Page() {
       const newAttemptId = await startAttempt({
         exerciseId: exerciseIdStr as Id<"exercises">,
       });
-      console.log({ newAttemptId });
       router.push(`/a/${newAttemptId}`);
       window.location.href = "/";
     })();

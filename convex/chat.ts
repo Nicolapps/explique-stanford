@@ -1,8 +1,6 @@
 import {
-  query,
   internalAction,
   internalMutation,
-  mutation,
   DatabaseReader,
 } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
@@ -65,6 +63,8 @@ export const sendMessage = mutationWithAuth({
   },
   handler: async ({ db, scheduler, session }, { attemptId, message }) => {
     const attempt = await getAttemptIfAuthorized(db, session, attemptId);
+    if (attempt.threadId === null)
+      throw new ConvexError("Not doing the explaination exercise");
 
     const exercise = await db.get(attempt.exerciseId);
     if (!exercise) throw new Error(`Exercise ${attempt.exerciseId} not found`);
@@ -120,7 +120,14 @@ export const markFinished = internalMutation({
       content: "",
       appearance: "finished",
     });
-    await ctx.db.patch(attemptId, { completed: true });
+
+    const attempt = await ctx.db.get(attemptId);
+    if (!attempt) {
+      throw new Error("Can’t find the attempt");
+    }
+    if (attempt.status === "exercise") {
+      await ctx.db.patch(attemptId, { status: "exerciseCompleted" });
+    }
   },
 });
 

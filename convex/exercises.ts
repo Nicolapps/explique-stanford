@@ -1,9 +1,5 @@
-import { ConvexError, v } from "convex/values";
-import { internalMutation } from "./_generated/server";
-import OpenAI from "openai";
-import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
-import { actionWithAuth, queryWithAuth } from "./withAuth";
+import { ConvexError } from "convex/values";
+import { queryWithAuth } from "./withAuth";
 
 export const list = queryWithAuth({
   args: {},
@@ -33,7 +29,7 @@ export const list = queryWithAuth({
         exercisesResult.push({
           ...exercise,
           attemptId: attempt?._id ?? null,
-          completed: attempt?.completed ?? false,
+          completed: attempt?.status === "quizCompleted" ?? false,
         });
       }
 
@@ -47,40 +43,5 @@ export const list = queryWithAuth({
       });
     }
     return result;
-  },
-});
-
-export const insertAttempt = internalMutation({
-  args: {
-    completed: v.boolean(),
-    exerciseId: v.id("exercises"),
-    userId: v.id("users"),
-    threadId: v.string(),
-  },
-  handler: async ({ db }, row) => {
-    return await db.insert("attempts", row);
-  },
-});
-
-export const startAttempt = actionWithAuth({
-  args: {
-    exerciseId: v.id("exercises"),
-  },
-  handler: async (ctx, { exerciseId }) => {
-    if (!ctx.session) throw new ConvexError("Not logged in");
-
-    const openai = new OpenAI();
-    const { id: threadId } = await openai.beta.threads.create();
-
-    const attemptId: Id<"attempts"> = await ctx.runMutation(
-      internal.exercises.insertAttempt,
-      {
-        completed: false,
-        exerciseId,
-        userId: ctx.session.user._id,
-        threadId,
-      },
-    );
-    return attemptId;
   },
 });

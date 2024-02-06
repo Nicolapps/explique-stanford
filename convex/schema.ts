@@ -14,10 +14,15 @@ export const quizSchema = v.object({
 export default defineSchema(
   {
     attempts: defineTable({
-      completed: v.boolean(),
+      status: v.union(
+        v.literal("exercise"),
+        v.literal("exerciseCompleted"),
+        v.literal("quiz"),
+        v.literal("quizCompleted"),
+      ),
       exerciseId: v.id("exercises"),
       userId: v.id("users"),
-      threadId: v.string(),
+      threadId: v.union(v.string(), v.null()), // null: reading variant, otherwise: explain variant
     }).index("by_key", ["userId", "exerciseId"]),
     weeks: defineTable({
       name: v.string(),
