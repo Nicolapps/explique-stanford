@@ -48,3 +48,16 @@ export function formatDateTime(date: Date) {
 
   return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
 }
+
+export function formatTimestampHumanFormat(timestamp: number) {
+  const date = new Date(timestamp);
+  // format the date using intl format
+  return new Intl.DateTimeFormat("en-GB", {
+    year:
+      date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+    month: "long",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}

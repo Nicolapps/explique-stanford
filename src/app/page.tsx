@@ -13,8 +13,7 @@ import clsx from "clsx";
 import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSetSessionId } from "@/components/SessionProvider";
-import { formatTimestampFull, timeFromNow } from "@/util/date";
+import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Head from "next/head";
 
 function ExerciseLink({
@@ -140,7 +139,7 @@ function ProjectGrid() {
         <p className="text-gray-700 my-4">
           Due on{" "}
           <strong className="font-medium text-gray-800">
-            {formatTimestampFull(week.endDate)}
+            {formatTimestampHumanFormat(week.endDate)}
           </strong>
           {Date.now() < week.endDate && (
             <span> ({timeFromNow(new Date(week.endDate))})</span>
