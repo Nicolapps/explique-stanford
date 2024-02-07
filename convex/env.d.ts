@@ -6,7 +6,8 @@ declare namespace Lucia {
     email: string;
     name: string;
     isAdmin: boolean;
-    accepted: boolean;
+    accepted?: boolean;
+    researchConsent?: boolean;
   };
   type DatabaseSessionAttributes = {
     _id: import("./_generated/dataModel").Id<"sessions">;

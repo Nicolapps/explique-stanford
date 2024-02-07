@@ -51,8 +51,9 @@ export default defineSchema(
       id: v.string(), // Lucia ID
       email: v.string(),
       name: v.string(),
-      accepted: v.boolean(),
       isAdmin: v.boolean(),
+      accepted: v.optional(v.boolean()),
+      researchConsent: v.optional(v.boolean()),
     }).index("byId", ["id"]),
     sessions: defineTable({
       id: v.string(),

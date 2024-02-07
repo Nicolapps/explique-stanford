@@ -2,7 +2,7 @@
 
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
-import { Welcome } from "@/components/Welcome";
+import { ResearchConsent } from "@/components/ResearchConsent";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import {
   CheckIcon as CheckIconSmall,
@@ -71,8 +71,6 @@ function Login() {
     }
   }, [router, user]);
 
-  const setSessionId = useSetSessionId();
-
   if (!user) return null;
 
   return (
@@ -98,7 +96,7 @@ export default function Home() {
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
-      <Welcome />
+      {user && <ResearchConsent />}
 
       <div className="max-w-6xl flex-1">
         <Login />

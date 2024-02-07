@@ -23,8 +23,8 @@ import type * as chat from "../chat.js";
 import type * as exercises from "../exercises.js";
 import type * as lucia from "../lucia.js";
 import type * as lucia_epfl from "../lucia_epfl.js";
+import type * as researchConsent from "../researchConsent.js";
 import type * as seed from "../seed.js";
-import type * as welcome from "../welcome.js";
 import type * as withAuth from "../withAuth.js";
 
 /**
@@ -45,8 +45,8 @@ declare const fullApi: ApiFromModules<{
   exercises: typeof exercises;
   lucia: typeof lucia;
   lucia_epfl: typeof lucia_epfl;
+  researchConsent: typeof researchConsent;
   seed: typeof seed;
-  welcome: typeof welcome;
   withAuth: typeof withAuth;
 }>;
 export declare const api: FilterApi<
