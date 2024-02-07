@@ -63,7 +63,7 @@ export function ResearchConsent() {
                   <div className="grid sm:grid-cols-2 gap-4 mt-4">
                     <button
                       className="flex items-center gap-1 justify-center py-3 px-6 border-2 border-slate-300 text-slate-700 text-lg font-semibold rounded-2xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 "
-                      onClick={() => set({ value: true })}
+                      onClick={() => set({ value: false })}
                     >
                       I don’t consent
                     </button>
