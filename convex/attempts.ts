@@ -110,7 +110,6 @@ export const goToQuiz = mutationWithAuth({
   },
   handler: async ({ db, session }, { attemptId }) => {
     if (!session) throw new ConvexError("Not logged in");
-    const userId = session.user._id;
 
     const attempt = await db.get(attemptId);
     if (attempt === null) throw new ConvexError("Unknown attempt");
