@@ -5,10 +5,10 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
-import Markdown from "react-markdown";
 import { useMutation } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
+import Markdown from "../Markdown";
 
 const ATTEMPT_TIMEOUT_MS = 1000 * 60 * 5;
 
@@ -150,7 +150,7 @@ export function QuizContents({
   return (
     <div className="bg-white border rounded-xl p-4">
       <header>
-        <Markdown className={"prose text-xl mb-2"}>{question}</Markdown>
+        <Markdown className="text-xl mb-2" text={question} />
       </header>
 
       <div>
@@ -168,7 +168,7 @@ export function QuizContents({
                 onChange={(e) => onChange?.(parseInt(e.target.value, 10))}
               />
 
-              <Markdown className="prose">{answer}</Markdown>
+              <Markdown text={answer} />
             </label>
           </div>
         ))}

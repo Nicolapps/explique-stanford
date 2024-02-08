@@ -5,11 +5,11 @@ import { api } from "../../../../../convex/_generated/api";
 import React, { useState } from "react";
 import Input, { Select, Textarea } from "@/components/Input";
 import { useParams, useRouter } from "next/navigation";
-import Markdown from "react-markdown";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { PlusIcon } from "@heroicons/react/16/solid";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { QuizContents } from "@/components/exercises/QuizExercise";
+import Markdown from "@/components/Markdown";
 
 export default function NewExercise() {
   const router = useRouter();
@@ -149,13 +149,16 @@ export default function NewExercise() {
                       Markdown
                     </a>{" "}
                     syntax is supported.
+                    <br />
+                    LaTeX is syntax is supported (e.g.{" "}
+                    <code className="font-mono text-gray-700">$m_a$</code>).
                   </>
                 }
                 required
               />
 
               <div>
-                <Markdown className={"prose"}>{text}</Markdown>
+                <Markdown text={text} />
               </div>
             </div>
           </section>
@@ -243,6 +246,9 @@ export default function NewExercise() {
                     Markdown
                   </a>{" "}
                   syntax is supported.
+                  <br />
+                  LaTeX is syntax is supported (e.g.{" "}
+                  <code className="font-mono text-gray-700">$m_a$</code>).
                 </p>
               </div>
 

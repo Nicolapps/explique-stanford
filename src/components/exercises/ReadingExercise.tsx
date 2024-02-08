@@ -1,9 +1,9 @@
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
-import Markdown from "react-markdown";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { Id } from "../../../convex/_generated/dataModel";
 import { api } from "../../../convex/_generated/api";
 import { useMutation } from "@/usingSession";
+import Markdown from "../Markdown";
 
 export default function ReadingExercise({
   title,
@@ -31,7 +31,7 @@ export default function ReadingExercise({
         </span>
       </p>
 
-      <Markdown className="prose">{text}</Markdown>
+      <Markdown text={text} />
 
       <footer className="flex justify-center mt-8">
         <button

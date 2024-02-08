@@ -8,8 +8,8 @@ import {
 import { useMutation, useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
-import Markdown from "react-markdown";
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
+import Markdown from "../Markdown";
 
 export default function ExplainExercise({
   title,
@@ -80,7 +80,7 @@ export default function ExplainExercise({
                 )}
               >
                 {message.system ? (
-                  <Markdown className={"prose"}>{message.content}</Markdown>
+                  <Markdown text={message.content} />
                 ) : (
                   <p className="prose text-white">{message.content}</p>
                 )}
