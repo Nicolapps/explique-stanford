@@ -51,20 +51,24 @@ export default function Admin() {
 
             <div className="mt-4 divide-y">
               {week.exercises.map((exercise) => (
-                <div key={exercise._id} className="py-3">
+                <Link
+                  key={exercise._id}
+                  href={`/admin/exercises/${exercise._id}`}
+                  className="text-blue-800 flex items-center py-3 px-8 hover:bg-blue-100 rounded-lg"
+                >
                   {exercise.name}
-                </div>
+                </Link>
               ))}
 
-              <div className="py-3">
-                <Link
-                  href={`/admin/newExercise/${week._id}`}
-                  className="font-medium text-blue-800 flex items-center"
-                >
+              <Link
+                href={`/admin/exercises/new/${week._id}`}
+                className="font-medium text-blue-800 flex items-center py-3 hover:bg-blue-100 rounded-lg"
+              >
+                <span className="w-8 flex items-center justify-center">
                   <PlusIcon className="w-5 h-5" />
-                  Add Exercise
-                </Link>
-              </div>
+                </span>
+                Add Exercise
+              </Link>
             </div>
           </div>
         ))}

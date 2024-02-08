@@ -2,7 +2,6 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
-import { Id } from "../_generated/dataModel";
 import { quizSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
@@ -11,6 +10,17 @@ export function validateAdminSession(session: Session | null) {
   if (!session) throw new ConvexError("Not logged in");
   if (!session.user.isAdmin) throw new ConvexError("Forbidden");
 }
+
+export const get = queryWithAuth({
+  args: {
+    id: v.id("exercises"),
+  },
+  handler: async ({ db, session }, { id }) => {
+    validateAdminSession(session);
+
+    return await db.get(id);
+  },
+});
 
 export const list = queryWithAuth({
   args: {},
@@ -27,27 +37,65 @@ export const list = queryWithAuth({
   },
 });
 
-export const insertExercise = internalMutation({
+export const insertRow = internalMutation({
   args: {
     name: v.string(),
     instructions: v.string(),
     assistantId: v.string(),
     weekId: v.id("weeks"),
-    text: v.optional(v.string()),
+    text: v.string(),
     quiz: quizSchema,
+    model: v.string(),
   },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
   },
 });
 
+export const updateRow = internalMutation({
+  args: {
+    id: v.id("exercises"),
+    row: v.object({
+      name: v.string(),
+      instructions: v.string(),
+      assistantId: v.string(),
+      weekId: v.id("weeks"),
+      text: v.string(),
+      quiz: quizSchema,
+      model: v.string(),
+    }),
+  },
+  handler: async ({ db }, { id, row }) => {
+    return await db.replace(id, row);
+  },
+});
+
+async function createAssistant(instructions: string, model: string) {
+  const openai = new OpenAI();
+  return await openai.beta.assistants.create({
+    instructions,
+    model: model,
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "markComplete",
+          description:
+            "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
+          parameters: {},
+        },
+      },
+    ],
+  });
+}
+
 export const create = actionWithAuth({
   args: {
     name: v.string(),
     instructions: v.string(),
-    model: v.optional(v.string()),
+    model: v.string(),
     weekId: v.id("weeks"),
-    text: v.optional(v.string()),
+    text: v.string(),
     quiz: quizSchema,
   },
   handler: async (
@@ -56,35 +104,49 @@ export const create = actionWithAuth({
   ) => {
     validateAdminSession(session);
 
-    const openai = new OpenAI();
-    const assistant = await openai.beta.assistants.create({
-      instructions,
-      model: model ?? "gpt-3.5-turbo-1106",
-      tools: [
-        {
-          type: "function",
-          function: {
-            name: "markComplete",
-            description:
-              "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
-            parameters: {},
-          },
-        },
-      ],
-    });
+    const assistant = await createAssistant(instructions, model);
 
-    const exerciseId: Id<"exercises"> = await runMutation(
-      internal.admin.exercises.insertExercise,
-      {
+    await runMutation(internal.admin.exercises.insertRow, {
+      name,
+      instructions,
+      assistantId: assistant.id,
+      weekId,
+      text,
+      quiz,
+      model,
+    });
+  },
+});
+
+export const update = actionWithAuth({
+  args: {
+    id: v.id("exercises"),
+    name: v.string(),
+    instructions: v.string(),
+    model: v.string(),
+    weekId: v.id("weeks"),
+    text: v.string(),
+    quiz: quizSchema,
+  },
+  handler: async (
+    { runMutation, session },
+    { id, name, instructions, model, weekId, text, quiz },
+  ) => {
+    validateAdminSession(session);
+
+    const assistant = await createAssistant(instructions, model);
+
+    await runMutation(internal.admin.exercises.updateRow, {
+      id,
+      row: {
         name,
         instructions,
         assistantId: assistant.id,
         weekId,
         text,
         quiz,
+        model,
       },
-    );
-
-    return exerciseId;
+    });
   },
 });

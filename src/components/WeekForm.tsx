@@ -1,7 +1,6 @@
 import { formatDateTime } from "@/util/date";
 import { useState } from "react";
 import Input from "./Input";
-import { Id } from "../../convex/_generated/dataModel";
 
 export type State = {
   name: string;

@@ -34,9 +34,10 @@ export default defineSchema(
     exercises: defineTable({
       name: v.string(),
       instructions: v.string(),
+      model: v.optional(v.string()),
       assistantId: v.string(),
       weekId: v.id("weeks"),
-      text: v.optional(v.string()),
+      text: v.string(),
       quiz: quizSchema,
     }),
     messages: defineTable({
