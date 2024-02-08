@@ -2,6 +2,15 @@ function getUTCTime(date: Date): number {
   return date.getTime() - date.getTimezoneOffset() * 60000;
 }
 
+export function toDatetimeLocalString(date: Date) {
+  const offset = date.getTimezoneOffset();
+  const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
+
+  const isoString = adjustedDate.toISOString();
+  const datetimeLocalString = isoString.substring(0, 16);
+  return datetimeLocalString;
+}
+
 const WEEK_IN_MILLIS = 6.048e8,
   DAY_IN_MILLIS = 8.64e7,
   HOUR_IN_MILLIS = 3.6e6,
