@@ -2,14 +2,15 @@ import { ConvexError, v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "../withAuth";
 import { validateAdminSession } from "./exercises";
 
-export const getName = queryWithAuth({
-  args: {
-    weekId: v.id("weeks"),
-  },
-  handler: async ({ db, session }, { weekId }) => {
+export const list = queryWithAuth({
+  args: {},
+  handler: async ({ db, session }) => {
     validateAdminSession(session);
 
-    return (await db.get(weekId))?.name;
+    return (await db.query("weeks").collect()).map((week) => ({
+      id: week._id,
+      name: week.name,
+    }));
   },
 });
 

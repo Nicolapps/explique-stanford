@@ -77,7 +77,10 @@ export function Select({
   value: string;
   onChange: (value: string) => void;
   label: string;
-  values: string[];
+  values: {
+    value: string;
+    label: string;
+  }[];
   hint?: ReactNode;
 }) {
   const id = useId();
@@ -94,9 +97,9 @@ export function Select({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
-        {values.map((value) => (
+        {values.map(({ value, label }) => (
           <option key={value} value={value}>
-            {value}
+            {label}
           </option>
         ))}
       </select>

@@ -29,6 +29,8 @@ export default function ExerciseForm({
   submitLabel: string;
 }) {
   const [name, setName] = useState(initialState.name);
+  const [weekId, setWeekId] = useState(initialState.weekId);
+
   const [instructions, setInstructions] = useState(initialState.instructions);
   const [model, setModel] = useState(initialState.model);
   const [text, setText] = useState(initialState.text);
@@ -41,9 +43,7 @@ export default function ExerciseForm({
     number | null
   >(initialState.quizCorrectAnswerIndex);
 
-  const weekName = useQuery(api.admin.weeks.getName, {
-    weekId: initialState.weekId,
-  });
+  const weeks = useQuery(api.admin.weeks.list, {});
 
   return (
     <form
@@ -54,7 +54,7 @@ export default function ExerciseForm({
           instructions,
           model,
           text,
-          weekId: initialState.weekId,
+          weekId,
           quizQuestion,
           quizAnswers,
           quizCorrectAnswerIndex,
@@ -69,7 +69,15 @@ export default function ExerciseForm({
         required
       />
 
-      <Input label="Week" value={weekName ?? ""} onChange={() => {}} disabled />
+      {weeks && (
+        <Select
+          label="Week"
+          value={weekId}
+          onChange={(val) => setWeekId(val as Id<"weeks">)}
+          values={weeks.map((week) => ({ value: week.id, label: week.name }))}
+        />
+      )}
+      {weekId}
 
       <section>
         <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
@@ -95,7 +103,7 @@ export default function ExerciseForm({
             "gpt-3.5-turbo-0125",
             "gpt-3.5-turbo-1106",
             "gpt-3.5-turbo-0613",
-          ]}
+          ].map((value) => ({ value, label: value }))}
           hint={
             <>
               More information about the models can be found in the{" "}

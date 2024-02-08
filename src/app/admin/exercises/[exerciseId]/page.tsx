@@ -46,7 +46,7 @@ export default function EditExercise() {
                 instructions: state.instructions,
                 model: state.model,
                 text: state.text,
-                weekId: exercise.weekId,
+                weekId: state.weekId,
                 quiz: {
                   question: state.quizQuestion,
                   answers: state.quizAnswers.map((text, index) => ({
