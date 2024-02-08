@@ -43,7 +43,9 @@ export default defineSchema(
       attemptId: v.id("attempts"),
       system: v.boolean(),
       content: v.string(),
-      appearance: v.optional(v.literal("finished")),
+      appearance: v.optional(
+        v.union(v.literal("finished"), v.literal("typing"), v.literal("error")),
+      ),
     }).index("by_attempt", ["attemptId"]),
 
     // Lucia

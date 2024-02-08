@@ -56,6 +56,17 @@ export const insertMessage = internalMutation({
   },
 });
 
+export const editMessage = internalMutation({
+  args: {
+    messageId: v.id("messages"),
+    content: v.string(),
+    appearance: v.optional(v.union(v.literal("finished"), v.literal("error"))),
+  },
+  handler: async ({ db }, { messageId, content, appearance }) => {
+    await db.patch(messageId, { content, appearance });
+  },
+});
+
 export const sendMessage = mutationWithAuth({
   args: {
     attemptId: v.id("attempts"),
@@ -71,11 +82,19 @@ export const sendMessage = mutationWithAuth({
 
     await db.insert("messages", { attemptId, system: false, content: message });
 
+    const systemMessageId = await db.insert("messages", {
+      attemptId,
+      system: true,
+      appearance: "typing",
+      content: "",
+    });
+
     scheduler.runAfter(0, internal.chat.answer, {
       attemptId,
       message,
       threadId: attempt.threadId,
       assistantId: exercise.assistantId,
+      systemMessageId,
     });
   },
 });
@@ -86,8 +105,12 @@ export const answer = internalAction({
     attemptId: v.id("attempts"),
     message: v.string(),
     assistantId: v.string(),
+    systemMessageId: v.id("messages"),
   },
-  handler: async (ctx, { threadId, attemptId, message, assistantId }) => {
+  handler: async (
+    ctx,
+    { threadId, attemptId, message, assistantId, systemMessageId },
+  ) => {
     const openai = new OpenAI();
 
     // Add the user message to the thread
@@ -105,6 +128,7 @@ export const answer = internalAction({
       threadId,
       attemptId,
       lastMessageId,
+      systemMessageId,
     });
   },
 });
@@ -137,10 +161,11 @@ export const checkAnswer = internalAction({
     runId: v.string(),
     attemptId: v.id("attempts"),
     lastMessageId: v.string(),
+    systemMessageId: v.id("messages"),
   },
   handler: async (
     { runMutation, scheduler },
-    { runId, threadId, attemptId, lastMessageId },
+    { runId, threadId, attemptId, lastMessageId, systemMessageId },
   ) => {
     const openai = new OpenAI();
     const run = await openai.beta.threads.runs.retrieve(threadId, runId);
@@ -166,6 +191,11 @@ export const checkAnswer = internalAction({
       case "expired":
       case "cancelled":
         console.error("Run failed with status ", run.status, run);
+        await runMutation(internal.chat.editMessage, {
+          messageId: systemMessageId,
+          appearance: "error",
+          content: "",
+        });
         return;
       case "completed":
         const { data: newMessages } = await openai.beta.threads.messages.list(
@@ -173,25 +203,25 @@ export const checkAnswer = internalAction({
           { after: lastMessageId, order: "asc" },
         );
 
-        for (const { content } of newMessages) {
-          const text = content
-            .filter((item): item is MessageContentText => item.type === "text")
-            .map(({ text }) => text.value)
-            .join("\n\n");
-          await runMutation(internal.chat.insertMessage, {
-            attemptId,
-            system: true,
-            content: text,
-          });
-        }
+        const text = newMessages
+          .flatMap(({ content }) => content)
+          .filter((item): item is MessageContentText => item.type === "text")
+          .map(({ text }) => text.value)
+          .join("\n\n");
+        await runMutation(internal.chat.editMessage, {
+          messageId: systemMessageId,
+          appearance: undefined,
+          content: text,
+        });
         return;
     }
 
-    await scheduler.runAfter(500, internal.chat.checkAnswer, {
+    await scheduler.runAfter(1000, internal.chat.checkAnswer, {
       runId,
       threadId,
       attemptId,
       lastMessageId,
+      systemMessageId,
     });
   },
 });

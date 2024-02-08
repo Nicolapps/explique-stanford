@@ -4,6 +4,7 @@ import clsx from "clsx";
 import {
   CheckCircleIcon,
   InformationCircleIcon,
+  ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useMutation, useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
@@ -73,17 +74,48 @@ export default function ExplainExercise({
             ) : (
               <div
                 className={clsx(
-                  "p-4 rounded-xl shadow",
-                  message.system && "bg-white mr-6 rounded-bl-none",
-                  !message.system &&
-                    "bg-gradient-to-b from-purple-500 to-purple-600 ml-6 text-white rounded-br-none",
+                  "flex",
+                  message.system && "mr-6",
+                  !message.system && "ml-6",
                 )}
               >
-                {message.system ? (
-                  <Markdown text={message.content} />
-                ) : (
-                  <p className="prose text-white">{message.content}</p>
-                )}
+                <div
+                  className={clsx(
+                    "inline-block p-4 rounded-xl shadow",
+                    message.system && "bg-white rounded-bl-none",
+                    !message.system &&
+                      "bg-gradient-to-b from-purple-500 to-purple-600 text-white rounded-br-none  ml-auto",
+                  )}
+                >
+                  {message.system ? (
+                    message.appearance === "typing" ? (
+                      <div className="flex gap-1" aria-label="Loading">
+                        <div className="w-2 h-2 rounded-full bg-slate-500 animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-slate-500 animate-pulse animation-delay-1-3"></div>
+                        <div className="w-2 h-2 rounded-full bg-slate-500 animate-pulse animation-delay-2-3"></div>
+                      </div>
+                    ) : message.appearance === "error" ? (
+                      <div>
+                        <p className="font-light flex items-center justify-center gap-1">
+                          <ExclamationCircleIcon
+                            className="w-6 h-6 text-red-600"
+                            aria-hidden="true"
+                          />
+                          <span className="flex-1">
+                            <strong className="font-medium text-red-600">
+                              An error occurred.
+                            </strong>{" "}
+                            Please try again.
+                          </span>
+                        </p>
+                      </div>
+                    ) : (
+                      <Markdown text={message.content} />
+                    )
+                  ) : (
+                    <p className="prose text-white">{message.content}</p>
+                  )}
+                </div>
               </div>
             )}
           </div>

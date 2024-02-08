@@ -22,4 +22,12 @@ body {
   .tr-corner {
     clip-path: polygon(0 0, 100% 0, 100% 100%);
   }
+
+  .animation-delay-1-3 {
+    animation-delay: calc(1s / 3);
+  }
+
+  .animation-delay-2-3 {
+    animation-delay: calc(2s / 3);
+  }
 }
