@@ -21,7 +21,7 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <div className="p-6">
       <div className="max-w-xl mx-auto">
-        <header className="fixed h-16 top-0 left-0 w-full bg-white bg-opacity-90 backdrop-blur-lg p-4 shadow-lg flex items-center justify-center">
+        <header className="fixed h-16 top-0 left-0 w-full bg-white bg-opacity-90 backdrop-blur-lg p-4 shadow-lg flex items-center justify-center z-30">
           <Link
             href="/"
             title="Back"
