@@ -1,5 +1,15 @@
-import { ConvexError } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "./withAuth";
+import { internalQuery } from "./_generated/server";
+
+export const getRow = internalQuery({
+  args: {
+    id: v.id("exercises"),
+  },
+  handler: async ({ db }, { id }) => {
+    return await db.get(id);
+  },
+});
 
 export const list = queryWithAuth({
   args: {},

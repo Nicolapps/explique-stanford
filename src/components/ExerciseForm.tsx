@@ -17,7 +17,26 @@ export type State = {
   quizQuestion: string;
   quizAnswers: string[];
   quizCorrectAnswerIndex: number | null;
+  firstMessage: string;
 };
+
+function MarkdownTip() {
+  return (
+    <>
+      <a
+        className="underline font-semibold"
+        href="https://www.markdownguide.org/basic-syntax/"
+        target="_blank"
+      >
+        Markdown
+      </a>{" "}
+      syntax is supported.
+      <br />
+      LaTeX is syntax is supported (e.g.{" "}
+      <code className="font-mono text-gray-700">$\sqrt m$</code>).
+    </>
+  );
+}
 
 export default function ExerciseForm({
   initialState,
@@ -42,6 +61,7 @@ export default function ExerciseForm({
   const [quizCorrectAnswerIndex, setQuizCorrectAnswerIndex] = useState<
     number | null
   >(initialState.quizCorrectAnswerIndex);
+  const [firstMessage, setFirstMessage] = useState(initialState.firstMessage);
 
   const weeks = useQuery(api.admin.weeks.list, {});
 
@@ -58,6 +78,7 @@ export default function ExerciseForm({
           quizQuestion,
           quizAnswers,
           quizCorrectAnswerIndex,
+          firstMessage,
         });
       }}
     >
@@ -77,17 +98,32 @@ export default function ExerciseForm({
           values={weeks.map((week) => ({ value: week.id, label: week.name }))}
         />
       )}
-      {weekId}
 
       <section>
         <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
-          Explaination Exercise
+          Explanation Exercise
         </h2>
+        <div className="grid md:grid-cols-2 gap-x-12">
+          <Textarea
+            label="First message"
+            value={firstMessage}
+            onChange={setFirstMessage}
+            hint="This message will be sent automatically to the student when they start the exercise."
+          />
+          <div className="mt-6">
+            {firstMessage.trim() && (
+              <div className="inline-block p-4 rounded-xl shadow bg-white rounded-bl-none">
+                <Markdown text={firstMessage} />
+              </div>
+            )}
+          </div>
+        </div>
         <Textarea
-          label="Instructions"
+          label="Model Instructions"
           value={instructions}
           onChange={setInstructions}
           required
+          hint="Not visible to the students."
         />
         <Select
           label="Model"
@@ -129,25 +165,11 @@ export default function ExerciseForm({
             label="Text"
             value={text}
             onChange={setText}
-            hint={
-              <>
-                <a
-                  className="underline font-semibold"
-                  href="https://www.markdownguide.org/basic-syntax/"
-                  target="_blank"
-                >
-                  Markdown
-                </a>{" "}
-                syntax is supported.
-                <br />
-                LaTeX is syntax is supported (e.g.{" "}
-                <code className="font-mono text-gray-700">$\sqrt m$</code>).
-              </>
-            }
+            hint={<MarkdownTip />}
             required
           />
 
-          <div>
+          <div className="mt-6">
             <Markdown text={text} />
           </div>
         </div>
@@ -158,7 +180,7 @@ export default function ExerciseForm({
           Validation Quiz
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-x-12 items-center">
+        <div className="grid md:grid-cols-2 gap-x-12">
           <div>
             <Input
               label="Question"
@@ -228,21 +250,11 @@ export default function ExerciseForm({
             </fieldset>
 
             <p className="text-slate-500 mt-2 text-sm">
-              <a
-                className="underline font-semibold"
-                href="https://www.markdownguide.org/basic-syntax/"
-                target="_blank"
-              >
-                Markdown
-              </a>{" "}
-              syntax is supported.
-              <br />
-              LaTeX is syntax is supported (e.g.{" "}
-              <code className="font-mono text-gray-700">$\sqrt m$</code>).
+              <MarkdownTip />
             </p>
           </div>
 
-          <div>
+          <div className="mt-6">
             <QuizContents
               question={quizQuestion}
               answers={quizAnswers}

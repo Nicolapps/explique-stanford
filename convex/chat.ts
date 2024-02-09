@@ -75,7 +75,7 @@ export const sendMessage = mutationWithAuth({
   handler: async ({ db, scheduler, session }, { attemptId, message }) => {
     const attempt = await getAttemptIfAuthorized(db, session, attemptId);
     if (attempt.threadId === null)
-      throw new ConvexError("Not doing the explaination exercise");
+      throw new ConvexError("Not doing the explanation exercise");
 
     const exercise = await db.get(attempt.exerciseId);
     if (!exercise) throw new Error(`Exercise ${attempt.exerciseId} not found`);

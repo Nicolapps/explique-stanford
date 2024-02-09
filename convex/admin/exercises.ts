@@ -46,6 +46,7 @@ export const insertRow = internalMutation({
     text: v.string(),
     quiz: quizSchema,
     model: v.string(),
+    firstMessage: v.string(),
   },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
@@ -63,6 +64,7 @@ export const updateRow = internalMutation({
       text: v.string(),
       quiz: quizSchema,
       model: v.string(),
+      firstMessage: v.string(),
     }),
   },
   handler: async ({ db }, { id, row }) => {
@@ -70,10 +72,16 @@ export const updateRow = internalMutation({
   },
 });
 
-async function createAssistant(instructions: string, model: string) {
+async function createAssistant(
+  instructions: string,
+  model: string,
+  firstMessage?: string,
+) {
   const openai = new OpenAI();
   return await openai.beta.assistants.create({
-    instructions,
+    instructions: firstMessage
+      ? `${instructions}\n\nThe conversation started by you having sent the following message: “${firstMessage}”`
+      : instructions,
     model: model,
     tools: [
       {
@@ -97,14 +105,15 @@ export const create = actionWithAuth({
     weekId: v.id("weeks"),
     text: v.string(),
     quiz: quizSchema,
+    firstMessage: v.string(),
   },
   handler: async (
     { runMutation, session },
-    { name, instructions, model, weekId, text, quiz },
+    { name, instructions, model, weekId, text, quiz, firstMessage },
   ) => {
     validateAdminSession(session);
 
-    const assistant = await createAssistant(instructions, model);
+    const assistant = await createAssistant(instructions, model, firstMessage);
 
     await runMutation(internal.admin.exercises.insertRow, {
       name,
@@ -114,6 +123,7 @@ export const create = actionWithAuth({
       text,
       quiz,
       model,
+      firstMessage,
     });
   },
 });
@@ -127,14 +137,15 @@ export const update = actionWithAuth({
     weekId: v.id("weeks"),
     text: v.string(),
     quiz: quizSchema,
+    firstMessage: v.string(),
   },
   handler: async (
     { runMutation, session },
-    { id, name, instructions, model, weekId, text, quiz },
+    { id, name, instructions, model, weekId, text, quiz, firstMessage },
   ) => {
     validateAdminSession(session);
 
-    const assistant = await createAssistant(instructions, model);
+    const assistant = await createAssistant(instructions, model, firstMessage);
 
     await runMutation(internal.admin.exercises.updateRow, {
       id,
@@ -146,6 +157,7 @@ export const update = actionWithAuth({
         text,
         quiz,
         model,
+        firstMessage,
       },
     });
   },

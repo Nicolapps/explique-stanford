@@ -39,6 +39,7 @@ export default defineSchema(
       weekId: v.id("weeks"),
       text: v.string(),
       quiz: quizSchema,
+      firstMessage: v.optional(v.string()),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),

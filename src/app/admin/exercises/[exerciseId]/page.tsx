@@ -38,6 +38,7 @@ export default function EditExercise() {
               quizCorrectAnswerIndex: exercise.quiz.answers.findIndex(
                 (a) => a.correct,
               ),
+              firstMessage: exercise.firstMessage ?? "",
             }}
             onSubmit={async (state) => {
               await update({
@@ -54,6 +55,7 @@ export default function EditExercise() {
                     correct: index === state.quizCorrectAnswerIndex,
                   })),
                 },
+                firstMessage: state.firstMessage,
               });
               router.push("/admin");
             }}

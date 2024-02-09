@@ -46,14 +46,25 @@ export const insert = internalMutation({
     exerciseId: v.id("exercises"),
     userId: v.id("users"),
     threadId: v.union(v.string(), v.null()),
+    firstMessage: v.optional(v.string()),
   },
-  handler: async ({ db }, { exerciseId, userId, threadId }) => {
-    return await db.insert("attempts", {
+  handler: async ({ db }, { exerciseId, userId, threadId, firstMessage }) => {
+    const attemptId = await db.insert("attempts", {
       status: "exercise",
       exerciseId,
       userId,
       threadId,
     });
+
+    if (firstMessage) {
+      await db.insert("messages", {
+        attemptId,
+        system: true,
+        content: firstMessage,
+      });
+    }
+
+    return attemptId;
   },
 });
 
@@ -65,6 +76,11 @@ export const start = actionWithAuth({
     if (!ctx.session) throw new ConvexError("Not logged in");
     const userId = ctx.session.user._id;
 
+    const exercise = await ctx.runQuery(internal.exercises.getRow, {
+      id: exerciseId,
+    });
+    if (exercise === null) throw new ConvexError("Unknown exercise");
+
     const isUsingExplainVariant = await ctx.runQuery(
       internal.attempts.isUsingExplainVariant,
       {
@@ -74,8 +90,8 @@ export const start = actionWithAuth({
       },
     );
     let threadId = null;
+    const openai = new OpenAI();
     if (isUsingExplainVariant) {
-      const openai = new OpenAI();
       const thread = await openai.beta.threads.create();
       threadId = thread.id;
     }
@@ -86,8 +102,10 @@ export const start = actionWithAuth({
         exerciseId,
         userId,
         threadId,
+        firstMessage: exercise.firstMessage,
       },
     );
+
     return attemptId;
   },
 });
