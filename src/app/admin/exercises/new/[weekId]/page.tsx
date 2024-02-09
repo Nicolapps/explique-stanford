@@ -34,6 +34,7 @@ export default function NewExercise() {
             quizAnswers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
             quizCorrectAnswerIndex: null,
             firstMessage: "",
+            controlGroup: "A",
           }}
           onSubmit={async (state) => {
             await create({
@@ -50,6 +51,7 @@ export default function NewExercise() {
                 })),
               },
               firstMessage: state.firstMessage,
+              controlGroup: state.controlGroup,
             });
 
             router.push("/admin");

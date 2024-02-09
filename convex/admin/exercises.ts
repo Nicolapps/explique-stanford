@@ -47,6 +47,7 @@ export const insertRow = internalMutation({
     quiz: quizSchema,
     model: v.string(),
     firstMessage: v.string(),
+    controlGroup: v.union(v.literal("A"), v.literal("B")),
   },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
@@ -65,6 +66,7 @@ export const updateRow = internalMutation({
       quiz: quizSchema,
       model: v.string(),
       firstMessage: v.string(),
+      controlGroup: v.union(v.literal("A"), v.literal("B")),
     }),
   },
   handler: async ({ db }, { id, row }) => {
@@ -106,10 +108,20 @@ export const create = actionWithAuth({
     text: v.string(),
     quiz: quizSchema,
     firstMessage: v.string(),
+    controlGroup: v.union(v.literal("A"), v.literal("B")),
   },
   handler: async (
     { runMutation, session },
-    { name, instructions, model, weekId, text, quiz, firstMessage },
+    {
+      name,
+      instructions,
+      model,
+      weekId,
+      text,
+      quiz,
+      firstMessage,
+      controlGroup,
+    },
   ) => {
     validateAdminSession(session);
 
@@ -124,6 +136,7 @@ export const create = actionWithAuth({
       quiz,
       model,
       firstMessage,
+      controlGroup,
     });
   },
 });
@@ -138,10 +151,21 @@ export const update = actionWithAuth({
     text: v.string(),
     quiz: quizSchema,
     firstMessage: v.string(),
+    controlGroup: v.union(v.literal("A"), v.literal("B")),
   },
   handler: async (
     { runMutation, session },
-    { id, name, instructions, model, weekId, text, quiz, firstMessage },
+    {
+      id,
+      name,
+      instructions,
+      model,
+      weekId,
+      text,
+      quiz,
+      firstMessage,
+      controlGroup,
+    },
   ) => {
     validateAdminSession(session);
 
@@ -158,6 +182,7 @@ export const update = actionWithAuth({
         quiz,
         model,
         firstMessage,
+        controlGroup,
       },
     });
   },

@@ -39,6 +39,7 @@ export default function EditExercise() {
                 (a) => a.correct,
               ),
               firstMessage: exercise.firstMessage ?? "",
+              controlGroup: exercise.controlGroup,
             }}
             onSubmit={async (state) => {
               await update({
@@ -56,6 +57,7 @@ export default function EditExercise() {
                   })),
                 },
                 firstMessage: state.firstMessage,
+                controlGroup: state.controlGroup,
               });
               router.push("/admin");
             }}

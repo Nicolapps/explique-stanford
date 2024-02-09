@@ -40,7 +40,7 @@ export default defineSchema(
       text: v.string(),
       quiz: quizSchema,
       firstMessage: v.optional(v.string()),
-      controlGroup: v.optional(v.union(v.literal("A"), v.literal("B"))),
+      controlGroup: v.union(v.literal("A"), v.literal("B")),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),
@@ -59,7 +59,7 @@ export default defineSchema(
       isAdmin: v.boolean(),
       accepted: v.optional(v.boolean()),
       researchConsent: v.optional(v.boolean()),
-      group: v.optional(v.union(v.literal("A"), v.literal("B"))),
+      group: v.union(v.literal("A"), v.literal("B")),
     }).index("byId", ["id"]),
     sessions: defineTable({
       id: v.string(),

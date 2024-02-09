@@ -117,10 +117,16 @@ export const isUsingExplainVariant = internalQuery({
     seed: v.number(),
   },
   handler: async ({ db }, { exerciseId, userId }) => {
-    // @TODO Random assignment
-    // @TODO Support restarting an explain exercise
+    const exercise = await db.get(exerciseId);
+    if (exercise === null) throw new Error("Unknown exercise");
 
-    return Math.random() < 0.5;
+    const user = await db.get(userId);
+    if (user === null) throw new Error("Unknown user");
+
+    const { controlGroup } = exercise;
+    const { group } = user;
+
+    return group !== controlGroup;
   },
 });
 

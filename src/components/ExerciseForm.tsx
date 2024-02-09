@@ -18,6 +18,7 @@ export type State = {
   quizAnswers: string[];
   quizCorrectAnswerIndex: number | null;
   firstMessage: string;
+  controlGroup: "A" | "B";
 };
 
 function MarkdownTip() {
@@ -62,6 +63,7 @@ export default function ExerciseForm({
     number | null
   >(initialState.quizCorrectAnswerIndex);
   const [firstMessage, setFirstMessage] = useState(initialState.firstMessage);
+  const [controlGroup, setControlGroup] = useState(initialState.controlGroup);
 
   const weeks = useQuery(api.admin.weeks.list, {});
 
@@ -79,6 +81,7 @@ export default function ExerciseForm({
           quizAnswers,
           quizCorrectAnswerIndex,
           firstMessage,
+          controlGroup,
         });
       }}
     >
@@ -98,6 +101,19 @@ export default function ExerciseForm({
           values={weeks.map((week) => ({ value: week.id, label: week.name }))}
         />
       )}
+
+      <Select
+        label="Control group"
+        value={controlGroup}
+        onChange={(val) => setControlGroup(val)}
+        values={(["A", "B"] as const).map((value) => ({ value, label: value }))}
+        hint={
+          <>
+            This group of students will get the reading exercise, while the
+            other group will get the explanation exercise.
+          </>
+        }
+      />
 
       <section>
         <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
@@ -119,7 +135,7 @@ export default function ExerciseForm({
           </div>
         </div>
         <Textarea
-          label="Model Instructions"
+          label="Model instructions"
           value={instructions}
           onChange={setInstructions}
           required
