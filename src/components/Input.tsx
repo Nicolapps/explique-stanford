@@ -67,18 +67,18 @@ export function Textarea({
   );
 }
 
-export function Select({
+export function Select<T extends string>({
   value,
   onChange,
   label,
   values,
   hint,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  value: T;
+  onChange: (value: T) => void;
   label: string;
   values: {
-    value: string;
+    value: T;
     label: string;
   }[];
   hint?: ReactNode;
@@ -95,7 +95,7 @@ export function Select({
         id={id}
         className="mt-1 p-2 w-full border border-slate-300 rounded-md font-sans h-10"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value as T)}
       >
         {values.map(({ value, label }) => (
           <option key={value} value={value}>

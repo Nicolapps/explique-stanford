@@ -94,7 +94,7 @@ export default function ExerciseForm({
         <Select
           label="Week"
           value={weekId}
-          onChange={(val) => setWeekId(val as Id<"weeks">)}
+          onChange={(val) => setWeekId(val)}
           values={weeks.map((week) => ({ value: week.id, label: week.name }))}
         />
       )}
