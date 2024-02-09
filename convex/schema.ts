@@ -58,6 +58,7 @@ export default defineSchema(
       isAdmin: v.boolean(),
       accepted: v.optional(v.boolean()),
       researchConsent: v.optional(v.boolean()),
+      group: v.optional(v.union(v.literal("A"), v.literal("B"))),
     }).index("byId", ["id"]),
     sessions: defineTable({
       id: v.string(),

@@ -44,6 +44,7 @@ export const redirect = action({
             email: googleUser.email ?? "",
             isAdmin: false,
             accepted: false,
+            group: Math.random() > 0.5 ? "A" : "B",
 
             // These will be filled out by Convex
             _id: "" as Id<"users">,

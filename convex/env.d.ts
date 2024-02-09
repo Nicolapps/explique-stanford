@@ -7,6 +7,7 @@ declare namespace Lucia {
     name: string;
     isAdmin: boolean;
     accepted?: boolean;
+    group?: "A" | "B";
     researchConsent?: boolean;
   };
   type DatabaseSessionAttributes = {
