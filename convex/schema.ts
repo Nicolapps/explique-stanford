@@ -40,6 +40,7 @@ export default defineSchema(
       text: v.string(),
       quiz: quizSchema,
       firstMessage: v.optional(v.string()),
+      controlGroup: v.optional(v.union(v.literal("A"), v.literal("B"))),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),
