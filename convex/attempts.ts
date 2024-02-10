@@ -4,6 +4,7 @@ import OpenAI from "openai";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { actionWithAuth, mutationWithAuth, queryWithAuth } from "./withAuth";
+import Chance from "chance";
 
 export const get = queryWithAuth({
   args: {
@@ -31,7 +32,11 @@ export const get = queryWithAuth({
       text: attempt.threadId === null ? exercise.text : null,
       quiz:
         attempt.status === "quiz" || attempt.status === "quizCompleted"
-          ? shownQuestions(exercise.quiz).map(toUserVisibleQuestion)
+          ? shownQuestions(
+              exercise.quiz,
+              attempt.userId,
+              attempt.exerciseId,
+            ).map(toUserVisibleQuestion)
           : null,
       lastQuizSubmission: attempt.lastQuizSubmission ?? null,
     };
@@ -43,14 +48,18 @@ type Question = {
   answers: { text: string; correct: boolean }[];
 };
 
-function shownQuestions(quiz: DatabaseQuiz): Question[] {
+function shownQuestions(
+  quiz: DatabaseQuiz,
+  userId: Id<"users">,
+  exerciseId: Id<"exercises">,
+): Question[] {
   // @TODO Remove obsolete format
   if ("question" in quiz) {
     return [quiz];
   }
 
-  // @TODO Randomly draw questions
-  return quiz.questions.slice(0, quiz.shownQuestionsCount);
+  const chance = new Chance(`${userId} ${exerciseId}`);
+  return chance.shuffle(quiz.questions).slice(0, quiz.shownQuestionsCount);
 }
 
 type DatabaseQuiz =
@@ -209,7 +218,11 @@ export const submitQuiz = mutationWithAuth({
       throw new ConvexError("Incorrect status " + attempt.status);
     }
 
-    const correctAnswers = shownQuestions(exercise.quiz).map((q) => {
+    const correctAnswers = shownQuestions(
+      exercise.quiz,
+      attempt.userId,
+      attempt.exerciseId,
+    ).map((q) => {
       const correctAnswer = q.answers.findIndex((a) => a.correct);
       if (correctAnswer === -1) throw new ConvexError("No correct answer");
       return correctAnswer;
