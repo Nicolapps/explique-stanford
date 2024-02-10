@@ -1,4 +1,4 @@
-import { ConvexError, v } from "convex/values";
+import { ConvexError, ObjectType, v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
@@ -31,15 +31,41 @@ export const get = queryWithAuth({
       text: attempt.threadId === null ? exercise.text : null,
       quiz:
         attempt.status === "quiz" || attempt.status === "quizCompleted"
-          ? {
-              question: exercise.quiz.question,
-              answers: exercise.quiz.answers.map((a) => a.text),
-            }
+          ? shownQuestions(exercise.quiz).map(toUserVisibleQuestion)
           : null,
       lastQuizSubmission: attempt.lastQuizSubmission ?? null,
     };
   },
 });
+
+type Question = {
+  question: string;
+  answers: { text: string; correct: boolean }[];
+};
+
+function shownQuestions(quiz: DatabaseQuiz): Question[] {
+  // @TODO Remove obsolete format
+  if ("question" in quiz) {
+    return [quiz];
+  }
+
+  // @TODO Randomly draw questions
+  return quiz.questions.slice(0, quiz.shownQuestionsCount);
+}
+
+type DatabaseQuiz =
+  | Question
+  | { shownQuestionsCount: number; questions: Question[] };
+
+function toUserVisibleQuestion(question: Question): {
+  question: string;
+  answers: string[];
+} {
+  return {
+    question: question.question,
+    answers: question.answers.map((answer) => answer.text),
+  };
+}
 
 export const insert = internalMutation({
   args: {
@@ -163,9 +189,9 @@ export const goToQuiz = mutationWithAuth({
 export const submitQuiz = mutationWithAuth({
   args: {
     attemptId: v.id("attempts"),
-    answer: v.number(),
+    answers: v.array(v.number()),
   },
-  handler: async ({ db, session }, { attemptId, answer }) => {
+  handler: async ({ db, session }, { attemptId, answers }) => {
     if (!session) throw new ConvexError("Not logged in");
     const userId = session.user._id;
 
@@ -183,10 +209,17 @@ export const submitQuiz = mutationWithAuth({
       throw new ConvexError("Incorrect status " + attempt.status);
     }
 
-    const correctAnswer = exercise.quiz.answers.findIndex((a) => a.correct);
-    if (correctAnswer === -1) throw new ConvexError("No correct answer");
+    const correctAnswers = shownQuestions(exercise.quiz).map((q) => {
+      const correctAnswer = q.answers.findIndex((a) => a.correct);
+      if (correctAnswer === -1) throw new ConvexError("No correct answer");
+      return correctAnswer;
+    });
+    if (correctAnswers.length !== answers.length) {
+      throw new ConvexError("Incorrect number of answers");
+    }
 
-    const isCorrect = correctAnswer === answer;
+    const isCorrect = answers.every((a, i) => correctAnswers[i] === a);
+
     if (isCorrect) {
       await db.patch(attemptId, {
         status: "quizCompleted",

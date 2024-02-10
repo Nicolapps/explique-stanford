@@ -30,9 +30,16 @@ export default function NewExercise() {
               "Your goal is to ask the person you’re talking with to explain how {INSERT ALGORITHM NAME} works. Do not give any advice about how it works, and ask questions to the person you’re talking to if their explanations isn’t clear enough. Once their explanation is clear enough (but not before), give the pseudo code for the algorithm.",
             model: "gpt-4-0125-preview",
             text: "",
-            quizQuestion: "Question",
-            quizAnswers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
-            quizCorrectAnswerIndex: null,
+
+            quizQuestions: [
+              {
+                question: "Question",
+                answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
+                correctAnswerIndex: null,
+              },
+            ],
+            quizShownQuestionsCount: 1,
+
             firstMessage: "",
             controlGroup: "A",
             completionFunctionDescription:
@@ -45,13 +52,20 @@ export default function NewExercise() {
               model: state.model,
               text: state.text,
               weekId: state.weekId,
+
               quiz: {
-                question: state.quizQuestion,
-                answers: state.quizAnswers.map((text, index) => ({
-                  text,
-                  correct: index === state.quizCorrectAnswerIndex,
-                })),
+                shownQuestionsCount: state.quizShownQuestionsCount,
+                questions: state.quizQuestions.map(
+                  ({ question, answers, correctAnswerIndex }) => ({
+                    question,
+                    answers: answers.map((text, index) => ({
+                      text,
+                      correct: index === correctAnswerIndex,
+                    })),
+                  }),
+                ),
               },
+
               firstMessage: state.firstMessage,
               controlGroup: state.controlGroup,
               completionFunctionDescription:

@@ -33,11 +33,16 @@ export default function EditExercise() {
               instructions: exercise.instructions,
               model: exercise.model ?? "gpt-4", // @TODO Remove default case
               text: exercise.text,
-              quizQuestion: exercise.quiz.question,
-              quizAnswers: exercise.quiz.answers.map((a) => a.text),
-              quizCorrectAnswerIndex: exercise.quiz.answers.findIndex(
-                (a) => a.correct,
+
+              quizQuestions: exercise.quiz.questions.map(
+                ({ question, answers }) => ({
+                  question,
+                  answers: answers.map((a) => a.text),
+                  correctAnswerIndex: answers.findIndex((a) => a.correct),
+                }),
               ),
+              quizShownQuestionsCount: exercise.quiz.shownQuestionsCount,
+
               firstMessage: exercise.firstMessage ?? "",
               controlGroup: exercise.controlGroup,
               completionFunctionDescription:
@@ -51,13 +56,20 @@ export default function EditExercise() {
                 model: state.model,
                 text: state.text,
                 weekId: state.weekId,
+
                 quiz: {
-                  question: state.quizQuestion,
-                  answers: state.quizAnswers.map((text, index) => ({
-                    text,
-                    correct: index === state.quizCorrectAnswerIndex,
-                  })),
+                  shownQuestionsCount: state.quizShownQuestionsCount,
+                  questions: state.quizQuestions.map(
+                    ({ question, answers, correctAnswerIndex }) => ({
+                      question,
+                      answers: answers.map((text, index) => ({
+                        text,
+                        correct: index === correctAnswerIndex,
+                      })),
+                    }),
+                  ),
                 },
+
                 firstMessage: state.firstMessage,
                 controlGroup: state.controlGroup,
                 completionFunctionDescription:

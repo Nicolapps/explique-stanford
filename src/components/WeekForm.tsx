@@ -80,7 +80,7 @@ export default function WeekForm({
             label="Duration (days)"
             type="number"
             min="1"
-            max="14"
+            max="365"
             step="1"
             required
           />

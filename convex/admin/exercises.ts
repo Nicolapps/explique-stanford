@@ -18,7 +18,24 @@ export const get = queryWithAuth({
   handler: async ({ db, session }, { id }) => {
     validateAdminSession(session);
 
-    return await db.get(id);
+    const exercise = await db.get(id);
+    if (!exercise) {
+      return null;
+    }
+
+    // @TODO Remove legacy quiz format
+    const quiz =
+      "questions" in exercise.quiz
+        ? exercise.quiz
+        : {
+            shownQuestionsCount: 0,
+            questions: [exercise.quiz],
+          };
+
+    return {
+      ...exercise,
+      quiz,
+    };
   },
 });
 

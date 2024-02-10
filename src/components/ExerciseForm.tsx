@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import Input, { Select, Textarea } from "@/components/Input";
 import { PlusIcon } from "@heroicons/react/16/solid";
 import { XMarkIcon } from "@heroicons/react/20/solid";
@@ -8,15 +8,22 @@ import { Id } from "../../convex/_generated/dataModel";
 import { api } from "../../convex/_generated/api";
 import { useQuery } from "@/usingSession";
 
+type Question = {
+  question: string;
+  answers: string[];
+  correctAnswerIndex: number | null;
+};
+
 export type State = {
   weekId: Id<"weeks">;
   name: string;
   instructions: string;
   model: string;
   text: string;
-  quizQuestion: string;
-  quizAnswers: string[];
-  quizCorrectAnswerIndex: number | null;
+
+  quizQuestions: Question[];
+  quizShownQuestionsCount: number;
+
   firstMessage: string;
   controlGroup: "A" | "B";
   completionFunctionDescription: string;
@@ -56,13 +63,13 @@ export default function ExerciseForm({
   const [model, setModel] = useState(initialState.model);
   const [text, setText] = useState(initialState.text);
 
-  const [quizQuestion, setQuizQuestion] = useState(initialState.quizQuestion);
-  const [quizAnswers, setQuizAnswers] = useState<string[]>(
-    initialState.quizAnswers,
+  const [quizQuestions, setQuizQuestions] = useState(
+    initialState.quizQuestions,
   );
-  const [quizCorrectAnswerIndex, setQuizCorrectAnswerIndex] = useState<
-    number | null
-  >(initialState.quizCorrectAnswerIndex);
+  const [quizShownQuestionsCount, setQuizShownQuestionsCount] = useState(
+    initialState.quizShownQuestionsCount,
+  );
+
   const [firstMessage, setFirstMessage] = useState(initialState.firstMessage);
   const [controlGroup, setControlGroup] = useState(initialState.controlGroup);
   const [completionFunctionDescription, setCompletionFunctionDescription] =
@@ -80,9 +87,8 @@ export default function ExerciseForm({
           model,
           text,
           weekId,
-          quizQuestion,
-          quizAnswers,
-          quizCorrectAnswerIndex,
+          quizQuestions,
+          quizShownQuestionsCount,
           firstMessage,
           controlGroup,
           completionFunctionDescription,
@@ -217,90 +223,40 @@ export default function ExerciseForm({
         <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
           Validation Quiz
         </h2>
+        {quizQuestions.map((question, questionIndex) => (
+          <QuizQuestion
+            key={questionIndex}
+            question={question}
+            onChange={(question) => {
+              setQuizQuestions((questions) =>
+                questions.map((q, index) =>
+                  index === questionIndex ? question : q,
+                ),
+              );
+            }}
+          />
+        ))}
 
-        <div className="grid md:grid-cols-2 gap-x-12">
-          <div>
-            <Input
-              label="Question"
-              value={quizQuestion}
-              onChange={setQuizQuestion}
-              required
-            />
+        <button
+          type="button"
+          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200mt-6"
+          onClick={() => {
+            setQuizQuestions((questions) => [
+              ...questions,
+              {
+                question: "Question",
+                answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
+                correctAnswerIndex: null,
+              },
+            ]);
+          }}
+        >
+          Add Question
+        </button>
 
-            <fieldset>
-              <legend className="block text-sm font-medium text-slate-800">
-                Answers
-              </legend>
-              {quizAnswers.map((answer, index) => (
-                <div key={index} className="mb-1 flex">
-                  <label className="flex items-center pr-4">
-                    <input
-                      type="radio"
-                      name="correct-answer"
-                      value={index}
-                      checked={quizCorrectAnswerIndex === index}
-                      onChange={() => setQuizCorrectAnswerIndex(index)}
-                      required
-                    />
-                  </label>
-
-                  <input
-                    type="text"
-                    className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed"
-                    value={answer}
-                    onChange={(e) => {
-                      setQuizAnswers((answers) => {
-                        const newAnswers = [...answers];
-                        newAnswers[index] = e.target.value;
-                        return newAnswers;
-                      });
-                    }}
-                    required
-                  />
-
-                  {quizAnswers.length > 1 && (
-                    <button
-                      type="button"
-                      className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
-                      onClick={() => {
-                        setQuizAnswers((answers) => {
-                          const newAnswers = [...answers];
-                          newAnswers.splice(index, 1);
-                          return newAnswers;
-                        });
-                      }}
-                    >
-                      <XMarkIcon className="w-5 h-5" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                className="font-medium text-blue-800 flex items-center py-2"
-                onClick={() => {
-                  setQuizAnswers((answers) => [...answers, ""]);
-                }}
-              >
-                <PlusIcon className="w-5 h-5" />
-                Add Answer
-              </button>
-            </fieldset>
-
-            <p className="text-slate-500 mt-2 text-sm">
-              <MarkdownTip />
-            </p>
-          </div>
-
-          <div className="mt-6">
-            <QuizContents
-              question={quizQuestion}
-              answers={quizAnswers}
-              selectedAnswerIndex={quizCorrectAnswerIndex}
-              disabled
-            />
-          </div>
-        </div>
+        <p className="text-slate-500 mt-4 text-sm">
+          <MarkdownTip />
+        </p>
       </section>
 
       <hr className="my-4 border-slate-300" />
@@ -313,5 +269,108 @@ export default function ExerciseForm({
         </button>
       </div>
     </form>
+  );
+}
+
+function QuizQuestion({
+  question,
+  onChange,
+}: {
+  question: Question;
+  onChange: (question: Question) => void;
+}) {
+  const correctAnswerName = useId();
+
+  return (
+    <div className="grid md:grid-cols-2 gap-x-12 mb-8">
+      <div>
+        <Input
+          label="Question"
+          value={question.question}
+          onChange={(val) => {
+            onChange({ ...question, question: val });
+          }}
+          required
+        />
+
+        <fieldset className="md:pl-6">
+          <legend className="block text-sm font-medium text-slate-800">
+            Answers
+          </legend>
+          {question.answers.map((answer, answerIndex) => (
+            <div key={answerIndex} className="mb-1 flex">
+              <label className="flex items-center w-8 px-2">
+                <input
+                  type="radio"
+                  name={correctAnswerName}
+                  value={answerIndex}
+                  checked={question.correctAnswerIndex === answerIndex}
+                  onChange={() => {
+                    onChange({ ...question, correctAnswerIndex: answerIndex });
+                  }}
+                  required
+                />
+              </label>
+
+              <input
+                type="text"
+                className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1"
+                value={answer}
+                onChange={(e) => {
+                  onChange({
+                    ...question,
+                    answers: question.answers.map((a, index) =>
+                      index === answerIndex ? e.target.value : a,
+                    ),
+                  });
+                }}
+                required
+              />
+
+              {question.answers.length > 1 && (
+                <button
+                  type="button"
+                  className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
+                  onClick={() => {
+                    onChange({
+                      ...question,
+                      answers: question.answers.filter(
+                        (_, index) => index !== answerIndex,
+                      ),
+                    });
+                  }}
+                >
+                  <XMarkIcon className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            className="font-medium text-blue-800 flex items-center py-2"
+            onClick={() => {
+              onChange({
+                ...question,
+                answers: [...question.answers, ""],
+              });
+            }}
+          >
+            <div className="w-8 flex justify-center">
+              <PlusIcon className="w-5 h-5" />
+            </div>
+            Add Answer
+          </button>
+        </fieldset>
+      </div>
+
+      <div className="mt-6">
+        <QuizContents
+          question={question.question}
+          answers={question.answers}
+          selectedAnswerIndex={question.correctAnswerIndex}
+          disabled
+        />
+      </div>
+    </div>
   );
 }

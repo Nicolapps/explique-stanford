@@ -3,7 +3,7 @@ import {
   InformationCircleIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import { useMutation } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
@@ -15,23 +15,24 @@ const ATTEMPT_TIMEOUT_MS = 1000 * 60 * 5;
 export default function QuizExercise({
   attemptId,
   title,
-  question,
-  answers,
+  questions,
   lastSubmission,
   succeeded,
 }: {
   attemptId: Id<"attempts">;
   title: string;
-  question: string;
-  answers: string[];
+  questions: {
+    question: string;
+    answers: string[];
+  }[];
   lastSubmission: number | null;
   succeeded: boolean;
 }) {
   const submit = useMutation(api.attempts.submitQuiz);
 
-  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(
-    null,
-  );
+  const [selectedAnswerIndexes, setSelectedAnswerIndexes] = useState<
+    (number | null)[]
+  >(questions.map(() => null));
 
   const [timeoutSeconds, setTimeoutSeconds] = useState<null | number>(67);
   const disabled = succeeded || timeoutSeconds !== null;
@@ -63,30 +64,39 @@ export default function QuizExercise({
         />
         <span className="flex-1">
           <strong className="font-medium text-purple-700">
-            Answer the following question
+            Answer the following{" "}
+            {questions.length === 1 ? "question" : "questions"}
           </strong>{" "}
           about {title}.
         </span>
       </p>
 
-      <QuizContents
-        question={question}
-        answers={answers}
-        selectedAnswerIndex={selectedAnswerIndex}
-        onChange={setSelectedAnswerIndex}
-        disabled={disabled}
-      />
+      {questions.map(({ question, answers }, index) => (
+        <QuizContents
+          key={index}
+          question={question}
+          answers={answers}
+          selectedAnswerIndex={selectedAnswerIndexes[index]}
+          onChange={(index) => {
+            const newIndexes = [...selectedAnswerIndexes];
+            newIndexes[index] = index;
+            setSelectedAnswerIndexes(newIndexes);
+          }}
+          disabled={disabled}
+        />
+      ))}
 
       <footer className="flex flex-col items-center mt-8 gap-8">
         <button
           className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
-          disabled={selectedAnswerIndex === null || disabled}
+          disabled={selectedAnswerIndexes.includes(null) || disabled}
           onClick={async () => {
-            if (selectedAnswerIndex === null) return;
-
             await submit({
               attemptId,
-              answer: selectedAnswerIndex,
+              answers: selectedAnswerIndexes.map((index) => {
+                if (index === null) throw new Error("No answer selected");
+                return index;
+              }),
             });
           }}
         >
@@ -147,6 +157,8 @@ export function QuizContents({
   onChange?: (index: number) => void;
   disabled?: boolean;
 }) {
+  const id = useId();
+
   return (
     <div className="bg-white border rounded-xl p-4">
       <header>
@@ -159,8 +171,8 @@ export function QuizContents({
             <label className="flex items-center py-1">
               <input
                 type="radio"
-                id={`answer-${index}`}
-                name="answer"
+                id={`${id}-${index}`}
+                name={id}
                 value={index}
                 checked={selectedAnswerIndex === index}
                 disabled={disabled}
@@ -168,7 +180,7 @@ export function QuizContents({
                 onChange={(e) => onChange?.(parseInt(e.target.value, 10))}
               />
 
-              <Markdown text={answer} />
+              <Markdown text={answer} className="flex-1" />
             </label>
           </div>
         ))}
