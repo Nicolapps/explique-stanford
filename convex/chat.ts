@@ -159,6 +159,14 @@ export const markFinished = internalMutation({
     if (attempt.status === "exercise") {
       await ctx.db.patch(attemptId, { status: "exerciseCompleted" });
     }
+
+    await ctx.db.insert("logs", {
+      type: "exerciseCompleted",
+      userId: attempt.userId,
+      attemptId,
+      exerciseId: attempt.exerciseId,
+      variant: "explain",
+    });
   },
 });
 

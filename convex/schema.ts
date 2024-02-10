@@ -69,6 +69,18 @@ export default defineSchema(
         v.union(v.literal("finished"), v.literal("typing"), v.literal("error")),
       ),
     }).index("by_attempt", ["attemptId"]),
+    logs: defineTable({
+      type: v.union(
+        v.literal("exerciseCompleted"),
+        v.literal("quizStarted"),
+        v.literal("quizSubmission"),
+      ),
+      userId: v.id("users"),
+      attemptId: v.id("attempts"),
+      exerciseId: v.id("exercises"),
+      variant: v.union(v.literal("reading"), v.literal("explain")),
+      details: v.optional(v.any()),
+    }),
 
     // Lucia
     users: defineTable({

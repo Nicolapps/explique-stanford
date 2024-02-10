@@ -189,6 +189,14 @@ export const goToQuiz = mutationWithAuth({
       throw new Error("Unexpected state " + attempt.status);
     }
 
+    await db.insert("logs", {
+      type: "quizStarted",
+      userId: session.user._id,
+      attemptId,
+      exerciseId: attempt.exerciseId,
+      variant: attempt.threadId === null ? "reading" : "explain",
+    });
+
     await db.patch(attemptId, {
       status: "quiz",
     });
@@ -218,11 +226,12 @@ export const submitQuiz = mutationWithAuth({
       throw new ConvexError("Incorrect status " + attempt.status);
     }
 
-    const correctAnswers = shownQuestions(
+    const questions = shownQuestions(
       exercise.quiz,
       attempt.userId,
       attempt.exerciseId,
-    ).map((q) => {
+    );
+    const correctAnswers = questions.map((q) => {
       const correctAnswer = q.answers.findIndex((a) => a.correct);
       if (correctAnswer === -1) throw new ConvexError("No correct answer");
       return correctAnswer;
@@ -242,6 +251,21 @@ export const submitQuiz = mutationWithAuth({
         lastQuizSubmission: Date.now(),
       });
     }
+
+    db.insert("logs", {
+      type: "quizSubmission",
+      userId,
+      attemptId,
+      exerciseId: attempt.exerciseId,
+      variant: attempt.threadId === null ? "reading" : "explain",
+      details: {
+        questions,
+        answers,
+        correctness:
+          answers.filter((a, i) => correctAnswers[i] === a).length /
+          answers.length,
+      },
+    });
 
     return { isCorrect };
   },
