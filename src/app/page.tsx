@@ -102,7 +102,7 @@ export default function Home() {
       <div className="max-w-6xl flex-1">
         <Login />
 
-        <h1 className="font-semibold text-4xl tracking-tight mt-4 mb-10">
+        <h1 className="font-semibold text-4xl tracking-tight mb-10 mt-12 sm:mt-0">
           Algorithms
         </h1>
 
