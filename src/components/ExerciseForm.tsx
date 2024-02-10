@@ -254,9 +254,20 @@ export default function ExerciseForm({
           Add Question
         </button>
 
-        <p className="text-slate-500 mt-4 text-sm">
+        <p className="text-slate-500 mt-4 mb-6 text-sm">
           <MarkdownTip />
         </p>
+
+        <Input
+          label="Number of questions to show to each student"
+          type="number"
+          value={quizShownQuestionsCount.toString()}
+          onChange={(val) => setQuizShownQuestionsCount(parseInt(val, 10))}
+          required
+          min={1}
+          max={quizQuestions.length}
+          step={1}
+        />
       </section>
 
       <hr className="my-4 border-slate-300" />
