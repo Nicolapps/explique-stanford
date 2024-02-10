@@ -18,9 +18,15 @@ export const list = queryWithAuth({
 
     const { user } = session;
 
+    const now = +new Date();
     const weeks = await db
       .query("weeks")
-      .withIndex("startDate", (x) => x.lte("startDate", +new Date()))
+      .withIndex(
+        "startDate",
+        user.earlyAccess || user.isAdmin
+          ? undefined
+          : (x) => x.lte("startDate", now),
+      )
       .order("desc")
       .collect();
     const exercises = await db.query("exercises").collect();
@@ -51,6 +57,7 @@ export const list = queryWithAuth({
         endDate: week.endDate,
         endDateExtraTime: week.endDateExtraTime,
         exercises: exercisesResult,
+        preview: week.startDate > now,
       });
     }
     return result;

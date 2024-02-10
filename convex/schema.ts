@@ -76,6 +76,7 @@ export default defineSchema(
       email: v.string(),
       name: v.string(),
       isAdmin: v.boolean(),
+      earlyAccess: v.optional(v.literal(true)),
       accepted: v.optional(v.boolean()), // @TODO Deprecated, remove
       researchConsent: v.optional(v.boolean()),
       group: v.union(v.literal("A"), v.literal("B")),

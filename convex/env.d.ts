@@ -6,6 +6,7 @@ declare namespace Lucia {
     email: string;
     name: string;
     isAdmin: boolean;
+    earlyAccess?: true;
     accepted?: boolean;
     group: "A" | "B";
     researchConsent?: boolean;

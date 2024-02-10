@@ -30,6 +30,7 @@ export function getAuth(db: AuthDbWriter) {
         name: user.name,
         isAdmin: user.isAdmin,
         accepted: user.accepted,
+        earlyAccess: user.earlyAccess,
         group: user.group,
         researchConsent: user.researchConsent,
       };

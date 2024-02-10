@@ -138,6 +138,17 @@ function ProjectGrid() {
           )}
         </header>
 
+        {week.preview && (
+          <p className="text-gray-700 my-4">
+            <span className="inline-block bg-amber-200 px-2 py-1 rounded-lg mr-2 text-amber-900 uppercase tracking-wider font-semibold">
+              Preview
+            </span>
+            Will be released on{" "}
+            <strong className="font-medium text-gray-800">
+              {formatTimestampHumanFormat(week.startDate)}
+            </strong>
+          </p>
+        )}
         <p className="text-gray-700 my-4">
           Due on{" "}
           <strong className="font-medium text-gray-800">
