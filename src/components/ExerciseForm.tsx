@@ -243,26 +243,28 @@ export default function ExerciseForm({
           />
         ))}
 
-        <button
-          type="button"
-          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200mt-6"
-          onClick={() => {
-            setQuizQuestions((questions) => [
-              ...questions,
-              {
-                question: "Question",
-                answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
-                correctAnswerIndex: null,
-              },
-            ]);
-          }}
-        >
-          Add Question
-        </button>
-
-        <p className="text-slate-500 mt-4 mb-6 text-sm">
-          <MarkdownTip />
-        </p>
+        <div className="flex flex-wrap items-center">
+          <p className="text-slate-500 mb-6 text-sm flex-1 gap-2">
+            <MarkdownTip />
+          </p>
+          <button
+            type="button"
+            className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
+            onClick={() => {
+              setQuizQuestions((questions) => [
+                ...questions,
+                {
+                  question: "Question",
+                  answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
+                  correctAnswerIndex: null,
+                },
+              ]);
+            }}
+          >
+            <PlusIcon className="w-5 h-5" />
+            New Question
+          </button>
+        </div>
 
         <Input
           label="Number of questions to show to each student"
