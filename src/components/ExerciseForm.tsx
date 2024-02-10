@@ -234,6 +234,12 @@ export default function ExerciseForm({
                 ),
               );
             }}
+            showDeleteButton={quizQuestions.length > 1}
+            onDelete={() => {
+              setQuizQuestions((questions) =>
+                questions.filter((_, index) => index !== questionIndex),
+              );
+            }}
           />
         ))}
 
@@ -286,23 +292,43 @@ export default function ExerciseForm({
 function QuizQuestion({
   question,
   onChange,
+  showDeleteButton,
+  onDelete,
 }: {
   question: Question;
   onChange: (question: Question) => void;
+  showDeleteButton: boolean;
+  onDelete: () => void;
 }) {
   const correctAnswerName = useId();
 
   return (
     <div className="grid md:grid-cols-2 gap-x-12 mb-8">
       <div>
-        <Input
-          label="Question"
-          value={question.question}
-          onChange={(val) => {
-            onChange({ ...question, question: val });
-          }}
-          required
-        />
+        <label className="block mb-6 text-sm font-medium text-slate-800">
+          Question
+          <div className="flex">
+            <input
+              className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed"
+              value={question.question}
+              onChange={(e) =>
+                onChange({ ...question, question: e.target.value })
+              }
+              required
+            />
+            {showDeleteButton && (
+              <button
+                type="button"
+                className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
+                onClick={() => {
+                  onDelete();
+                }}
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </label>
 
         <fieldset className="md:pl-6">
           <legend className="block text-sm font-medium text-slate-800">
