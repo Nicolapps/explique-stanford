@@ -5,12 +5,14 @@ export default function Input({
   onChange,
   label,
   type = "text",
+  hint,
   ...fields
 }: {
   value: string;
   onChange: (value: string) => void;
   label: string;
   type?: string;
+  hint?: ReactNode;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) {
   const id = useId();
   return (
@@ -28,6 +30,8 @@ export default function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
+
+      {hint && <p className="text-slate-500 mt-2">{hint}</p>}
     </label>
   );
 }

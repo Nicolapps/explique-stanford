@@ -40,6 +40,8 @@ export default function EditExercise() {
               ),
               firstMessage: exercise.firstMessage ?? "",
               controlGroup: exercise.controlGroup,
+              completionFunctionDescription:
+                exercise.completionFunctionDescription ?? "", // @TODO Remove default case
             }}
             onSubmit={async (state) => {
               await update({
@@ -58,6 +60,8 @@ export default function EditExercise() {
                 },
                 firstMessage: state.firstMessage,
                 controlGroup: state.controlGroup,
+                completionFunctionDescription:
+                  state.completionFunctionDescription,
               });
               router.push("/admin");
             }}

@@ -19,6 +19,7 @@ export type State = {
   quizCorrectAnswerIndex: number | null;
   firstMessage: string;
   controlGroup: "A" | "B";
+  completionFunctionDescription: string;
 };
 
 function MarkdownTip() {
@@ -64,6 +65,8 @@ export default function ExerciseForm({
   >(initialState.quizCorrectAnswerIndex);
   const [firstMessage, setFirstMessage] = useState(initialState.firstMessage);
   const [controlGroup, setControlGroup] = useState(initialState.controlGroup);
+  const [completionFunctionDescription, setCompletionFunctionDescription] =
+    useState(initialState.completionFunctionDescription);
 
   const weeks = useQuery(api.admin.weeks.list, {});
 
@@ -82,6 +85,7 @@ export default function ExerciseForm({
           quizCorrectAnswerIndex,
           firstMessage,
           controlGroup,
+          completionFunctionDescription,
         });
       }}
     >
@@ -134,13 +138,6 @@ export default function ExerciseForm({
             )}
           </div>
         </div>
-        <Textarea
-          label="Model instructions"
-          value={instructions}
-          onChange={setInstructions}
-          required
-          hint="Not visible to the students."
-        />
         <Select
           label="Model"
           value={model}
@@ -167,6 +164,31 @@ export default function ExerciseForm({
                 OpenAI documentation
               </a>
               .
+            </>
+          }
+        />
+        <Textarea
+          label="Model instructions"
+          value={instructions}
+          onChange={setInstructions}
+          required
+          hint="Not visible to the students."
+        />
+        <Input
+          label="Completion function description"
+          value={completionFunctionDescription}
+          onChange={setCompletionFunctionDescription}
+          required
+          hint={
+            <>
+              <a
+                className="underline font-semibold"
+                href="https://platform.openai.com/docs/guides/function-calling"
+                target="_blank"
+              >
+                Function calling
+              </a>{" "}
+              is used to determine when the explanation exercise is complete.
             </>
           }
         />

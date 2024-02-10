@@ -48,6 +48,7 @@ export const insertRow = internalMutation({
     model: v.string(),
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
+    completionFunctionDescription: v.string(),
   },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
@@ -67,6 +68,7 @@ export const updateRow = internalMutation({
       model: v.string(),
       firstMessage: v.string(),
       controlGroup: v.union(v.literal("A"), v.literal("B")),
+      completionFunctionDescription: v.string(),
     }),
   },
   handler: async ({ db }, { id, row }) => {
@@ -77,6 +79,7 @@ export const updateRow = internalMutation({
 async function createAssistant(
   instructions: string,
   model: string,
+  completionFunctionDescription: string,
   firstMessage?: string,
 ) {
   const openai = new OpenAI();
@@ -90,8 +93,7 @@ async function createAssistant(
         type: "function",
         function: {
           name: "markComplete",
-          description:
-            "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
+          description: completionFunctionDescription,
           parameters: {},
         },
       },
@@ -109,6 +111,7 @@ export const create = actionWithAuth({
     quiz: quizSchema,
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
+    completionFunctionDescription: v.string(),
   },
   handler: async (
     { runMutation, session },
@@ -121,11 +124,17 @@ export const create = actionWithAuth({
       quiz,
       firstMessage,
       controlGroup,
+      completionFunctionDescription,
     },
   ) => {
     validateAdminSession(session);
 
-    const assistant = await createAssistant(instructions, model, firstMessage);
+    const assistant = await createAssistant(
+      instructions,
+      model,
+      completionFunctionDescription,
+      firstMessage,
+    );
 
     await runMutation(internal.admin.exercises.insertRow, {
       name,
@@ -137,6 +146,7 @@ export const create = actionWithAuth({
       model,
       firstMessage,
       controlGroup,
+      completionFunctionDescription,
     });
   },
 });
@@ -152,6 +162,7 @@ export const update = actionWithAuth({
     quiz: quizSchema,
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
+    completionFunctionDescription: v.string(),
   },
   handler: async (
     { runMutation, session },
@@ -165,11 +176,17 @@ export const update = actionWithAuth({
       quiz,
       firstMessage,
       controlGroup,
+      completionFunctionDescription,
     },
   ) => {
     validateAdminSession(session);
 
-    const assistant = await createAssistant(instructions, model, firstMessage);
+    const assistant = await createAssistant(
+      instructions,
+      model,
+      completionFunctionDescription,
+      firstMessage,
+    );
 
     await runMutation(internal.admin.exercises.updateRow, {
       id,
@@ -183,6 +200,7 @@ export const update = actionWithAuth({
         model,
         firstMessage,
         controlGroup,
+        completionFunctionDescription,
       },
     });
   },

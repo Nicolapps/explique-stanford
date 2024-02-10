@@ -41,6 +41,7 @@ export default defineSchema(
       quiz: quizSchema,
       firstMessage: v.optional(v.string()),
       controlGroup: v.union(v.literal("A"), v.literal("B")),
+      completionFunctionDescription: v.optional(v.string()),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),
@@ -57,7 +58,7 @@ export default defineSchema(
       email: v.string(),
       name: v.string(),
       isAdmin: v.boolean(),
-      accepted: v.optional(v.boolean()),
+      accepted: v.optional(v.boolean()), // @TODO Deprecated, remove
       researchConsent: v.optional(v.boolean()),
       group: v.union(v.literal("A"), v.literal("B")),
     }).index("byId", ["id"]),

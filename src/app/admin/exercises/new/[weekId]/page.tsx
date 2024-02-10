@@ -35,6 +35,8 @@ export default function NewExercise() {
             quizCorrectAnswerIndex: null,
             firstMessage: "",
             controlGroup: "A",
+            completionFunctionDescription:
+              "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
           }}
           onSubmit={async (state) => {
             await create({
@@ -52,6 +54,8 @@ export default function NewExercise() {
               },
               firstMessage: state.firstMessage,
               controlGroup: state.controlGroup,
+              completionFunctionDescription:
+                state.completionFunctionDescription,
             });
 
             router.push("/admin");
