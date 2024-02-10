@@ -8,23 +8,25 @@ import {
   CheckIcon as CheckIconSmall,
   XMarkIcon as XMarkIconSmall,
 } from "@heroicons/react/20/solid";
-import { Doc } from "../../convex/_generated/dataModel";
 import clsx from "clsx";
 import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
-import Head from "next/head";
 
 function ExerciseLink({
   exercise,
 }: {
-  exercise: Doc<"exercises"> & { attemptId: string | null; completed: boolean };
+  exercise: {
+    id: string;
+    name: string;
+    attemptId: string | null;
+    completed: boolean;
+  };
 }) {
   return (
     <Link
-      key={exercise._id}
-      href={`/a/${exercise.attemptId ?? `new?exerciseId=${exercise._id}`}`}
+      href={`/a/${exercise.attemptId ?? `new?exerciseId=${exercise.id}`}`}
       className="block bg-white overflow-hidden rounded-3xl shadow-lg transition hover:scale-105 hover:shadow-2xl group"
     >
       <div className="relative bg-slate-500 pb-[60%]">
@@ -148,7 +150,7 @@ function ProjectGrid() {
 
         <div className="grid gap-6 md:grid-cols-2">
           {week.exercises.map((exercise) => (
-            <ExerciseLink exercise={exercise} key={exercise._id} />
+            <ExerciseLink exercise={exercise} key={exercise.id} />
           ))}
         </div>
       </div>

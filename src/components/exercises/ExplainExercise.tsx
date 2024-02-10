@@ -34,7 +34,7 @@ export default function ExplainExercise({
     <>
       <div className="flex flex-col gap-6">
         {chat?.map((message) => (
-          <div key={message._id}>
+          <div key={message.id}>
             {message.appearance === "finished" ? (
               <div className="flex flex-col items-center gap-4">
                 <p className="text-lg font-light flex items-center justify-center gap-1">

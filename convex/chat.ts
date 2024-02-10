@@ -37,10 +37,17 @@ export const getMessages = queryWithAuth({
   handler: async ({ db, session }, { attemptId }) => {
     await getAttemptIfAuthorized(db, session, attemptId);
 
-    return await db
+    const rows = await db
       .query("messages")
       .withIndex("by_attempt", (x) => x.eq("attemptId", attemptId))
       .collect();
+
+    return rows.map(({ _id: id, system, content, appearance }) => ({
+      id,
+      system,
+      content,
+      appearance,
+    }));
   },
 });
 

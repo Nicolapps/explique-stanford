@@ -9,7 +9,10 @@ import { OAuthRequestError } from "@lucia-auth/oauth";
 export const get = queryWithAuth({
   args: {},
   handler: async (ctx) => {
-    return ctx.session?.user;
+    if (!ctx.session) return null;
+
+    const { name, email, isAdmin } = ctx.session.user;
+    return { name, email, isAdmin };
   },
 });
 

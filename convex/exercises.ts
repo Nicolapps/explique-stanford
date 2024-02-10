@@ -37,7 +37,8 @@ export const list = queryWithAuth({
           .order("desc") // latest attempt
           .first();
         exercisesResult.push({
-          ...exercise,
+          id: exercise._id,
+          name: exercise.name,
           attemptId: attempt?._id ?? null,
           completed: attempt?.status === "quizCompleted" ?? false,
         });
