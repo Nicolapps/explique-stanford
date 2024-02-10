@@ -10,7 +10,7 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import Markdown from "../Markdown";
 
-const ATTEMPT_TIMEOUT_MS = 1000 * 60 * 5;
+const ATTEMPT_TIMEOUT_MS = 1000 * 60 * 1;
 
 export default function QuizExercise({
   attemptId,
@@ -71,20 +71,22 @@ export default function QuizExercise({
         </span>
       </p>
 
-      {questions.map(({ question, answers }, index) => (
-        <QuizContents
-          key={index}
-          question={question}
-          answers={answers}
-          selectedAnswerIndex={selectedAnswerIndexes[index]}
-          onChange={(index) => {
-            const newIndexes = [...selectedAnswerIndexes];
-            newIndexes[index] = index;
-            setSelectedAnswerIndexes(newIndexes);
-          }}
-          disabled={disabled}
-        />
-      ))}
+      <div className="flex flex-col gap-4">
+        {questions.map(({ question, answers }, index) => (
+          <QuizContents
+            key={index}
+            question={question}
+            answers={answers}
+            selectedAnswerIndex={selectedAnswerIndexes[index]}
+            onChange={(newSelectedIndex) => {
+              const newIndexes = [...selectedAnswerIndexes];
+              newIndexes[index] = newSelectedIndex;
+              setSelectedAnswerIndexes(newIndexes);
+            }}
+            disabled={disabled}
+          />
+        ))}
+      </div>
 
       <footer className="flex flex-col items-center mt-8 gap-8">
         <button
