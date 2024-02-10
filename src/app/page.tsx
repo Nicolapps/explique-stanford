@@ -106,7 +106,7 @@ export default function Home() {
           Algorithms
         </h1>
 
-        {user && <ProjectGrid />}
+        {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
 
         <div className="h-10" />
       </div>
@@ -117,7 +117,11 @@ export default function Home() {
 function ProjectGrid() {
   const weeks = useQuery(api.exercises.list, {});
 
-  return weeks?.map((week) => {
+  if (!weeks) {
+    return <ProjectGridSkeleton />;
+  }
+
+  return weeks.map((week) => {
     const isCompleted = week.exercises.every((exercise) => exercise.completed);
 
     return (
@@ -167,4 +171,23 @@ function ProjectGrid() {
       </div>
     );
   });
+}
+
+function ProjectGridSkeleton() {
+  return Array.from({ length: 3 }).map((_, i) => (
+    <div className="animate-pulse" key={i}>
+      <div className="mt-12 mb-4 flex flex-wrap h-9">
+        <div className="bg-slate-200 rounded flex-1 mr-[20%]" />
+        <div className="bg-slate-200 rounded-full w-36" />
+      </div>
+
+      <div className="h-6 my-4 bg-slate-200 rounded w-72" />
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="pb-[60%] bg-slate-200 rounded-3xl" />
+        ))}
+      </div>
+    </div>
+  ));
 }

@@ -16,10 +16,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const metadata = useQuery(api.attempts.get, { id: attemptId });
 
-  if (!metadata) {
-    return null;
-  }
-
   return (
     <div className="p-6">
       <div className="max-w-xl mx-auto">
@@ -33,36 +29,44 @@ export default function Page({ params }: { params: { id: string } }) {
           </Link>
 
           <h1 className="text-xl font-medium text-center">
-            {metadata.exerciseName}
+            {metadata?.exerciseName ?? (
+              <div className="animate-pulse h-7 bg-slate-200 rounded w-56" />
+            )}
           </h1>
 
-          {metadata.status === "exercise" && metadata.text === null && (
-            <RestartButton exerciseId={metadata.exerciseId} />
-          )}
+          {metadata &&
+            metadata.status === "exercise" &&
+            metadata.text === null && (
+              <RestartButton exerciseId={metadata.exerciseId} />
+            )}
         </header>
 
-        <div className="h-14"></div>
+        {metadata && (
+          <>
+            <div className="h-14"></div>
 
-        {metadata.quiz ? (
-          <QuizExercise
-            attemptId={attemptId}
-            title={metadata.exerciseName}
-            questions={metadata.quiz}
-            lastSubmission={metadata.lastQuizSubmission}
-            succeeded={metadata.status === "quizCompleted"}
-          />
-        ) : metadata.text ? (
-          <ReadingExercise
-            title={metadata.exerciseName}
-            text={metadata.text}
-            attemptId={attemptId}
-          />
-        ) : (
-          <ExplainExercise
-            title={metadata.exerciseName}
-            isCompleted={metadata.status === "exerciseCompleted"}
-            attemptId={attemptId}
-          />
+            {metadata.quiz ? (
+              <QuizExercise
+                attemptId={attemptId}
+                title={metadata.exerciseName}
+                questions={metadata.quiz}
+                lastSubmission={metadata.lastQuizSubmission}
+                succeeded={metadata.status === "quizCompleted"}
+              />
+            ) : metadata.text ? (
+              <ReadingExercise
+                title={metadata.exerciseName}
+                text={metadata.text}
+                attemptId={attemptId}
+              />
+            ) : (
+              <ExplainExercise
+                title={metadata.exerciseName}
+                isCompleted={metadata.status === "exerciseCompleted"}
+                attemptId={attemptId}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
