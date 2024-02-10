@@ -41,7 +41,7 @@ export default function EditExercise() {
               firstMessage: exercise.firstMessage ?? "",
               controlGroup: exercise.controlGroup,
               completionFunctionDescription:
-                exercise.completionFunctionDescription ?? "", // @TODO Remove default case
+                exercise.completionFunctionDescription,
             }}
             onSubmit={async (state) => {
               await update({

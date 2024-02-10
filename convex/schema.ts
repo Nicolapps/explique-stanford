@@ -41,7 +41,7 @@ export default defineSchema(
       quiz: quizSchema,
       firstMessage: v.optional(v.string()),
       controlGroup: v.union(v.literal("A"), v.literal("B")),
-      completionFunctionDescription: v.optional(v.string()),
+      completionFunctionDescription: v.string(),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),
