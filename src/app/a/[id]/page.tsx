@@ -62,7 +62,6 @@ export default function Page({ params }: { params: { id: string } }) {
               />
             ) : (
               <ExplainExercise
-                title={metadata.exerciseName}
                 isCompleted={metadata.status === "exerciseCompleted"}
                 attemptId={attemptId}
               />

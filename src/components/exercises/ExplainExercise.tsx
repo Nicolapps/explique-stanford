@@ -3,7 +3,6 @@ import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import {
   CheckCircleIcon,
-  InformationCircleIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useMutation, useQuery } from "@/usingSession";
@@ -13,11 +12,9 @@ import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import Markdown from "../Markdown";
 
 export default function ExplainExercise({
-  title,
   attemptId,
   isCompleted,
 }: {
-  title: string;
   attemptId: Id<"attempts">;
   isCompleted: boolean;
 }) {
