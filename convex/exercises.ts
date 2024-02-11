@@ -45,6 +45,7 @@ export const list = queryWithAuth({
         exercisesResult.push({
           id: exercise._id,
           name: exercise.name,
+          image: exercise.image,
           attemptId: attempt?._id ?? null,
           completed: attempt?.status === "quizCompleted" ?? false,
         });

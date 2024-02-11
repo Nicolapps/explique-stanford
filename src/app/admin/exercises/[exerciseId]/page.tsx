@@ -30,6 +30,8 @@ export default function EditExercise() {
             initialState={{
               weekId: exercise.weekId,
               name: exercise.name,
+              image: exercise.image,
+              imagePrompt: exercise.imagePrompt,
               instructions: exercise.instructions,
               model: exercise.model ?? "gpt-4", // @TODO Remove default case
               text: exercise.text,
@@ -52,6 +54,8 @@ export default function EditExercise() {
               await update({
                 id: exercise._id,
                 name: state.name,
+                image: state.image,
+                imagePrompt: state.imagePrompt,
                 instructions: state.instructions,
                 model: state.model,
                 text: state.text,

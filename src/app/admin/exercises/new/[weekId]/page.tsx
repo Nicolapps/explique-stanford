@@ -26,6 +26,8 @@ export default function NewExercise() {
           initialState={{
             weekId: initialWeekId,
             name: "",
+            image: undefined,
+            imagePrompt: undefined,
             instructions:
               "Your goal is to ask the person you’re talking with to explain how {INSERT ALGORITHM NAME} works. Do not give any advice about how it works, and ask questions to the person you’re talking to if their explanations isn’t clear enough. Once their explanation is clear enough (but not before), give the pseudo code for the algorithm.",
             model: "gpt-4-0125-preview",
@@ -48,6 +50,8 @@ export default function NewExercise() {
           onSubmit={async (state) => {
             await create({
               name: state.name,
+              image: state.image,
+              imagePrompt: state.imagePrompt,
               instructions: state.instructions,
               model: state.model,
               text: state.text,

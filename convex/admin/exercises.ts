@@ -57,6 +57,7 @@ export const list = queryWithAuth({
 export const insertRow = internalMutation({
   args: {
     name: v.string(),
+    image: v.optional(v.string()),
     instructions: v.string(),
     assistantId: v.string(),
     weekId: v.id("weeks"),
@@ -77,6 +78,7 @@ export const updateRow = internalMutation({
     id: v.id("exercises"),
     row: v.object({
       name: v.string(),
+      image: v.optional(v.string()),
       instructions: v.string(),
       assistantId: v.string(),
       weekId: v.id("weeks"),
@@ -121,6 +123,7 @@ async function createAssistant(
 export const create = actionWithAuth({
   args: {
     name: v.string(),
+    image: v.optional(v.string()),
     instructions: v.string(),
     model: v.string(),
     weekId: v.id("weeks"),
@@ -134,6 +137,7 @@ export const create = actionWithAuth({
     { runMutation, session },
     {
       name,
+      image,
       instructions,
       model,
       weekId,
@@ -155,6 +159,7 @@ export const create = actionWithAuth({
 
     await runMutation(internal.admin.exercises.insertRow, {
       name,
+      image,
       instructions,
       assistantId: assistant.id,
       weekId,
@@ -171,6 +176,7 @@ export const create = actionWithAuth({
 export const update = actionWithAuth({
   args: {
     id: v.id("exercises"),
+    image: v.optional(v.string()),
     name: v.string(),
     instructions: v.string(),
     model: v.string(),
@@ -186,6 +192,7 @@ export const update = actionWithAuth({
     {
       id,
       name,
+      image,
       instructions,
       model,
       weekId,
@@ -209,6 +216,7 @@ export const update = actionWithAuth({
       id,
       row: {
         name,
+        image,
         instructions,
         assistantId: assistant.id,
         weekId,

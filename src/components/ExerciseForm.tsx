@@ -6,7 +6,7 @@ import { QuizContents } from "@/components/exercises/QuizExercise";
 import Markdown from "@/components/Markdown";
 import { Id } from "../../convex/_generated/dataModel";
 import { api } from "../../convex/_generated/api";
-import { useQuery } from "@/usingSession";
+import { useAction, useQuery } from "@/usingSession";
 
 type Question = {
   question: string;
@@ -20,6 +20,8 @@ export type State = {
   instructions: string;
   model: string;
   text: string;
+  image?: string;
+  imagePrompt?: string;
 
   quizQuestions: Question[];
   quizShownQuestionsCount: number;
@@ -62,6 +64,9 @@ export default function ExerciseForm({
   const [instructions, setInstructions] = useState(initialState.instructions);
   const [model, setModel] = useState(initialState.model);
   const [text, setText] = useState(initialState.text);
+  const [image, setImage] = useState(initialState.image);
+  const [imagePrompt, setImagePrompt] = useState(initialState.imagePrompt);
+  const [imageLoading, setImageLoading] = useState(false);
 
   const [quizQuestions, setQuizQuestions] = useState(
     initialState.quizQuestions,
@@ -76,6 +81,7 @@ export default function ExerciseForm({
     useState(initialState.completionFunctionDescription);
 
   const weeks = useQuery(api.admin.weeks.list, {});
+  const generateImage = useAction(api.admin.image.generate);
 
   return (
     <form
@@ -84,6 +90,7 @@ export default function ExerciseForm({
         onSubmit({
           name,
           instructions,
+          image,
           model,
           text,
           weekId,
@@ -111,6 +118,52 @@ export default function ExerciseForm({
           values={weeks.map((week) => ({ value: week.id, label: week.name }))}
         />
       )}
+
+      <div className="grid md:grid-cols-2 gap-x-12">
+        <label className="block mb-6 text-sm font-medium text-slate-800">
+          Image
+          <div className="flex flex-wrap gap-2 mt-1">
+            {imagePrompt !== undefined && (
+              <input
+                className="p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1"
+                value={imagePrompt ?? ""}
+                onChange={(e) => setImagePrompt(e.target.value)}
+                required
+                disabled={imageLoading}
+              />
+            )}
+
+            <button
+              type="button"
+              className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1 disabled:cursor-not-allowed disabled:bg-slate-200"
+              onClick={async () => {
+                // Set a default prompt
+                const prompt =
+                  imagePrompt ??
+                  `Generate an cartoon-style image representing ${name}`;
+                setImagePrompt(prompt);
+                setImageLoading(true);
+
+                const image = await generateImage({
+                  prompt,
+                });
+                setImage(image);
+                setImageLoading(false);
+              }}
+              disabled={imageLoading}
+            >
+              Generate
+            </button>
+          </div>
+        </label>
+
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="mb-6" src={image} alt="" />
+        ) : imageLoading ? (
+          <div className="bg-slate-200 animate-pulse rounded aspect-video"></div>
+        ) : null}
+      </div>
 
       <Select
         label="Control group"

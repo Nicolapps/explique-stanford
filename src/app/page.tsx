@@ -20,6 +20,7 @@ function ExerciseLink({
   exercise: {
     id: string;
     name: string;
+    image?: string;
     attemptId: string | null;
     completed: boolean;
   };
@@ -29,15 +30,28 @@ function ExerciseLink({
       href={`/a/${exercise.attemptId ?? `new?exerciseId=${exercise.id}`}`}
       className="block bg-white overflow-hidden rounded-3xl shadow-lg transition hover:scale-105 hover:shadow-2xl group"
     >
-      <div className="relative bg-slate-500 pb-[60%]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="absolute inset-0 object-cover group-hover:scale-105 transition-transform"
-          src={`/levels/${exercise.name.replace(/ /g, "")}.png`}
-          alt=""
-        />
+      <div
+        className={clsx(
+          "relative pb-[60%]",
+          exercise.image && "bg-slate-500",
+          !exercise.image && "bg-slate-600",
+        )}
+      >
+        {exercise.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="absolute inset-0 object-cover group-hover:scale-105 transition-transform"
+            src={exercise.image}
+            alt=""
+          />
+        )}
 
-        <div className="absolute inset-0 bg-gradient-to-t via-black/25 from-black/90 flex p-4 text-white items-end">
+        <div
+          className={clsx(
+            "absolute inset-0 flex p-4 text-white items-end",
+            exercise.image && "bg-gradient-to-t via-black/25 from-black/90",
+          )}
+        >
           <h2 className="font-semibold text-2xl text-shadow-lg">
             {exercise.name}
           </h2>
