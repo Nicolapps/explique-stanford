@@ -25,6 +25,12 @@ export const get = queryWithAuth({
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
 
+    const lastQuizSubmission = await db
+      .query("quizSubmissions")
+      .withIndex("attemptId", (q) => q.eq("attemptId", attempt._id))
+      .order("desc")
+      .first();
+
     return {
       exerciseId: exercise._id,
       exerciseName: exercise.name,
@@ -38,7 +44,12 @@ export const get = queryWithAuth({
               attempt.exerciseId,
             ).map(toUserVisibleQuestion)
           : null,
-      lastQuizSubmission: attempt.lastQuizSubmission ?? null,
+      lastQuizSubmission: lastQuizSubmission
+        ? {
+            answers: lastQuizSubmission.answers,
+            timestamp: lastQuizSubmission._creationTime,
+          }
+        : null,
     };
   },
 });
@@ -242,13 +253,14 @@ export const submitQuiz = mutationWithAuth({
 
     const isCorrect = answers.every((a, i) => correctAnswers[i] === a);
 
+    await db.insert("quizSubmissions", {
+      attemptId,
+      answers,
+    });
+
     if (isCorrect) {
       await db.patch(attemptId, {
         status: "quizCompleted",
-      });
-    } else {
-      await db.patch(attemptId, {
-        lastQuizSubmission: Date.now(),
       });
     }
 

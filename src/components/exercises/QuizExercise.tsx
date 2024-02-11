@@ -25,14 +25,21 @@ export default function QuizExercise({
     question: string;
     answers: string[];
   }[];
-  lastSubmission: number | null;
+  lastSubmission: {
+    answers: number[];
+    timestamp: number;
+  } | null;
   succeeded: boolean;
 }) {
   const submit = useMutation(api.attempts.submitQuiz);
 
   const [selectedAnswerIndexes, setSelectedAnswerIndexes] = useState<
     (number | null)[]
-  >(questions.map(() => null));
+  >(
+    questions.map((_, i) =>
+      lastSubmission ? lastSubmission.answers[i] : null,
+    ),
+  );
 
   const [timeoutSeconds, setTimeoutSeconds] = useState<null | number>(67);
   const disabled = succeeded || timeoutSeconds !== null;
@@ -45,7 +52,7 @@ export default function QuizExercise({
     }
 
     const update = () => {
-      const elapsed = Date.now() - lastSubmission;
+      const elapsed = Date.now() - lastSubmission.timestamp;
       const remaining = ATTEMPT_TIMEOUT_MS - elapsed;
       setTimeoutSeconds(remaining >= 0 ? Math.floor(remaining / 1000) : null);
     };
