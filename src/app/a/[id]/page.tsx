@@ -10,6 +10,7 @@ import QuizExercise from "@/components/exercises/QuizExercise";
 import ReadingExercise from "@/components/exercises/ReadingExercise";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
+import Tooltip from "@/components/Tooltip";
 
 export default function Page({ params }: { params: { id: string } }) {
   const attemptId = params.id as Id<"attempts">;
@@ -78,13 +79,16 @@ function RestartButton({ exerciseId }: { exerciseId: Id<"exercises"> }) {
 
   return (
     <>
-      <button
-        title="Restart the conversation"
-        className="absolute top-0 right-0 w-16 h-16 flex items-center justify-center"
-        onClick={() => setIsModalOpen(true)}
-      >
-        <ArrowPathIcon className="w-6 h-6" />
-      </button>
+      <div className="absolute top-0 right-0">
+        <Tooltip side="bottom" sideOffset={-10} tip="Restart the conversation">
+          <button
+            className="w-16 h-16 flex items-center justify-center"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <ArrowPathIcon className="w-6 h-6" />
+          </button>
+        </Tooltip>
+      </div>
 
       <Transition appear show={isModalOpen} as={Fragment}>
         <Dialog
