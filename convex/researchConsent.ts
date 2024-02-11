@@ -11,12 +11,16 @@ export const hasBeenSet = queryWithAuth({
 
 export const set = mutationWithAuth({
   args: {
-    value: v.boolean(),
+    code: v.string(),
   },
-  handler: async (ctx, { value }) => {
+  handler: async (ctx, { code }) => {
     const user = ctx.session?.user;
     if (!user) throw new ConvexError("Not logged in");
 
-    ctx.db.patch(user._id, { researchConsent: value });
+    const isCorrect = code === "ALGO-1234";
+    if (isCorrect) {
+      ctx.db.patch(user._id, { researchConsent: true });
+    }
+    return { isCorrect };
   },
 });

@@ -1,11 +1,16 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { useMutation, useQuery } from "../usingSession";
 import { api } from "../../convex/_generated/api";
+import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
+import clsx from "clsx";
 
 export function ResearchConsent() {
   const hasBeenSet = useQuery(api.researchConsent.hasBeenSet, {});
   const set = useMutation(api.researchConsent.set);
+
+  const [code, setCode] = useState("");
+  const [isInvalid, setIsInvalid] = useState(false);
 
   return (
     <Transition
@@ -48,32 +53,66 @@ export function ResearchConsent() {
                   <p className="text-purple-600 text-4xl leading-snug tracking-tight font-semibold mb-2 ">
                     Welcome to CS-250!
                   </p>
-                  <p className="text-gray-700 text-2xl leading-snug tracking-tight font-medium">
-                    Research Consent
-                  </p>
 
                   <p className="leading-relaxed text-gray-800 my-2">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Distinctio laborum possimus atque accusantium, optio dolores
-                    necessitatibus recusandae? Eligendi numquam, sed explicabo
-                    enim quia, aspernatur incidunt, animi vitae neque ad
-                    consequatur.
+                    Before you start, please fill in the research consent form
+                    on Moodle. After completing it, you will get a code that you
+                    can use to access this website.
                   </p>
 
-                  <div className="grid sm:grid-cols-2 gap-4 mt-4">
+                  <form
+                    className="flex flex-wrap gap-4 mt-4"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+
+                      setIsInvalid(false);
+                      const { isCorrect } = await set({ code });
+                      if (!isCorrect) {
+                        setIsInvalid(true);
+                      }
+                    }}
+                  >
+                    <div className="flex-1">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          className={clsx(
+                            "block w-full rounded-md border-0 py-2 px-4 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset h-14",
+                            !isInvalid &&
+                              "text-gray-900 focus:ring-purple-600 ring-gray-300 placeholder:text-gray-400",
+                            isInvalid &&
+                              "pr-10 text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500",
+                          )}
+                          value={code}
+                          onChange={(e) =>
+                            setCode(e.target.value.toUpperCase())
+                          }
+                          placeholder="XXXX-XXXX"
+                        />
+                        {isInvalid && (
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                            <ExclamationCircleIcon
+                              className="h-5 w-5 text-red-500"
+                              aria-hidden="true"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {isInvalid && (
+                        <p className="mt-2 text-sm text-red-600">
+                          Invalid code.
+                        </p>
+                      )}
+                    </div>
+
                     <button
-                      className="flex items-center gap-1 justify-center py-3 px-6 border-2 border-slate-300 text-slate-700 text-lg font-semibold rounded-2xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 "
-                      onClick={() => set({ value: false })}
+                      type="submit"
+                      className="flex items-center h-14 gap-1 justify-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
                     >
-                      I don’t consent
+                      OK
                     </button>
-                    <button
-                      className="flex items-center gap-1 justify-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 "
-                      onClick={() => set({ value: true })}
-                    >
-                      I consent
-                    </button>
-                  </div>
+                  </form>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
