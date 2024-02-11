@@ -58,6 +58,7 @@ export const insertRow = internalMutation({
   args: {
     name: v.string(),
     image: v.optional(v.string()),
+    imagePrompt: v.optional(v.string()),
     instructions: v.string(),
     assistantId: v.string(),
     weekId: v.id("weeks"),
@@ -79,6 +80,7 @@ export const updateRow = internalMutation({
     row: v.object({
       name: v.string(),
       image: v.optional(v.string()),
+      imagePrompt: v.optional(v.string()),
       instructions: v.string(),
       assistantId: v.string(),
       weekId: v.id("weeks"),
@@ -124,6 +126,7 @@ export const create = actionWithAuth({
   args: {
     name: v.string(),
     image: v.optional(v.string()),
+    imagePrompt: v.optional(v.string()),
     instructions: v.string(),
     model: v.string(),
     weekId: v.id("weeks"),
@@ -138,6 +141,7 @@ export const create = actionWithAuth({
     {
       name,
       image,
+      imagePrompt,
       instructions,
       model,
       weekId,
@@ -160,6 +164,7 @@ export const create = actionWithAuth({
     await runMutation(internal.admin.exercises.insertRow, {
       name,
       image,
+      imagePrompt,
       instructions,
       assistantId: assistant.id,
       weekId,
@@ -177,6 +182,7 @@ export const update = actionWithAuth({
   args: {
     id: v.id("exercises"),
     image: v.optional(v.string()),
+    imagePrompt: v.optional(v.string()),
     name: v.string(),
     instructions: v.string(),
     model: v.string(),
@@ -193,6 +199,7 @@ export const update = actionWithAuth({
       id,
       name,
       image,
+      imagePrompt,
       instructions,
       model,
       weekId,
@@ -217,6 +224,7 @@ export const update = actionWithAuth({
       row: {
         name,
         image,
+        imagePrompt,
         instructions,
         assistantId: assistant.id,
         weekId,
