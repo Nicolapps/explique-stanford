@@ -3,8 +3,8 @@
 import { useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
-import { formatTimestampFull } from "@/util/date";
-import { PencilSquareIcon, PlusIcon } from "@heroicons/react/20/solid";
+import { formatTimestampHumanFormat } from "@/util/date";
+import { PlusIcon } from "@heroicons/react/20/solid";
 
 export default function Admin() {
   const weeks = useQuery(api.admin.exercises.list, {});
@@ -36,15 +36,15 @@ export default function Admin() {
             </h2>
             <p className="text-gray-700">
               <strong className="font-medium text-gray-800">
-                {formatTimestampFull(week.startDate)}
+                {formatTimestampHumanFormat(week.startDate)}
               </strong>{" "}
               to{" "}
               <strong className="font-medium text-gray-800">
-                {formatTimestampFull(week.endDate)}
+                {formatTimestampHumanFormat(week.endDate)}
               </strong>{" "}
               (extra time:{" "}
               <strong className="font-medium text-gray-800">
-                {formatTimestampFull(week.endDateExtraTime)}
+                {formatTimestampHumanFormat(week.endDateExtraTime)}
               </strong>
               )
             </p>
