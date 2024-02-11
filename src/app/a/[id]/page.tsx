@@ -79,7 +79,12 @@ function RestartButton({ exerciseId }: { exerciseId: Id<"exercises"> }) {
   return (
     <>
       <div className="absolute top-0 right-0">
-        <Tooltip side="bottom" sideOffset={-10} tip="Restart the conversation">
+        <Tooltip
+          asChild
+          side="bottom"
+          sideOffset={-10}
+          tip="Restart the conversation"
+        >
           <button
             className="w-16 h-16 flex items-center justify-center"
             onClick={() => setIsModalOpen(true)}

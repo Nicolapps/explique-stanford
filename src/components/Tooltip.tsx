@@ -6,15 +6,19 @@ export default function Tooltip({
   children,
   side,
   sideOffset,
+  asChild = false,
 }: React.PropsWithChildren<{
   tip: ReactNode | string;
   side?: "top" | "right" | "bottom" | "left";
   sideOffset?: number;
+  asChild?: boolean;
 }>) {
   return (
     <TooltipPrimitive.Provider delayDuration={0}>
       <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger>{children}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Trigger asChild={asChild}>
+          {children}
+        </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Content
           side={side}
           sideOffset={sideOffset}
