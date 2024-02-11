@@ -93,6 +93,7 @@ export default defineSchema(
       earlyAccess: v.optional(v.literal(true)),
       researchConsent: v.optional(v.boolean()),
       group: v.union(v.literal("A"), v.literal("B")),
+      extraTime: v.optional(v.literal(true)),
     }).index("byId", ["id"]),
     sessions: defineTable({
       id: v.string(),

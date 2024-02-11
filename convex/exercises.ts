@@ -56,7 +56,7 @@ export const list = queryWithAuth({
         name: week.name,
         startDate: week.startDate,
         endDate: week.endDate,
-        endDateExtraTime: week.endDateExtraTime,
+        endDateExtraTime: user.extraTime ? week.endDateExtraTime : null,
         exercises: exercisesResult,
         preview: week.startDate > now,
       });

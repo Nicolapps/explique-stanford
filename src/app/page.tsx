@@ -3,7 +3,11 @@
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 import { ResearchConsent } from "@/components/ResearchConsent";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  CheckIcon,
+  QuestionMarkCircleIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import {
   CheckIcon as CheckIconSmall,
   XMarkIcon as XMarkIconSmall,
@@ -13,7 +17,7 @@ import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
-
+import Tooltip from "@/components/Tooltip";
 function ExerciseLink({
   exercise,
 }: {
@@ -167,15 +171,25 @@ function ProjectGrid() {
             </strong>
           </p>
         )}
-        <p className="text-gray-700 my-4">
-          Due on{" "}
-          <strong className="font-medium text-gray-800">
-            {formatTimestampHumanFormat(week.endDate)}
-          </strong>
-          {Date.now() < week.endDate && (
-            <span> ({timeFromNow(new Date(week.endDate))})</span>
+        <div className="text-gray-700 my-4">
+          <span>Due on</span>{" "}
+          {week.endDateExtraTime === null ? (
+            <Deadline timestamp={week.endDate} />
+          ) : (
+            <>
+              <span className="inline-flex flex-wrap items-center gap-1">
+                <s className="opacity-60">
+                  <Deadline timestamp={week.endDate} />
+                </s>
+
+                <Tooltip tip="Extra time applied">
+                  <QuestionMarkCircleIcon className="w-5 h-5 text-gray-500 inline-block mr-1" />
+                </Tooltip>
+              </span>{" "}
+              <Deadline timestamp={week.endDateExtraTime} />
+            </>
           )}
-        </p>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           {week.exercises.map((exercise) => (
@@ -204,4 +218,17 @@ function ProjectGridSkeleton() {
       </div>
     </div>
   ));
+}
+
+function Deadline({ timestamp }: { timestamp: number }) {
+  return (
+    <>
+      <strong className="font-medium text-gray-800">
+        {formatTimestampHumanFormat(timestamp)}
+      </strong>
+      {Date.now() < timestamp && (
+        <span> ({timeFromNow(new Date(timestamp))})</span>
+      )}
+    </>
+  );
 }
