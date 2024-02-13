@@ -4,9 +4,9 @@ stages:
 
 variables:
   HARBOR_REGISTRY: "ic-registry.epfl.ch"
-  APPLICATION_NAME: "xxx" 
+  APPLICATION_NAME: "cs250" 
   REPO_NAME: "cs250"
-  IMAGE_NAME: "xxxx"
+  IMAGE_NAME: "cs250next"
   TAG: "test"
   REGISTRY_ROBOT: 'robot$$CS250-gitlab'
   DOCKERFILE_PATH: "prod.Dockerfile"
