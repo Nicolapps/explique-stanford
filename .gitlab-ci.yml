@@ -16,8 +16,8 @@ variables:
 .EXEC_SCRIPT: &EXEC_SCRIPT
   - mkdir -p ~/.kube
   - echo "$KUBERNETESCONFIG" > ~/.kube/config
-  - kubectl delete secret $APPLICATION_NAME-regcred --ignore-not-found -n cs250
-  - kubectl create secret docker-registry $APPLICATION_NAME-regcred --docker-server="$HARBOR_REGISTRY" --docker-username=$REGISTRY_ROBOT --docker-password="$HARBOR_PASSWORD" --docker-email=support-icit@epfl.ch -n cs250
+  - kubectl delete secret $APPLICATION_NAME-regcred --ignore-not-found -n thl2
+  - kubectl create secret docker-registry $APPLICATION_NAME-regcred --docker-server="$HARBOR_REGISTRY" --docker-username=$REGISTRY_ROBOT --docker-password="$HARBOR_PASSWORD" --docker-email=support-icit@epfl.ch -n thl2
   - sed -i "s%APPLICATION-HOSTS-FQDN%$FQDN%g" $CI_PROJECT_DIR/k8s/ingress.yaml
   - sed -i "s%APPLICATION-IMAGE%$HARBOR_REGISTRY/$REPO_NAME/$IMAGE_NAME:$TAG%g" $CI_PROJECT_DIR/k8s/deployment.yaml
   - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/deployment.yaml
@@ -25,11 +25,11 @@ variables:
   - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/persistentvolume.yaml
   - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/persistentvolumeclaim.yaml
   - sed -i "s%APPLICATION-NAME%$APPLICATION_NAME%g" $CI_PROJECT_DIR/k8s/service.yaml
-  - kubectl apply -f $CI_PROJECT_DIR/k8s/ingress.yaml -n cs250
-  - kubectl apply -f $CI_PROJECT_DIR/k8s/persistentvolumeclaim.yaml -n cs250
-  - kubectl apply -f $CI_PROJECT_DIR/k8s/service.yaml -n cs250
-  - kubectl delete -f $CI_PROJECT_DIR/k8s/deployment.yaml --ignore-not-found -n cs250
-  - kubectl apply -f $CI_PROJECT_DIR/k8s/deployment.yaml -n cs250
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/ingress.yaml -n thl2
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/persistentvolumeclaim.yaml -n thl2
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/service.yaml -n thl2
+  - kubectl delete -f $CI_PROJECT_DIR/k8s/deployment.yaml --ignore-not-found -n thl2
+  - kubectl apply -f $CI_PROJECT_DIR/k8s/deployment.yaml -n thl2
 
 
 build-a-docker:
