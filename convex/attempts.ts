@@ -132,7 +132,6 @@ export const start = actionWithAuth({
       {
         exerciseId,
         userId,
-        seed: Math.random(),
       },
     );
     let threadId = null;
@@ -160,7 +159,6 @@ export const isUsingExplainVariant = internalQuery({
   args: {
     exerciseId: v.id("exercises"),
     userId: v.id("users"),
-    seed: v.number(),
   },
   handler: async ({ db }, { exerciseId, userId }) => {
     const exercise = await db.get(exerciseId);
