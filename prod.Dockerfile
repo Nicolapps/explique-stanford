@@ -28,6 +28,8 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED 1
+ARG CONVEX_DEPLOY_KEY
+ENV CONVEX_DEPLOY_KEY=${CONVEX_DEPLOY_KEY}
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
