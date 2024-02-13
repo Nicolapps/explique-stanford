@@ -31,14 +31,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ARG CONVEX_DEPLOY_KEY
 ENV CONVEX_DEPLOY_KEY=${CONVEX_DEPLOY_KEY}
 
-RUN echo "Building with CONVEX_DEPLOY_KEY: $CONVEX_DEPLOY_KEY"
-
-RUN \
-  if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+RUN npx convex deploy --cmd 'npm run build'
 
 # Production image, copy all the files and run next
 FROM base AS runner
