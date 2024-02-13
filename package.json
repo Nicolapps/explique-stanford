@@ -1,24 +1,48 @@
 {
   "name": "no-name-ai",
   "version": "1.0.0",
-  "main": "index.js",
-  "repository": "git@gitlab.epfl.ch:ic-it/no-name-ai.git",
-  "author": "...",
-  "license": "MIT",
-  "dependencies": {
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "method-override": "^3.0.0",
-    "morgan": "^1.10.0",
-    "passport": "^0.7.0",
-    "passport-strategy": "^1.0.0",
-    "passport-tequila": "^1.0.4",
-    "pem": "^1.14.8"
-  },
+  "private": true,
   "scripts": {
-    "start": "node ./index.js"
+    "dev": "npm-run-all --parallel dev:server dev:client",
+    "dev:client": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "dev:server": "convex dev"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.1.1",
+    "@lucia-auth/oauth": "^3.5.2",
+    "@radix-ui/react-tooltip": "^1.0.7",
+    "chance": "^1.1.11",
+    "clsx": "^2.0.0",
+    "convex": "^1.8.0",
+    "lucia": "^2.7.6",
+    "next": "14.0.3",
+    "npm-run-all": "^4.1.5",
+    "openai": "^4.22.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-markdown": "^9.0.1",
+    "rehype-katex": "^7.0.0",
+    "remark-math": "^6.0.0",
+    "usehooks-ts": "^2.9.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/chance": "^1.1.6",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.3",
+    "eslint-config-prettier": "^9.1.0",
+    "postcss": "^8",
+    "prettier": "3.2.4",
+    "tailwindcss": "^3.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5"
   }
 }
