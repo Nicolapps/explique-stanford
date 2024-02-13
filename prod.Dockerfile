@@ -31,6 +31,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ARG CONVEX_DEPLOY_KEY
 ENV CONVEX_DEPLOY_KEY=${CONVEX_DEPLOY_KEY}
 
+RUN echo "Building with CONVEX_DEPLOY_KEY: $CONVEX_DEPLOY_KEY"
+
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
