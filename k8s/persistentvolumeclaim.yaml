@@ -2,7 +2,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name:  APPLICATION-NAME-pvc
-  namespace: hotcrp
+  namespace: thl2
 spec:
   volumeName: APPLICATION-NAME-pv
   accessModes:
