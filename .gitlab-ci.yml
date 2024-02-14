@@ -6,7 +6,7 @@ variables:
   HARBOR_REGISTRY: "ic-registry.epfl.ch"
   APPLICATION_NAME: "cs250" 
   REPO_NAME: "cs250"
-  IMAGE_NAME: "cs250next"
+  IMAGE_NAME: "cs250"
   TAG: "test"
   REGISTRY_ROBOT: 'robot$$CS250-gitlab'
   DOCKERFILE_PATH: "prod.Dockerfile"
