@@ -23,8 +23,8 @@ spec:
         env:
         - name: EXAMPLE
           value: "Your example value"
-      volumes:
-      - name: shared-data
-        persistentVolumeClaim:
-          claimName: APPLICATION-NAME-pvc
+#      volumes:
+#      - name: shared-data
+#        persistentVolumeClaim:
+#          claimName: APPLICATION-NAME-pvc
       restartPolicy: Always
