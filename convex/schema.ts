@@ -28,7 +28,6 @@ export default defineSchema(
       exerciseId: v.id("exercises"),
       userId: v.id("users"),
       threadId: v.union(v.string(), v.null()), // null: reading variant, otherwise: explain variant
-      lastQuizSubmission: v.optional(v.number()), // @TODO Deprecate
     }).index("by_key", ["userId", "exerciseId"]),
     quizSubmissions: defineTable({
       attemptId: v.id("attempts"),
