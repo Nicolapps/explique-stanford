@@ -1,7 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "../withAuth";
 import { validateAdminSession } from "./exercises";
-import { Scheduler } from "convex/server";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 import { internal } from "../_generated/api";

@@ -2,6 +2,7 @@ import {
   CheckCircleIcon,
   InformationCircleIcon,
   ExclamationCircleIcon,
+  XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useId, useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
@@ -18,18 +19,21 @@ export default function QuizExercise({
   questions,
   lastSubmission,
   succeeded,
+  isDue,
 }: {
   attemptId: Id<"attempts">;
   title: string;
   questions: {
     question: string;
     answers: string[];
+    correctAnswerIndex: number | null;
   }[];
   lastSubmission: {
     answers: number[];
     timestamp: number;
   } | null;
   succeeded: boolean;
+  isDue: boolean;
 }) {
   const submit = useMutation(api.attempts.submitQuiz);
 
@@ -42,7 +46,7 @@ export default function QuizExercise({
   );
 
   const [timeoutSeconds, setTimeoutSeconds] = useState<null | number>(67);
-  const disabled = succeeded || timeoutSeconds !== null;
+  const disabled = succeeded || timeoutSeconds !== null || isDue;
 
   // Update the timer
   useEffect(() => {
@@ -79,12 +83,13 @@ export default function QuizExercise({
       </p>
 
       <div className="flex flex-col gap-4">
-        {questions.map(({ question, answers }, index) => (
+        {questions.map(({ question, answers, correctAnswerIndex }, index) => (
           <QuizContents
             key={index}
             question={question}
             answers={answers}
             selectedAnswerIndex={selectedAnswerIndexes[index]}
+            correctAnswerIndex={correctAnswerIndex}
             onChange={(newSelectedIndex) => {
               const newIndexes = [...selectedAnswerIndexes];
               newIndexes[index] = newSelectedIndex;
@@ -95,7 +100,7 @@ export default function QuizExercise({
         ))}
       </div>
 
-      <footer className="flex flex-col items-center mt-8 gap-8">
+      <footer className="flex flex-col items-center my-8 gap-8">
         <button
           className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
           disabled={selectedAnswerIndexes.includes(null) || disabled}
@@ -113,7 +118,7 @@ export default function QuizExercise({
           <ArrowRightIcon className="w-5 h-5" />
         </button>
 
-        {!succeeded && timeoutSeconds !== null && (
+        {!succeeded && !isDue && timeoutSeconds !== null && (
           <div>
             <p className="text-lg font-light flex items-center justify-center gap-1">
               <ExclamationCircleIcon
@@ -148,6 +153,16 @@ export default function QuizExercise({
             </span>
           </p>
         )}
+
+        {!succeeded && isDue && (
+          <p className="text-lg font-light flex items-center justify-center gap-1">
+            <ExclamationCircleIcon
+              className="w-6 h-6 text-red-600"
+              aria-hidden="true"
+            />
+            <span>This exercise due date has passed.</span>
+          </p>
+        )}
       </footer>
     </>
   );
@@ -157,12 +172,14 @@ export function QuizContents({
   question,
   answers,
   selectedAnswerIndex,
+  correctAnswerIndex,
   onChange,
   disabled = false,
 }: {
   question: string;
   answers: string[];
   selectedAnswerIndex: number | null;
+  correctAnswerIndex: number | null;
   onChange?: (index: number) => void;
   disabled?: boolean;
 }) {
@@ -190,6 +207,21 @@ export function QuizContents({
               />
 
               <Markdown text={answer} className="flex-1" />
+
+              {correctAnswerIndex === index && (
+                <CheckCircleIcon
+                  className="w-6 h-6 text-green-600"
+                  title="Correct answer"
+                />
+              )}
+              {correctAnswerIndex !== null &&
+                selectedAnswerIndex === index &&
+                correctAnswerIndex !== selectedAnswerIndex && (
+                  <XCircleIcon
+                    className="w-6 h-6 text-red-600"
+                    title="Incorrect answer"
+                  />
+                )}
             </label>
           </div>
         ))}

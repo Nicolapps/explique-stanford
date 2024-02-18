@@ -26,6 +26,23 @@ export const get = queryWithAuth({
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
 
+    const week = await db.get(exercise.weekId);
+    if (week === null) throw new Error("No week");
+
+    const now = Date.now();
+    if (
+      week.startDate > now &&
+      !session.user.earlyAccess &&
+      !session.user.isAdmin
+    ) {
+      throw new ConvexError("This exercise hasn’t been released yet.");
+    }
+
+    const isDue =
+      now >= week.endDate &&
+      !(session.user.extraTime && now < week.endDateExtraTime);
+    const isSolutionShown = now >= week.endDateExtraTime;
+
     const lastQuizSubmission = await db
       .query("quizSubmissions")
       .withIndex("attemptId", (q) => q.eq("attemptId", attempt._id))
@@ -36,14 +53,26 @@ export const get = queryWithAuth({
       exerciseId: exercise._id,
       exerciseName: exercise.name,
       status: attempt.status,
-      text: attempt.threadId === null ? exercise.text : null,
+      isDue,
+      isSolutionShown,
+      text:
+        attempt.threadId !== null
+          ? null
+          : (isSolutionShown ||
+              attempt.status === "exercise" ||
+              attempt.status === "exerciseCompleted") &&
+            exercise.text,
       quiz:
-        attempt.status === "quiz" || attempt.status === "quizCompleted"
+        attempt.status === "quiz" ||
+        attempt.status === "quizCompleted" ||
+        isSolutionShown
           ? shownQuestions(
               exercise.quiz,
               attempt.userId,
               attempt.exerciseId,
-            ).map(toUserVisibleQuestion)
+            ).map((question) =>
+              toUserVisibleQuestion(question, isSolutionShown),
+            )
           : null,
       lastQuizSubmission: lastQuizSubmission
         ? {
@@ -78,13 +107,20 @@ type DatabaseQuiz =
   | Question
   | { shownQuestionsCount: number; questions: Question[] };
 
-function toUserVisibleQuestion(question: Question): {
+function toUserVisibleQuestion(
+  question: Question,
+  isSolutionShown: boolean,
+): {
   question: string;
   answers: string[];
+  correctAnswerIndex: number | null;
 } {
   return {
     question: question.question,
     answers: question.answers.map((answer) => answer.text),
+    correctAnswerIndex: isSolutionShown
+      ? question.answers.findIndex((a) => a.correct)
+      : null,
   };
 }
 

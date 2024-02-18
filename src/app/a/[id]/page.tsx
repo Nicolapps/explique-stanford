@@ -37,7 +37,8 @@ export default function Page({ params }: { params: { id: string } }) {
 
           {metadata &&
             metadata.status === "exercise" &&
-            metadata.text === null && (
+            metadata.text === null &&
+            !metadata.isDue && (
               <RestartButton exerciseId={metadata.exerciseId} />
             )}
         </header>
@@ -46,25 +47,61 @@ export default function Page({ params }: { params: { id: string } }) {
           <>
             <div className="h-14"></div>
 
-            {metadata.quiz ? (
-              <QuizExercise
-                attemptId={attemptId}
-                title={metadata.exerciseName}
-                questions={metadata.quiz}
-                lastSubmission={metadata.lastQuizSubmission}
-                succeeded={metadata.status === "quizCompleted"}
-              />
-            ) : metadata.text ? (
-              <ReadingExercise
-                title={metadata.exerciseName}
-                text={metadata.text}
-                attemptId={attemptId}
-              />
-            ) : (
-              <ExplainExercise
-                isCompleted={metadata.status === "exerciseCompleted"}
-                attemptId={attemptId}
-              />
+            {!metadata.isSolutionShown &&
+              (metadata.quiz ? (
+                <QuizExercise
+                  attemptId={attemptId}
+                  title={metadata.exerciseName}
+                  questions={metadata.quiz}
+                  lastSubmission={metadata.lastQuizSubmission}
+                  succeeded={metadata.status === "quizCompleted"}
+                  isDue={metadata.isDue}
+                />
+              ) : metadata.text ? (
+                <ReadingExercise
+                  title={metadata.exerciseName}
+                  text={metadata.text}
+                  attemptId={attemptId}
+                  nextButton={metadata.isDue ? "disable" : "show"}
+                />
+              ) : (
+                <ExplainExercise
+                  writeDisabled={
+                    metadata.status === "exerciseCompleted" || metadata.isDue
+                  }
+                  attemptId={attemptId}
+                  nextButton={metadata.isDue ? "disable" : "show"}
+                />
+              ))}
+
+            {metadata.isSolutionShown && (
+              <>
+                {metadata.text ? (
+                  <ReadingExercise
+                    title={metadata.exerciseName}
+                    text={metadata.text}
+                    attemptId={attemptId}
+                    nextButton="hide"
+                  />
+                ) : (
+                  <ExplainExercise
+                    writeDisabled
+                    attemptId={attemptId}
+                    nextButton="hide"
+                  />
+                )}
+
+                <hr className="mx-8 my-12" />
+
+                <QuizExercise
+                  attemptId={attemptId}
+                  title={metadata.exerciseName}
+                  questions={metadata.quiz!}
+                  lastSubmission={metadata.lastQuizSubmission}
+                  succeeded={metadata.status === "quizCompleted"}
+                  isDue={metadata.isDue}
+                />
+              </>
             )}
           </>
         )}

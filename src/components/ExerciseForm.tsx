@@ -459,7 +459,8 @@ function QuizQuestion({
         <QuizContents
           question={question.question}
           answers={question.answers}
-          selectedAnswerIndex={question.correctAnswerIndex}
+          selectedAnswerIndex={null}
+          correctAnswerIndex={question.correctAnswerIndex}
           disabled
         />
       </div>
