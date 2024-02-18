@@ -54,8 +54,22 @@ export default defineSchema(
       firstMessage: v.optional(v.string()),
       controlGroup: v.union(v.literal("A"), v.literal("B")),
       completionFunctionDescription: v.string(),
-      image: v.optional(v.string()),
+      image: v.optional(v.union(v.string(), v.id("images"))),
       imagePrompt: v.optional(v.string()),
+    }),
+    images: defineTable({
+      original: v.string(),
+      thumbnails: v.array(
+        v.object({
+          type: v.string(),
+          srcset: v.string(),
+          storageId: v.id("_storage"),
+          sizes: v.optional(v.string()),
+        }),
+      ),
+      model: v.string(),
+      size: v.string(),
+      quality: v.union(v.literal("standard"), v.literal("hd")),
     }),
     messages: defineTable({
       attemptId: v.id("attempts"),
