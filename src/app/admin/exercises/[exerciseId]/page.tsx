@@ -33,7 +33,7 @@ export default function EditExercise() {
               image: exercise.image,
               imagePrompt: exercise.imagePrompt,
               instructions: exercise.instructions,
-              model: exercise.model ?? "gpt-4", // @TODO Remove default case
+              model: exercise.model,
               text: exercise.text,
 
               quizQuestions: exercise.quiz.questions.map(

@@ -47,7 +47,7 @@ export default defineSchema(
     exercises: defineTable({
       name: v.string(),
       instructions: v.string(),
-      model: v.optional(v.string()),
+      model: v.string(),
       assistantId: v.string(),
       weekId: v.id("weeks"),
       text: v.string(),
