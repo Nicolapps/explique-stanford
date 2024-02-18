@@ -18,7 +18,7 @@ export function getAuth(db: AuthDbWriter) {
     // We cheat to allow queries to use `getAuth`
     adapter: convexAdapter(db),
 
-    // TODO: Set the LUCIA_ENVIRONMENT variable to "PROD"
+    // Set the LUCIA_ENVIRONMENT variable to "PROD"
     // on your prod deployment's dashboard
     env: (process.env.LUCIA_ENVIRONMENT as "PROD" | undefined) ?? "DEV",
 
