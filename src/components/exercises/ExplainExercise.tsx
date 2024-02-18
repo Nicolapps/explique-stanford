@@ -99,7 +99,9 @@ export default function ExplainExercise({
                       <Markdown text={message.content} />
                     )
                   ) : (
-                    <p className="prose text-white">{message.content}</p>
+                    <p className="prose text-white whitespace-pre-wrap">
+                      {message.content}
+                    </p>
                   )}
                 </div>
               </div>
