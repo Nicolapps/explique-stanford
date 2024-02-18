@@ -7,6 +7,8 @@ import {
 import { FunctionReference } from "convex/server";
 import { useCallback } from "react";
 import { useSessionId } from "./components/SessionProvider";
+import { toast } from "sonner";
+import { ConvexError } from "convex/values";
 
 export function useQuery<
   Args extends { sessionId: string | null },
@@ -33,8 +35,16 @@ export function useMutation<
   const doMutation = useConvexMutation(mutation);
   const sessionId = useSessionId();
   return useCallback(
-    (args: Omit<Mutation["_args"], "sessionId">) => {
-      return doMutation({ ...args, sessionId } as any);
+    async (args: Omit<Mutation["_args"], "sessionId">) => {
+      try {
+        return await doMutation({ ...args, sessionId } as any);
+      } catch (error) {
+        const errorMessage =
+          error instanceof ConvexError
+            ? error.data
+            : "Unexpected error occurred";
+        toast.error(errorMessage);
+      }
     },
     [doMutation, sessionId],
   ) as any; // We don't support optimistic updates
@@ -51,8 +61,17 @@ export function useAction<
   const doAction = useConvexAction(action);
   const sessionId = useSessionId();
   return useCallback(
-    (args: Omit<Action["_args"], "sessionId">) => {
-      return doAction({ ...args, sessionId } as any);
+    async (args: Omit<Action["_args"], "sessionId">) => {
+      try {
+        return await doAction({ ...args, sessionId } as any);
+      } catch (error) {
+        console.log("error");
+        const errorMessage =
+          error instanceof ConvexError
+            ? error.data
+            : "Unexpected error occurred";
+        toast.error(errorMessage);
+      }
     },
     [doAction, sessionId],
   ) as any; // We don't support optimistic updates

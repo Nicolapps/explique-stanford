@@ -3,6 +3,7 @@
 import "./globals.css";
 import ConvexClientProvider from "./ConvexClientProvider";
 import { SessionProvider } from "@/components/SessionProvider";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -18,6 +19,8 @@ export default function RootLayout({
         <SessionProvider>
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </SessionProvider>
+
+        <Toaster richColors />
       </body>
     </html>
   );
