@@ -163,6 +163,9 @@ function NewMessage({ attemptId }: { attemptId: Id<"attempts"> }) {
     if (!messageSent) return;
     sendMessage({ attemptId, message: messageSent });
     setMessage("");
+    setTimeout(() => {
+      autoResizeTextarea();
+    }, 0);
   }
 
   return (
@@ -181,12 +184,12 @@ function NewMessage({ attemptId }: { attemptId: Id<"attempts"> }) {
           onChange={(e) => setMessage(e.target.value)}
           className="w-full bg-transparent text-lg px-4 rounded-xl resize-none bg-white py-4 h-[60px] pr-16"
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !message.includes("\n")) {
+            if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               send();
             }
           }}
-          onInput={(e) => {
+          onInput={() => {
             autoResizeTextarea();
           }}
         />
