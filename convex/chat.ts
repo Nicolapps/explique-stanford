@@ -11,7 +11,7 @@ import { mutationWithAuth, queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
 import { Session } from "lucia";
 
-export async function getAttemptIfAuthorized(
+async function getAttemptIfAuthorized(
   db: DatabaseReader,
   session: Session | null,
   attemptId: Id<"attempts">,

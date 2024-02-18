@@ -1,10 +1,11 @@
-import { ConvexError, ObjectType, v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { actionWithAuth, mutationWithAuth, queryWithAuth } from "./withAuth";
 import Chance from "chance";
+import { validateDueDate, validateDueDateFromAction } from "./weeks";
 
 export const get = queryWithAuth({
   args: {
@@ -127,6 +128,8 @@ export const start = actionWithAuth({
     });
     if (exercise === null) throw new ConvexError("Unknown exercise");
 
+    await validateDueDateFromAction(ctx, exercise, ctx.session.user);
+
     const isUsingExplainVariant = await ctx.runQuery(
       internal.attempts.isUsingExplainVariant,
       {
@@ -190,6 +193,7 @@ export const goToQuiz = mutationWithAuth({
 
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
+    await validateDueDate(db, exercise, session.user);
 
     if (
       attempt.status !== "exercise" &&
@@ -230,6 +234,7 @@ export const submitQuiz = mutationWithAuth({
 
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
+    await validateDueDate(db, exercise, session.user);
 
     if (attempt.status !== "quiz") {
       throw new ConvexError("Incorrect status " + attempt.status);
