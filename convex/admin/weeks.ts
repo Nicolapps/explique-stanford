@@ -1,6 +1,10 @@
 import { ConvexError, v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "../withAuth";
 import { validateAdminSession } from "./exercises";
+import { Scheduler } from "convex/server";
+import { Id } from "../_generated/dataModel";
+import { MutationCtx } from "../_generated/server";
+import { internal } from "../_generated/api";
 
 export const list = queryWithAuth({
   args: {},
@@ -25,6 +29,20 @@ export const get = queryWithAuth({
   },
 });
 
+async function scheduleWeekChangesInvalidation(
+  ctx: Omit<MutationCtx, "auth">,
+  weekId: Id<"weeks">,
+) {
+  const week = await ctx.db.get(weekId);
+  if (!week) {
+    throw new Error("Week not found");
+  }
+
+  for (const date of [week.startDate, week.endDate, week.endDateExtraTime]) {
+    ctx.scheduler.runAt(date, internal.weeks.invalidateCache, { weekId });
+  }
+}
+
 export const create = mutationWithAuth({
   args: {
     name: v.string(),
@@ -32,18 +50,16 @@ export const create = mutationWithAuth({
     endDate: v.number(),
     endDateExtraTime: v.number(),
   },
-  handler: async (
-    { db, session },
-    { name, startDate, endDate, endDateExtraTime },
-  ) => {
-    validateAdminSession(session);
+  handler: async (ctx, { name, startDate, endDate, endDateExtraTime }) => {
+    validateAdminSession(ctx.session);
 
-    await db.insert("weeks", {
+    const weekId = await ctx.db.insert("weeks", {
       name,
       startDate,
       endDate,
       endDateExtraTime,
     });
+    await scheduleWeekChangesInvalidation(ctx, weekId);
   },
 });
 
@@ -55,22 +71,20 @@ export const update = mutationWithAuth({
     endDate: v.number(),
     endDateExtraTime: v.number(),
   },
-  handler: async (
-    { db, session },
-    { id, name, startDate, endDate, endDateExtraTime },
-  ) => {
-    validateAdminSession(session);
+  handler: async (ctx, { id, name, startDate, endDate, endDateExtraTime }) => {
+    validateAdminSession(ctx.session);
 
-    const week = await db.get(id);
+    const week = await ctx.db.get(id);
     if (!week) {
       throw new ConvexError("Week not found");
     }
 
-    await db.patch(id, {
+    await ctx.db.patch(id, {
       name,
       startDate,
       endDate,
       endDateExtraTime,
     });
+    await scheduleWeekChangesInvalidation(ctx, id);
   },
 });

@@ -52,6 +52,10 @@ export default defineSchema(
       startDate: v.number(),
       endDate: v.number(),
       endDateExtraTime: v.number(),
+
+      // Overwrite this value to ensure that queries depending on start/end dates
+      // are invalidated.
+      cacheInvalidation: v.optional(v.number()),
     }).index("startDate", ["startDate"]),
     exercises: defineTable({
       name: v.string(),

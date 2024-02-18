@@ -1,4 +1,9 @@
-import { ActionCtx, DatabaseWriter, internalQuery } from "./_generated/server";
+import {
+  ActionCtx,
+  DatabaseWriter,
+  internalMutation,
+  internalQuery,
+} from "./_generated/server";
 import { User } from "lucia";
 import { Doc } from "./_generated/dataModel";
 import { ConvexError, v } from "convex/values";
@@ -63,5 +68,16 @@ export const getWeekDateFields = internalQuery({
       endDate: week.endDate,
       endDateExtraTime: week.endDateExtraTime,
     };
+  },
+});
+
+export const invalidateCache = internalMutation({
+  args: {
+    weekId: v.id("weeks"),
+  },
+  handler: async ({ db }, { weekId }) => {
+    await db.patch(weekId, {
+      cacheInvalidation: Math.random(),
+    });
   },
 });
