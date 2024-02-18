@@ -23,14 +23,7 @@ export const get = queryWithAuth({
       return null;
     }
 
-    // @TODO Remove legacy quiz format
-    const quiz =
-      "questions" in exercise.quiz
-        ? exercise.quiz
-        : {
-            shownQuestionsCount: 0,
-            questions: [exercise.quiz],
-          };
+    const quiz = exercise.quiz;
 
     return {
       ...exercise,

@@ -90,22 +90,13 @@ type Question = {
 };
 
 function shownQuestions(
-  quiz: DatabaseQuiz,
+  quiz: { shownQuestionsCount: number; questions: Question[] },
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
 ): Question[] {
-  // @TODO Remove obsolete format
-  if ("question" in quiz) {
-    return [quiz];
-  }
-
   const chance = new Chance(`${userId} ${exerciseId}`);
   return chance.shuffle(quiz.questions).slice(0, quiz.shownQuestionsCount);
 }
-
-type DatabaseQuiz =
-  | Question
-  | { shownQuestionsCount: number; questions: Question[] };
 
 function toUserVisibleQuestion(
   question: Question,
