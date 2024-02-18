@@ -36,7 +36,7 @@ function ExerciseLink({
     >
       <div
         className={clsx(
-          "relative pb-[60%]",
+          "relative pb-[57.14%]",
           exercise.image && "bg-slate-500",
           !exercise.image && "bg-slate-600",
         )}
@@ -213,7 +213,7 @@ function ProjectGridSkeleton() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="pb-[60%] bg-slate-200 rounded-3xl" />
+          <div key={i} className="pb-[57.14%] bg-slate-200 rounded-3xl" />
         ))}
       </div>
     </div>
