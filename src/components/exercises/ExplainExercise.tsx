@@ -61,14 +61,6 @@ export default function ExplainExercise({
                       Continue
                       <ArrowRightIcon className="w-5 h-5" />
                     </button>
-
-                    <p className="text-lg font-light flex items-center justify-center gap-1">
-                      <ExclamationCircleIcon
-                        className="w-6 h-6 text-red-600"
-                        aria-hidden="true"
-                      />
-                      <span>This exercise due date has passed.</span>
-                    </p>
                   </div>
                 )}
               </div>
@@ -126,6 +118,16 @@ export default function ExplainExercise({
       </div>
 
       {!writeDisabled && <NewMessage attemptId={attemptId} />}
+
+      {nextButton === "disable" && (
+        <p className="text-lg font-light flex items-center justify-center gap-1">
+          <ExclamationCircleIcon
+            className="w-6 h-6 text-red-600"
+            aria-hidden="true"
+          />
+          <span>This exercise due date has passed.</span>
+        </p>
+      )}
     </>
   );
 }
