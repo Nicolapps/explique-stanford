@@ -55,6 +55,7 @@ export const get = queryWithAuth({
       status: attempt.status,
       isDue,
       isSolutionShown,
+      isAdmin: session.user.isAdmin,
       text:
         attempt.threadId !== null
           ? null

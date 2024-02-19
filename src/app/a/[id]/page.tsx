@@ -36,8 +36,8 @@ export default function Page({ params }: { params: { id: string } }) {
           </h1>
 
           {metadata &&
-            metadata.status === "exercise" &&
-            metadata.text === null &&
+            ((metadata.status === "exercise" && metadata.text === null) ||
+              metadata.isAdmin) &&
             !metadata.isDue && (
               <RestartButton exerciseId={metadata.exerciseId} />
             )}
