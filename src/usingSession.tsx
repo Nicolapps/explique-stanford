@@ -44,6 +44,7 @@ export function useMutation<
             ? error.data
             : "Unexpected error occurred";
         toast.error(errorMessage);
+        throw error;
       }
     },
     [doMutation, sessionId],
@@ -65,12 +66,12 @@ export function useAction<
       try {
         return await doAction({ ...args, sessionId } as any);
       } catch (error) {
-        console.log("error");
         const errorMessage =
           error instanceof ConvexError
             ? error.data
             : "Unexpected error occurred";
         toast.error(errorMessage);
+        throw error;
       }
     },
     [doAction, sessionId],
