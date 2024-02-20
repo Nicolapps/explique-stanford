@@ -12,12 +12,13 @@ export const get = queryWithAuth({
   handler: async (ctx) => {
     if (!ctx.session) return null;
 
-    const { name, email, isAdmin, group } = ctx.session.user;
+    const { name, email, isAdmin, group, researchConsent } = ctx.session.user;
     return {
       name,
       email,
       isAdmin,
       group: isAdmin ? group : undefined,
+      researchConsent,
     };
   },
 });

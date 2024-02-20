@@ -126,7 +126,11 @@ export default function Home() {
 
         <Title className="mt-12 sm:mt-0">Algorithms</Title>
 
-        {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
+        {user && user.researchConsent ? (
+          <ProjectGrid />
+        ) : (
+          <ProjectGridSkeleton />
+        )}
 
         <div className="h-10" />
       </div>
