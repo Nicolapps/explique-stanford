@@ -97,10 +97,7 @@ function shownQuestions(
 ): Question[] {
   const chance = new Chance(`${userId} ${exerciseId}`);
 
-  const batch =
-    "batches" in quiz
-      ? quiz.batches[0] // @TODO Choose batch correctly
-      : quiz;
+  const batch = quiz.batches[0]; // @TODO Choose batch correctly
 
   return chance.shuffle(batch.questions);
 

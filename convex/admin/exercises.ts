@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
-import { quizNewSchema } from "../schema";
+import { quizSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
 
@@ -23,13 +23,7 @@ export const get = queryWithAuth({
       return null;
     }
 
-    return {
-      ...exercise,
-      quiz:
-        "batches" in exercise.quiz
-          ? exercise.quiz
-          : { batches: [{ questions: exercise.quiz.questions }] },
-    };
+    return exercise;
   },
 });
 
@@ -57,7 +51,7 @@ export const insertRow = internalMutation({
     assistantId: v.string(),
     weekId: v.id("weeks"),
     text: v.string(),
-    quiz: quizNewSchema,
+    quiz: quizSchema,
     model: v.string(),
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
@@ -79,7 +73,7 @@ export const updateRow = internalMutation({
       assistantId: v.string(),
       weekId: v.id("weeks"),
       text: v.string(),
-      quiz: quizNewSchema,
+      quiz: quizSchema,
       model: v.string(),
       firstMessage: v.string(),
       controlGroup: v.union(v.literal("A"), v.literal("B")),
@@ -122,7 +116,7 @@ export const create = actionWithAuth({
     model: v.string(),
     weekId: v.id("weeks"),
     text: v.string(),
-    quiz: quizNewSchema,
+    quiz: quizSchema,
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
     completionFunctionDescription: v.string(),
@@ -179,7 +173,7 @@ export const update = actionWithAuth({
     model: v.string(),
     weekId: v.id("weeks"),
     text: v.string(),
-    quiz: quizNewSchema,
+    quiz: quizSchema,
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
     completionFunctionDescription: v.string(),
