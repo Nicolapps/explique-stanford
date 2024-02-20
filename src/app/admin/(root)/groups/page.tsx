@@ -1,66 +1,62 @@
 "use client";
 
 import { useQuery } from "@/usingSession";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import Title from "@/components/typography";
 
 export default function GroupsPage() {
   const stats = useQuery(api.admin.groupAssignment.stats, {});
 
   return (
-    <div className="bg-slate-100 h-full p-10 flex justify-center">
-      <div className="max-w-6xl flex-1">
-        <Title>Groups</Title>
+    <>
+      <Title>Groups</Title>
 
-        {stats && (
-          <>
-            <h2 className="text-lg mt-8 mb-2 font-medium">
-              Initial assignments
-            </h2>
+      {stats && (
+        <>
+          <h2 className="text-lg mt-8 mb-2 font-medium">Initial assignments</h2>
 
-            <p className="prose">
-              <strong>{stats.evenlyAssigned.total}</strong> students were
-              automatically imported from IS-Academia. Out of them,{" "}
-              <strong>{stats.evenlyAssigned.A}</strong> were assigned to group A
-              and <strong>{stats.evenlyAssigned.B}</strong> were assigned to
-              group B.
-            </p>
+          <p className="prose">
+            <strong>{stats.evenlyAssigned.total}</strong> students were
+            automatically imported from IS-Academia. Out of them,{" "}
+            <strong>{stats.evenlyAssigned.A}</strong> were assigned to group A
+            and <strong>{stats.evenlyAssigned.B}</strong> were assigned to group
+            B.
+          </p>
 
-            {stats.assignmentChanged.length > 0 && (
-              <>
-                <h2 className="text-lg mt-8 mb-2 font-medium">
-                  Non-matching assignments
-                </h2>
+          {stats.assignmentChanged.length > 0 && (
+            <>
+              <h2 className="text-lg mt-8 mb-2 font-medium">
+                Non-matching assignments
+              </h2>
 
-                <p className="prose">
-                  The following students are in a group which does do not match
-                  their initial assignment.
-                </p>
+              <p className="prose">
+                The following students are in a group which does do not match
+                their initial assignment.
+              </p>
 
-                <Table rows={stats.assignmentChanged} />
-              </>
-            )}
+              <Table rows={stats.assignmentChanged} />
+            </>
+          )}
 
-            {stats.randomAssigned.length > 0 && (
-              <>
-                <h2 className="text-lg mt-8 mb-2 font-medium">
-                  Random assignments
-                </h2>
+          {stats.randomAssigned.length > 0 && (
+            <>
+              <h2 className="text-lg mt-8 mb-2 font-medium">
+                Random assignments
+              </h2>
 
-                <p className="prose">
-                  The following students were assigned to a group randomly
-                  because they were not imported from IS-Academia when they
-                  first logged in to the platform. They don’t count in the even
-                  distribution of groups.
-                </p>
+              <p className="prose">
+                The following students were assigned to a group randomly because
+                they were not imported from IS-Academia when they first logged
+                in to the platform. They don’t count in the even distribution of
+                groups.
+              </p>
 
-                <Table rows={stats.randomAssigned} />
-              </>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+              <Table rows={stats.randomAssigned} />
+            </>
+          )}
+        </>
+      )}
+    </>
   );
 }
 
