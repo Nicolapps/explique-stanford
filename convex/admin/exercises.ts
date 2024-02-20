@@ -94,13 +94,10 @@ async function createAssistant(
   instructions: string,
   model: string,
   completionFunctionDescription: string,
-  firstMessage?: string,
 ) {
   const openai = new OpenAI();
   return await openai.beta.assistants.create({
-    instructions: firstMessage
-      ? `${instructions}\n\nThe conversation started by you having sent the following message: “${firstMessage}”`
-      : instructions,
+    instructions,
     model: model,
     tools: [
       {
@@ -151,7 +148,6 @@ export const create = actionWithAuth({
       instructions,
       model,
       completionFunctionDescription,
-      firstMessage,
     );
 
     await runMutation(internal.admin.exercises.insertRow, {
@@ -209,7 +205,6 @@ export const update = actionWithAuth({
       instructions,
       model,
       completionFunctionDescription,
-      firstMessage,
     );
 
     await runMutation(internal.admin.exercises.updateRow, {
