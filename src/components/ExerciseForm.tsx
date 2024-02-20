@@ -325,8 +325,9 @@ export default function ExerciseForm({
         </p>
       </section>
 
-      <hr className="my-4 border-slate-300" />
-      <div className="pb-10">
+      <div className="h-36"></div>
+
+      <div className="p-8 bg-white/30 backdrop-blur-md fixed bottom-0 left-0 w-full flex justify-end shadow-2xl">
         <button
           type="submit"
           className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 overflow-hidden"
