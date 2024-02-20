@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
 import OpenAI from "openai";
-import { api, internal } from "./_generated/api";
+import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { actionWithAuth, mutationWithAuth, queryWithAuth } from "./withAuth";
 import Chance from "chance";
