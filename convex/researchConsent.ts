@@ -1,5 +1,5 @@
-import { ConvexError, v } from "convex/values";
-import { mutationWithAuth, queryWithAuth } from "./withAuth";
+import { ConvexError } from "convex/values";
+import { queryWithAuth } from "./withAuth";
 
 export const hasBeenSet = queryWithAuth({
   args: {},

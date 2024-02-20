@@ -17,6 +17,7 @@ import type {
 import type * as admin_exercises from "../admin/exercises.js";
 import type * as admin_groupAssignment from "../admin/groupAssignment.js";
 import type * as admin_image from "../admin/image.js";
+import type * as admin_researchConsent from "../admin/researchConsent.js";
 import type * as admin_weeks from "../admin/weeks.js";
 import type * as attempts from "../attempts.js";
 import type * as auth from "../auth.js";
@@ -41,6 +42,7 @@ declare const fullApi: ApiFromModules<{
   "admin/exercises": typeof admin_exercises;
   "admin/groupAssignment": typeof admin_groupAssignment;
   "admin/image": typeof admin_image;
+  "admin/researchConsent": typeof admin_researchConsent;
   "admin/weeks": typeof admin_weeks;
   attempts: typeof attempts;
   auth: typeof auth;

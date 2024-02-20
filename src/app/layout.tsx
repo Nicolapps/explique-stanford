@@ -20,7 +20,7 @@ export default function RootLayout({
           <ConvexClientProvider>{children}</ConvexClientProvider>
         </SessionProvider>
 
-        <Toaster richColors />
+        <Toaster richColors expand />
       </body>
     </html>
   );

@@ -32,7 +32,7 @@ export const getLoginUrl = action({
   },
 });
 
-export const getGroupForUser = internalQuery({
+export const getCreationInformationForUser = internalQuery({
   args: {
     email: v.string(),
     seed: v.number(),
@@ -43,8 +43,15 @@ export const getGroupForUser = internalQuery({
       .withIndex("byEmail", (q) => q.eq("email", email))
       .first();
 
-    if (existingAssignment) return existingAssignment.group;
-    return Math.random() > 0.5 ? "A" : "B";
+    const group = existingAssignment
+      ? existingAssignment.group
+      : Math.random() > 0.5
+        ? "A"
+        : "B";
+
+    const researchConsent = existingAssignment?.researchConsent ?? false;
+
+    return { group, researchConsent };
   },
 });
 
@@ -67,10 +74,13 @@ export const redirect = action({
         const email = googleUser.email;
         if (!email) throw new ConvexError("Can’t retrieve your email address");
 
-        const group = await ctx.runQuery(internal.auth.getGroupForUser, {
-          email,
-          seed: Math.random(),
-        });
+        const { group, researchConsent } = await ctx.runQuery(
+          internal.auth.getCreationInformationForUser,
+          {
+            email,
+            seed: Math.random(),
+          },
+        );
 
         const user = await createUser({
           attributes: {
@@ -78,6 +88,7 @@ export const redirect = action({
             email,
             isAdmin: false,
             group,
+            researchConsent: researchConsent ? true : undefined,
 
             // These will be filled out by Convex
             _id: "" as Id<"users">,

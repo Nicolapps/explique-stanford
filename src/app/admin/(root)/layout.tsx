@@ -2,6 +2,7 @@
 
 import { DocumentIcon } from "@heroicons/react/20/solid";
 import {
+  DocumentCheckIcon,
   FolderIcon,
   PuzzlePieceIcon,
   TagIcon,
@@ -37,6 +38,10 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
         <NavLink href="/admin">
           <PuzzlePieceIcon />
           Exercises
+        </NavLink>
+        <NavLink href="/admin/researchConsent">
+          <DocumentCheckIcon />
+          Consent
         </NavLink>
         <NavLink href="/admin/groups">
           <TagIcon />

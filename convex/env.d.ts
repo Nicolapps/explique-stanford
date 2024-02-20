@@ -9,7 +9,7 @@ declare namespace Lucia {
     earlyAccess?: true;
     extraTime?: true;
     group: "A" | "B";
-    researchConsent?: boolean;
+    researchConsent?: true;
   };
   type DatabaseSessionAttributes = {
     _id: import("./_generated/dataModel").Id<"sessions">;
