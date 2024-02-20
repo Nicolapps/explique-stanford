@@ -11,8 +11,13 @@ export const get = queryWithAuth({
   handler: async (ctx) => {
     if (!ctx.session) return null;
 
-    const { name, email, isAdmin } = ctx.session.user;
-    return { name, email, isAdmin };
+    const { name, email, isAdmin, group } = ctx.session.user;
+    return {
+      name,
+      email,
+      isAdmin,
+      group: isAdmin ? group : undefined,
+    };
   },
 });
 

@@ -95,7 +95,10 @@ function Login() {
   return (
     <div className="p-4 absolute right-0 top-0 flex items-center gap-2">
       <div className="flex flex-col leading-snug text-gray-700 px-2">
-        <p className="text-gray-800 font-semibold">{user.name}</p>
+        <p className="text-gray-800 font-semibold">
+          {user.name}
+          {user.group && <span className="font-normal"> ({user.group})</span>}
+        </p>
         <p>{user.email}</p>
       </div>
       {user.isAdmin && (
