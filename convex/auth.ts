@@ -1,10 +1,11 @@
 import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
-import { action } from "./_generated/server";
+import { action, internalQuery } from "./_generated/server";
 import { getAuth, getGoogleAuth } from "./lucia";
 import { actionAuthDbWriter } from "./authDbWriter";
 import { OAuthRequestError } from "@lucia-auth/oauth";
+import { internal } from "./_generated/api";
 
 export const get = queryWithAuth({
   args: {},
@@ -30,6 +31,22 @@ export const getLoginUrl = action({
   },
 });
 
+export const getGroupForUser = internalQuery({
+  args: {
+    email: v.string(),
+    seed: v.number(),
+  },
+  handler: async (ctx, { email }) => {
+    const existingAssignment = await ctx.db
+      .query("groupAssignments")
+      .withIndex("byEmail", (q) => q.eq("email", email))
+      .first();
+
+    if (existingAssignment) return existingAssignment.group;
+    return Math.random() > 0.5 ? "A" : "B";
+  },
+});
+
 export const redirect = action({
   args: {
     code: v.string(),
@@ -46,12 +63,20 @@ export const redirect = action({
         const existingUser = await getExistingUser();
         if (existingUser) return existingUser;
 
+        const email = googleUser.email;
+        if (!email) throw new ConvexError("Can’t retrieve your email address");
+
+        const group = await ctx.runQuery(internal.auth.getGroupForUser, {
+          email,
+          seed: Math.random(),
+        });
+
         const user = await createUser({
           attributes: {
             name: googleUser.name,
-            email: googleUser.email ?? "",
+            email,
             isAdmin: false,
-            group: Math.random() > 0.5 ? "A" : "B",
+            group,
 
             // These will be filled out by Convex
             _id: "" as Id<"users">,

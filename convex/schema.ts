@@ -92,6 +92,11 @@ export default defineSchema(
       details: v.optional(v.any()),
     }),
 
+    groupAssignments: defineTable({
+      email: v.string(),
+      group: v.union(v.literal("A"), v.literal("B")),
+    }).index("byEmail", ["email"]),
+
     // Lucia
     users: defineTable({
       id: v.string(), // Lucia ID
@@ -103,6 +108,7 @@ export default defineSchema(
       group: v.union(v.literal("A"), v.literal("B")),
       extraTime: v.optional(v.literal(true)),
     }).index("byId", ["id"]),
+
     sessions: defineTable({
       id: v.string(),
       user_id: v.string(),
