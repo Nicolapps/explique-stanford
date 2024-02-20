@@ -49,9 +49,11 @@ export default function ReadingExercise({
               <ArrowRightIcon className="w-5 h-5" />
             </button>
 
-            <p className="text-lg justify-center gap-1 text-red-600">
-              The due date for this exercise has passed.
-            </p>
+            {nextButton === "disable" && (
+              <p className="text-lg justify-center gap-1 text-red-600">
+                The due date for this exercise has passed.
+              </p>
+            )}
           </div>
         )}
       </footer>

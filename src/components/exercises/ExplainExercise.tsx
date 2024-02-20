@@ -77,7 +77,7 @@ export default function ExplainExercise({
                     "inline-block p-4 rounded-xl shadow",
                     message.system && "bg-white rounded-bl-none",
                     !message.system &&
-                      "bg-gradient-to-b from-purple-500 to-purple-600 text-white rounded-br-none  ml-auto",
+                      "bg-gradient-to-b from-purple-500 to-purple-600 text-white rounded-br-none ml-auto",
                   )}
                 >
                   {message.system ? (
@@ -125,7 +125,7 @@ export default function ExplainExercise({
             className="w-6 h-6 text-red-600"
             aria-hidden="true"
           />
-          <span>This exercise due date has passed.</span>
+          <span>The due date for this exercise has passed.</span>
         </p>
       )}
     </>
