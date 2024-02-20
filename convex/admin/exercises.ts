@@ -143,6 +143,7 @@ export const create = actionWithAuth({
     },
   ) => {
     validateAdminSession(session);
+    validateQuiz(quiz);
 
     const assistant = await createAssistant(
       instructions,
@@ -200,6 +201,7 @@ export const update = actionWithAuth({
     },
   ) => {
     validateAdminSession(session);
+    validateQuiz(quiz);
 
     const assistant = await createAssistant(
       instructions,
@@ -226,3 +228,31 @@ export const update = actionWithAuth({
     });
   },
 });
+
+type Quiz = {
+  shownQuestionsCount: number;
+  questions: {
+    answers: {
+      text: string;
+      correct: boolean;
+    }[];
+    question: string;
+  }[];
+};
+
+function validateQuiz(quiz: Quiz) {
+  for (const question of quiz.questions) {
+    if (question.answers.length < 2) {
+      throw new ConvexError("Each question must have at least 2 answers");
+    }
+    if (question.answers.filter((a) => a.correct).length !== 1) {
+      throw new ConvexError("Each question must have exactly 1 correct answer");
+    }
+    const answers = new Set(question.answers.map((a) => a.text));
+    if (answers.size !== question.answers.length) {
+      throw new ConvexError(
+        `Duplicated answer to question “${question.question}”`,
+      );
+    }
+  }
+}
