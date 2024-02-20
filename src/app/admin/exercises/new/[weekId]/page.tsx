@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import ExerciseForm from "@/components/ExerciseForm";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import { api } from "../../../../../../convex/_generated/api";
+import Title from "@/components/typography";
 
 export default function NewExercise() {
   const router = useRouter();
@@ -17,9 +18,7 @@ export default function NewExercise() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <h1 className="font-semibold text-4xl tracking-tight mb-8">
-          New Exercise
-        </h1>
+        <Title backHref="/admin">New Exercise</Title>
 
         <ExerciseForm
           submitLabel="Create"

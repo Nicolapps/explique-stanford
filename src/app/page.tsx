@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
+import Title from "@/components/typography";
 function ExerciseLink({
   exercise,
 }: {
@@ -123,9 +124,7 @@ export default function Home() {
       <div className="max-w-6xl flex-1">
         <Login />
 
-        <h1 className="font-semibold text-4xl tracking-tight mb-10 mt-12 sm:mt-0">
-          Algorithms
-        </h1>
+        <Title className="mt-12 sm:mt-0">Algorithms</Title>
 
         {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
 

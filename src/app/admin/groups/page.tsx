@@ -2,6 +2,7 @@
 
 import { useQuery } from "@/usingSession";
 import { api } from "../../../../convex/_generated/api";
+import Title from "@/components/typography";
 
 export default function GroupsPage() {
   const stats = useQuery(api.admin.groupAssignment.stats, {});
@@ -9,9 +10,7 @@ export default function GroupsPage() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <div className="flex mb-8 gap-4 flex-wrap items-center justify-between">
-          <h1 className="font-semibold text-4xl tracking-tight">Groups</h1>
-        </div>
+        <Title>Groups</Title>
 
         {stats && (
           <>

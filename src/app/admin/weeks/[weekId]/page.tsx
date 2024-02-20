@@ -7,6 +7,7 @@ import WeekForm from "@/components/WeekForm";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import { toDatetimeLocalString } from "@/util/date";
+import Title from "@/components/typography";
 
 export default function EditWeek() {
   const router = useRouter();
@@ -20,9 +21,7 @@ export default function EditWeek() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <h1 className="font-semibold text-4xl tracking-tight mb-8">
-          Edit Week
-        </h1>
+        <Title backHref="/admin">Edit Week</Title>
 
         {week === null && <p>Not found</p>}
         {week && (

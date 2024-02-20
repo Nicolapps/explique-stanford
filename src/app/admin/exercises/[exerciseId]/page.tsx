@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import ExerciseForm from "@/components/ExerciseForm";
+import Title from "@/components/typography";
 
 export default function EditExercise() {
   const router = useRouter();
@@ -19,9 +20,7 @@ export default function EditExercise() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <h1 className="font-semibold text-4xl tracking-tight mb-8">
-          Edit Exercise
-        </h1>
+        <Title backHref="/admin">Edit Exercise</Title>
 
         {exercise === null && <p>Not found</p>}
         {exercise && (
