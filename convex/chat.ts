@@ -2,6 +2,7 @@ import {
   internalAction,
   internalMutation,
   DatabaseReader,
+  MutationCtx,
 } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import OpenAI from "openai";
@@ -74,34 +75,71 @@ export const editMessage = internalMutation({
   },
 });
 
+async function sendMessageController(
+  ctx: Omit<MutationCtx, "auth">,
+  {
+    message,
+    attemptId,
+  }: {
+    attemptId: Id<"attempts">;
+    message: string;
+  },
+) {
+  const attempt = await ctx.db.get(attemptId);
+  if (!attempt) throw new Error(`Attempt ${attemptId} not found`);
+
+  const exercise = await ctx.db.get(attempt.exerciseId);
+  if (!exercise) throw new Error(`Exercise ${attempt.exerciseId} not found`);
+
+  await ctx.db.insert("messages", {
+    attemptId,
+    system: false,
+    content: message,
+  });
+
+  const systemMessageId = await ctx.db.insert("messages", {
+    attemptId,
+    system: true,
+    appearance: "typing",
+    content: "",
+  });
+
+  ctx.scheduler.runAfter(0, internal.chat.answer, {
+    attemptId,
+    message,
+    threadId: attempt.threadId!,
+    assistantId: exercise.assistantId,
+    systemMessageId,
+  });
+}
+
+export const sendMessageInternal = internalMutation({
+  args: {
+    attemptId: v.id("attempts"),
+    message: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await sendMessageController(ctx, args);
+  },
+});
+
 export const sendMessage = mutationWithAuth({
   args: {
     attemptId: v.id("attempts"),
     message: v.string(),
   },
-  handler: async ({ db, scheduler, session }, { attemptId, message }) => {
-    const attempt = await getAttemptIfAuthorized(db, session, attemptId);
+  handler: async (ctx, { attemptId, message }) => {
+    const attempt = await getAttemptIfAuthorized(
+      ctx.db,
+      ctx.session,
+      attemptId,
+    );
     if (attempt.threadId === null)
       throw new ConvexError("Not doing the explanation exercise");
 
-    const exercise = await db.get(attempt.exerciseId);
-    if (!exercise) throw new Error(`Exercise ${attempt.exerciseId} not found`);
-
-    await db.insert("messages", { attemptId, system: false, content: message });
-
-    const systemMessageId = await db.insert("messages", {
-      attemptId,
-      system: true,
-      appearance: "typing",
-      content: "",
-    });
-
-    scheduler.runAfter(0, internal.chat.answer, {
-      attemptId,
+    await sendMessageController(ctx, {
       message,
-      threadId: attempt.threadId,
-      assistantId: exercise.assistantId,
-      systemMessageId,
+      attemptId,
     });
   },
 });

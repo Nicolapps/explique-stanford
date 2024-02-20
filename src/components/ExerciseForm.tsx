@@ -187,12 +187,21 @@ export default function ExerciseForm({
             label="First message"
             value={firstMessage}
             onChange={setFirstMessage}
-            hint="This message will be sent automatically to the student when they start the exercise."
+            hint={
+              <>
+                This message will be sent automatically{" "}
+                <strong>on the user’s behalf</strong> when starting the
+                exercise. This message, and the one sent by the chat bot in
+                reponse, will be visible to students.
+              </>
+            }
           />
-          <div className="mt-6">
+          <div className="mt-6 flex justify-end items-start">
             {firstMessage.trim() && (
-              <div className="inline-block p-4 rounded-xl shadow bg-white rounded-bl-none">
-                <Markdown text={firstMessage} />
+              <div className="inline-block p-4 rounded-xl shadow bg-gradient-to-b from-purple-500 to-purple-600 text-white rounded-br-none ml-auto">
+                <p className="prose text-white whitespace-pre-wrap">
+                  {firstMessage}
+                </p>
               </div>
             )}
           </div>

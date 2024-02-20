@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
 import OpenAI from "openai";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { actionWithAuth, mutationWithAuth, queryWithAuth } from "./withAuth";
 import Chance from "chance";
@@ -121,25 +121,14 @@ export const insert = internalMutation({
     exerciseId: v.id("exercises"),
     userId: v.id("users"),
     threadId: v.union(v.string(), v.null()),
-    firstMessage: v.optional(v.string()),
   },
-  handler: async ({ db }, { exerciseId, userId, threadId, firstMessage }) => {
-    const attemptId = await db.insert("attempts", {
+  handler: async ({ db }, { exerciseId, userId, threadId }) => {
+    return await db.insert("attempts", {
       status: "exercise",
       exerciseId,
       userId,
       threadId,
     });
-
-    if (firstMessage) {
-      await db.insert("messages", {
-        attemptId,
-        system: true,
-        content: firstMessage,
-      });
-    }
-
-    return attemptId;
   },
 });
 
@@ -178,9 +167,15 @@ export const start = actionWithAuth({
         exerciseId,
         userId,
         threadId,
-        firstMessage: exercise.firstMessage,
       },
     );
+
+    if (isUsingExplainVariant && exercise.firstMessage) {
+      await ctx.scheduler.runAfter(0, internal.chat.sendMessageInternal, {
+        attemptId,
+        message: exercise.firstMessage,
+      });
+    }
 
     return attemptId;
   },
