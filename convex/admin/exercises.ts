@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
-import { quizSchema } from "../schema";
+import { quizNewSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
 
@@ -23,11 +23,12 @@ export const get = queryWithAuth({
       return null;
     }
 
-    const quiz = exercise.quiz;
-
     return {
       ...exercise,
-      quiz,
+      quiz:
+        "batches" in exercise.quiz
+          ? exercise.quiz
+          : { batches: [{ questions: exercise.quiz.questions }] },
     };
   },
 });
@@ -56,7 +57,7 @@ export const insertRow = internalMutation({
     assistantId: v.string(),
     weekId: v.id("weeks"),
     text: v.string(),
-    quiz: quizSchema,
+    quiz: quizNewSchema,
     model: v.string(),
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
@@ -78,7 +79,7 @@ export const updateRow = internalMutation({
       assistantId: v.string(),
       weekId: v.id("weeks"),
       text: v.string(),
-      quiz: quizSchema,
+      quiz: quizNewSchema,
       model: v.string(),
       firstMessage: v.string(),
       controlGroup: v.union(v.literal("A"), v.literal("B")),
@@ -121,7 +122,7 @@ export const create = actionWithAuth({
     model: v.string(),
     weekId: v.id("weeks"),
     text: v.string(),
-    quiz: quizSchema,
+    quiz: quizNewSchema,
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
     completionFunctionDescription: v.string(),
@@ -178,7 +179,7 @@ export const update = actionWithAuth({
     model: v.string(),
     weekId: v.id("weeks"),
     text: v.string(),
-    quiz: quizSchema,
+    quiz: quizNewSchema,
     firstMessage: v.string(),
     controlGroup: v.union(v.literal("A"), v.literal("B")),
     completionFunctionDescription: v.string(),
@@ -230,29 +231,34 @@ export const update = actionWithAuth({
 });
 
 type Quiz = {
-  shownQuestionsCount: number;
-  questions: {
-    answers: {
-      text: string;
-      correct: boolean;
+  batches: {
+    questions: {
+      answers: {
+        text: string;
+        correct: boolean;
+      }[];
+      question: string;
     }[];
-    question: string;
   }[];
 };
 
 function validateQuiz(quiz: Quiz) {
-  for (const question of quiz.questions) {
-    if (question.answers.length < 2) {
-      throw new ConvexError("Each question must have at least 2 answers");
-    }
-    if (question.answers.filter((a) => a.correct).length !== 1) {
-      throw new ConvexError("Each question must have exactly 1 correct answer");
-    }
-    const answers = new Set(question.answers.map((a) => a.text));
-    if (answers.size !== question.answers.length) {
-      throw new ConvexError(
-        `Duplicated answer to question “${question.question}”`,
-      );
+  for (const { questions } of quiz.batches) {
+    for (const question of questions) {
+      if (question.answers.length < 2) {
+        throw new ConvexError("Each question must have at least 2 answers");
+      }
+      if (question.answers.filter((a) => a.correct).length !== 1) {
+        throw new ConvexError(
+          "Each question must have exactly 1 correct answer",
+        );
+      }
+      const answers = new Set(question.answers.map((a) => a.text));
+      if (answers.size !== question.answers.length) {
+        throw new ConvexError(
+          `Duplicated answer to question “${question.question}”`,
+        );
+      }
     }
   }
 }

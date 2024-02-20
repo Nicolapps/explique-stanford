@@ -1,20 +1,43 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const quizSchema = v.object({
-  shownQuestionsCount: v.number(),
-  questions: v.array(
+export const quizNewSchema = v.object({
+  batches: v.array(
     v.object({
-      question: v.string(),
-      answers: v.array(
+      questions: v.array(
         v.object({
-          text: v.string(),
-          correct: v.boolean(),
+          question: v.string(),
+          answers: v.array(
+            v.object({
+              text: v.string(),
+              correct: v.boolean(),
+            }),
+          ),
         }),
       ),
     }),
   ),
 });
+
+export const quizSchema = v.union(
+  quizNewSchema,
+
+  // @TODO Remove (Deprecated)
+  v.object({
+    shownQuestionsCount: v.number(),
+    questions: v.array(
+      v.object({
+        question: v.string(),
+        answers: v.array(
+          v.object({
+            text: v.string(),
+            correct: v.boolean(),
+          }),
+        ),
+      }),
+    ),
+  }),
+);
 
 export default defineSchema(
   {

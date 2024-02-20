@@ -91,12 +91,20 @@ type Question = {
 };
 
 function shownQuestions(
-  quiz: { shownQuestionsCount: number; questions: Question[] },
+  quiz: { questions: Question[] } | { batches: { questions: Question[] }[] },
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
 ): Question[] {
   const chance = new Chance(`${userId} ${exerciseId}`);
-  return chance.shuffle(quiz.questions).slice(0, quiz.shownQuestionsCount);
+
+  const batch =
+    "batches" in quiz
+      ? quiz.batches[0] // @TODO Choose batch correctly
+      : quiz;
+
+  return chance.shuffle(batch.questions);
+
+  // @TODO Randomize the individual answers
 }
 
 function toUserVisibleQuestion(

@@ -23,8 +23,7 @@ export type State = {
   image?: string;
   imagePrompt?: string;
 
-  quizQuestions: Question[];
-  quizShownQuestionsCount: number;
+  quizBatches: { questions: Question[] }[];
 
   firstMessage: string;
   controlGroup: "A" | "B";
@@ -68,12 +67,7 @@ export default function ExerciseForm({
   const [imagePrompt, setImagePrompt] = useState(initialState.imagePrompt);
   const [imageLoading, setImageLoading] = useState(false);
 
-  const [quizQuestions, setQuizQuestions] = useState(
-    initialState.quizQuestions,
-  );
-  const [quizShownQuestionsCount, setQuizShownQuestionsCount] = useState(
-    initialState.quizShownQuestionsCount,
-  );
+  const [quizBatches, setQuizBatches] = useState(initialState.quizBatches);
 
   const [firstMessage, setFirstMessage] = useState(initialState.firstMessage);
   const [controlGroup, setControlGroup] = useState(initialState.controlGroup);
@@ -94,8 +88,7 @@ export default function ExerciseForm({
           model,
           text,
           weekId,
-          quizQuestions,
-          quizShownQuestionsCount,
+          quizBatches,
           firstMessage,
           controlGroup,
           completionFunctionDescription,
@@ -282,74 +275,147 @@ export default function ExerciseForm({
       </section>
 
       <section>
-        <h2 className="text-2xl font-medium mt-8 mb-4 border-t py-4 border-slate-300">
-          Validation Quiz
-        </h2>
-        {quizQuestions.map((question, questionIndex) => (
-          <QuizQuestion
-            key={questionIndex}
-            question={question}
-            onChange={(question) => {
-              setQuizQuestions((questions) =>
-                questions.map((q, index) =>
-                  index === questionIndex ? question : q,
-                ),
-              );
-            }}
-            showDeleteButton={quizQuestions.length > 1}
-            onDelete={() => {
-              setQuizQuestions((questions) =>
-                questions.filter((_, index) => index !== questionIndex),
-              );
-            }}
-          />
-        ))}
-
-        <div className="flex flex-wrap items-center">
-          <p className="text-slate-500 mb-6 text-sm flex-1 gap-2">
-            <MarkdownTip />
-          </p>
+        <header className="flex flex-wrap justify-between items-center mt-8 mb-4 border-t py-4 border-slate-300">
+          <h2 className="text-2xl font-medium">Validation Quiz</h2>
           <button
             type="button"
             className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
             onClick={() => {
-              setQuizQuestions((questions) => [
-                ...questions,
+              setQuizBatches([
+                ...quizBatches,
                 {
-                  question: "Question",
-                  answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
-                  correctAnswerIndex: null,
+                  questions: [
+                    {
+                      question: "Question",
+                      answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
+                      correctAnswerIndex: null,
+                    },
+                  ],
                 },
               ]);
             }}
           >
             <PlusIcon className="w-5 h-5" />
-            New Question
+            New Batch
           </button>
-        </div>
+        </header>
+        {quizBatches.map((batch, batchIndex) => (
+          <QuizBatch
+            key={batchIndex}
+            batch={batch}
+            batchIndex={batchIndex}
+            onChange={(newBatch) => {
+              setQuizBatches((quizBatches) =>
+                quizBatches.map((b, index) =>
+                  index === batchIndex ? newBatch : b,
+                ),
+              );
+            }}
+            canDelete={quizBatches.length > 1}
+            onDelete={() => {
+              setQuizBatches((quizBatches) =>
+                quizBatches.filter((_, index) => index !== batchIndex),
+              );
+            }}
+          />
+        ))}
 
-        <Input
-          label="Number of questions to show to each student"
-          type="number"
-          value={quizShownQuestionsCount.toString()}
-          onChange={(val) => setQuizShownQuestionsCount(parseInt(val, 10))}
-          required
-          min={1}
-          max={quizQuestions.length}
-          step={1}
-        />
+        <p className="text-slate-500 mb-6 text-sm flex-1 gap-2">
+          <MarkdownTip />
+        </p>
       </section>
 
       <hr className="my-4 border-slate-300" />
       <div className="pb-10">
         <button
           type="submit"
-          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 overflow-hidden"
         >
           {submitLabel}
         </button>
       </div>
     </form>
+  );
+}
+
+function QuizBatch({
+  batch,
+  batchIndex,
+  onChange,
+  canDelete,
+  onDelete,
+}: {
+  batch: { questions: Question[] };
+  batchIndex: number;
+  onChange: (batch: { questions: Question[] }) => void;
+  canDelete: boolean;
+  onDelete: () => void;
+}) {
+  const { questions } = batch;
+
+  return (
+    <div className="bg-gray-50 shadow-xl p-6 rounded-xl mb-8">
+      <div className="flex flex-wrap items-baseline gap-4 mb-2">
+        <h3 className="flex-1 font-regular text-2xl text-gray-700">
+          Batch #{batchIndex + 1}
+          {canDelete && (
+            <button
+              type="button"
+              className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
+              onClick={() => {
+                onDelete();
+              }}
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+          )}
+        </h3>
+
+        <button
+          type="button"
+          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
+          onClick={() => {
+            onChange({
+              questions: [
+                ...questions,
+                {
+                  question: "Question",
+                  answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
+                  correctAnswerIndex: null,
+                },
+              ],
+            });
+          }}
+        >
+          <PlusIcon className="w-5 h-5" />
+          New Question
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {batch.questions.map((question, questionIndex) => (
+          <QuizQuestion
+            key={questionIndex}
+            question={question}
+            onChange={(question) => {
+              onChange({
+                questions: questions.map((q, index) =>
+                  index === questionIndex ? question : q,
+                ),
+              });
+            }}
+            showDeleteButton={questions.length > 1}
+            onDelete={() => {
+              onChange({
+                questions: questions.filter(
+                  (_, index) => index !== questionIndex,
+                ),
+              });
+            }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -367,111 +433,118 @@ function QuizQuestion({
   const correctAnswerName = useId();
 
   return (
-    <div className="grid md:grid-cols-2 gap-x-12 mb-8">
-      <div>
-        <label className="block mb-6 text-sm font-medium text-slate-800">
-          Question
-          <div className="flex">
-            <input
-              className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed"
-              value={question.question}
-              onChange={(e) =>
-                onChange({ ...question, question: e.target.value })
-              }
-              required
-            />
-            {showDeleteButton && (
-              <button
-                type="button"
-                className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
-                onClick={() => {
-                  onDelete();
-                }}
-              >
-                <XMarkIcon className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </label>
+    <div>
+      <hr className="my-4 -mx-6 border-slate-200" />
 
-        <fieldset className="md:pl-6">
-          <legend className="block text-sm font-medium text-slate-800">
-            Answers
-          </legend>
-          {question.answers.map((answer, answerIndex) => (
-            <div key={answerIndex} className="mb-1 flex">
-              <label className="flex items-center w-8 px-2">
-                <input
-                  type="radio"
-                  name={correctAnswerName}
-                  value={answerIndex}
-                  checked={question.correctAnswerIndex === answerIndex}
-                  onChange={() => {
-                    onChange({ ...question, correctAnswerIndex: answerIndex });
-                  }}
-                  required
-                />
-              </label>
-
+      <div className="grid md:grid-cols-2 gap-x-12">
+        <div>
+          <label className="block mb-6 text-sm font-medium text-slate-800">
+            Question
+            <div className="flex">
               <input
-                type="text"
-                className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1"
-                value={answer}
-                onChange={(e) => {
-                  onChange({
-                    ...question,
-                    answers: question.answers.map((a, index) =>
-                      index === answerIndex ? e.target.value : a,
-                    ),
-                  });
-                }}
+                className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed"
+                value={question.question}
+                onChange={(e) =>
+                  onChange({ ...question, question: e.target.value })
+                }
                 required
               />
-
-              {question.answers.length > 1 && (
+              {showDeleteButton && (
                 <button
                   type="button"
                   className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
                   onClick={() => {
-                    onChange({
-                      ...question,
-                      answers: question.answers.filter(
-                        (_, index) => index !== answerIndex,
-                      ),
-                    });
+                    onDelete();
                   }}
                 >
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               )}
             </div>
-          ))}
-          <button
-            type="button"
-            className="font-medium text-blue-800 flex items-center py-2"
-            onClick={() => {
-              onChange({
-                ...question,
-                answers: [...question.answers, ""],
-              });
-            }}
-          >
-            <div className="w-8 flex justify-center">
-              <PlusIcon className="w-5 h-5" />
-            </div>
-            Add Answer
-          </button>
-        </fieldset>
-      </div>
+          </label>
 
-      <div className="mt-6">
-        <QuizContents
-          question={question.question}
-          answers={question.answers}
-          selectedAnswerIndex={null}
-          correctAnswerIndex={question.correctAnswerIndex}
-          disabled
-        />
+          <fieldset className="md:pl-6">
+            <legend className="block text-sm font-medium text-slate-800">
+              Answers
+            </legend>
+            {question.answers.map((answer, answerIndex) => (
+              <div key={answerIndex} className="mb-1 flex">
+                <label className="flex items-center w-8 px-2">
+                  <input
+                    type="radio"
+                    name={correctAnswerName}
+                    value={answerIndex}
+                    checked={question.correctAnswerIndex === answerIndex}
+                    onChange={() => {
+                      onChange({
+                        ...question,
+                        correctAnswerIndex: answerIndex,
+                      });
+                    }}
+                    required
+                  />
+                </label>
+
+                <input
+                  type="text"
+                  className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1"
+                  value={answer}
+                  onChange={(e) => {
+                    onChange({
+                      ...question,
+                      answers: question.answers.map((a, index) =>
+                        index === answerIndex ? e.target.value : a,
+                      ),
+                    });
+                  }}
+                  required
+                />
+
+                {question.answers.length > 1 && (
+                  <button
+                    type="button"
+                    className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
+                    onClick={() => {
+                      onChange({
+                        ...question,
+                        answers: question.answers.filter(
+                          (_, index) => index !== answerIndex,
+                        ),
+                      });
+                    }}
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              className="font-medium text-blue-800 flex items-center py-2"
+              onClick={() => {
+                onChange({
+                  ...question,
+                  answers: [...question.answers, ""],
+                });
+              }}
+            >
+              <div className="w-8 flex justify-center">
+                <PlusIcon className="w-5 h-5" />
+              </div>
+              Add Answer
+            </button>
+          </fieldset>
+        </div>
+
+        <div className="mt-6">
+          <QuizContents
+            question={question.question}
+            answers={question.answers}
+            selectedAnswerIndex={null}
+            correctAnswerIndex={question.correctAnswerIndex}
+            disabled
+          />
+        </div>
       </div>
     </div>
   );

@@ -32,14 +32,17 @@ export default function NewExercise() {
             model: "gpt-4-0125-preview",
             text: "",
 
-            quizQuestions: [
+            quizBatches: [
               {
-                question: "Question",
-                answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
-                correctAnswerIndex: null,
+                questions: [
+                  {
+                    question: "Question",
+                    answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
+                    correctAnswerIndex: null,
+                  },
+                ],
               },
             ],
-            quizShownQuestionsCount: 1,
 
             firstMessage: "",
             controlGroup: "A",
@@ -57,16 +60,17 @@ export default function NewExercise() {
               weekId: state.weekId,
 
               quiz: {
-                shownQuestionsCount: state.quizShownQuestionsCount,
-                questions: state.quizQuestions.map(
-                  ({ question, answers, correctAnswerIndex }) => ({
-                    question,
-                    answers: answers.map((text, index) => ({
-                      text,
-                      correct: index === correctAnswerIndex,
-                    })),
-                  }),
-                ),
+                batches: state.quizBatches.map((batch) => ({
+                  questions: batch.questions.map(
+                    ({ question, answers, correctAnswerIndex }) => ({
+                      question,
+                      answers: answers.map((text, index) => ({
+                        text,
+                        correct: index === correctAnswerIndex,
+                      })),
+                    }),
+                  ),
+                })),
               },
 
               firstMessage: state.firstMessage,

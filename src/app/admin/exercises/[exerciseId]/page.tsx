@@ -35,14 +35,13 @@ export default function EditExercise() {
               model: exercise.model,
               text: exercise.text,
 
-              quizQuestions: exercise.quiz.questions.map(
-                ({ question, answers }) => ({
+              quizBatches: exercise.quiz.batches.map((batch) => ({
+                questions: batch.questions.map(({ question, answers }) => ({
                   question,
                   answers: answers.map((a) => a.text),
                   correctAnswerIndex: answers.findIndex((a) => a.correct),
-                }),
-              ),
-              quizShownQuestionsCount: exercise.quiz.shownQuestionsCount,
+                })),
+              })),
 
               firstMessage: exercise.firstMessage ?? "",
               controlGroup: exercise.controlGroup,
@@ -61,16 +60,17 @@ export default function EditExercise() {
                 weekId: state.weekId,
 
                 quiz: {
-                  shownQuestionsCount: state.quizShownQuestionsCount,
-                  questions: state.quizQuestions.map(
-                    ({ question, answers, correctAnswerIndex }) => ({
-                      question,
-                      answers: answers.map((text, index) => ({
-                        text,
-                        correct: index === correctAnswerIndex,
-                      })),
-                    }),
-                  ),
+                  batches: state.quizBatches.map((batch) => ({
+                    questions: batch.questions.map(
+                      ({ question, answers, correctAnswerIndex }) => ({
+                        question,
+                        answers: answers.map((text, index) => ({
+                          text,
+                          correct: index === correctAnswerIndex,
+                        })),
+                      }),
+                    ),
+                  })),
                 },
 
                 firstMessage: state.firstMessage,
