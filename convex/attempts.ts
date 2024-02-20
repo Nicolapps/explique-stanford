@@ -91,7 +91,7 @@ type Question = {
 };
 
 function shownQuestions(
-  quiz: { questions: Question[] } | { batches: { questions: Question[] }[] },
+  quiz: { batches: { questions: Question[] }[] },
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
 ): Question[] {
