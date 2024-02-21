@@ -3,6 +3,7 @@ import {
   internalMutation,
   DatabaseReader,
   MutationCtx,
+  internalQuery,
 } from "./_generated/server";
 import { ConvexError, v } from "convex/values";
 import OpenAI from "openai";
@@ -181,15 +182,9 @@ export const answer = internalAction({
 export const markFinished = internalMutation({
   args: {
     attemptId: v.id("attempts"),
+    systemMessageId: v.id("messages"),
   },
-  handler: async (ctx, { attemptId }) => {
-    await ctx.db.insert("messages", {
-      attemptId,
-      system: true,
-      content: "",
-      appearance: "finished",
-    });
-
+  handler: async (ctx, { attemptId, systemMessageId }) => {
     const attempt = await ctx.db.get(attemptId);
     if (!attempt) {
       throw new Error("Can’t find the attempt");
@@ -198,6 +193,19 @@ export const markFinished = internalMutation({
       await ctx.db.patch(attemptId, { status: "exerciseCompleted" });
     }
 
+    // Start feedback
+    const exercise = await ctx.db.get(attempt.exerciseId);
+    if (!exercise) {
+      throw new Error(
+        "Can’t find the exercise for the attempt that was just completed",
+      );
+    }
+
+    await ctx.db.patch(systemMessageId, {
+      content: "",
+      appearance: exercise.feedback ? "feedback" : "finished",
+    });
+
     await ctx.db.insert("logs", {
       type: "exerciseCompleted",
       userId: attempt.userId,
@@ -205,6 +213,15 @@ export const markFinished = internalMutation({
       exerciseId: attempt.exerciseId,
       variant: "explain",
     });
+
+    if (exercise.feedback) {
+      ctx.scheduler.runAfter(0, internal.chat.startFeedback, {
+        feedbackMessageId: systemMessageId,
+        attemptId,
+        model: exercise.feedback.model,
+        prompt: exercise.feedback.prompt,
+      });
+    }
   },
 });
 
@@ -228,7 +245,10 @@ export const checkAnswer = internalAction({
         const action = run.required_action;
         if (action === null) throw new Error("Unexpected null action");
 
-        await runMutation(internal.chat.markFinished, { attemptId });
+        await runMutation(internal.chat.markFinished, {
+          attemptId,
+          systemMessageId,
+        });
 
         await openai.beta.threads.runs.submitToolOutputs(threadId, runId, {
           tool_outputs: action.submit_tool_outputs.tool_calls.map(
@@ -275,6 +295,103 @@ export const checkAnswer = internalAction({
       attemptId,
       lastMessageId,
       systemMessageId,
+    });
+  },
+});
+
+export const startFeedback = internalAction({
+  args: {
+    attemptId: v.id("attempts"),
+    feedbackMessageId: v.id("messages"),
+    model: v.string(),
+    prompt: v.string(),
+  },
+  handler: async (ctx, { attemptId, feedbackMessageId, model, prompt }) => {
+    const transcript = await ctx.runQuery(internal.chat.generateTranscript, {
+      attemptId,
+    });
+
+    const validModels = [
+      "gpt-4-1106-preview",
+      "gpt-4-vision-preview",
+      "gpt-4",
+      "gpt-4-0314",
+      "gpt-4-0613",
+      "gpt-4-32k",
+      "gpt-4-32k-0314",
+      "gpt-4-32k-0613",
+      "gpt-3.5-turbo",
+      "gpt-3.5-turbo-16k",
+      "gpt-3.5-turbo-0301",
+      "gpt-3.5-turbo-0613",
+      "gpt-3.5-turbo-1106",
+      "gpt-3.5-turbo-16k-0613",
+    ] as const;
+    if (!validModels.includes(model as any)) {
+      throw new Error(`Invalid model ${model}`);
+    }
+
+    try {
+      const openai = new OpenAI();
+      const response = await openai.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: "system",
+            content: prompt,
+          },
+          {
+            role: "user",
+            content: "She no went to the market.",
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 64,
+        stream: false,
+      });
+
+      await ctx.runMutation(internal.chat.saveFeedback, {
+        feedbackMessageId,
+        feedback: response.choices[0].message.content!,
+      });
+    } catch (err) {
+      console.error("Feedback error", err);
+      await ctx.runMutation(internal.chat.saveFeedback, {
+        feedbackMessageId,
+        feedback: "error",
+      });
+    }
+  },
+});
+
+export const generateTranscript = internalQuery({
+  args: {
+    attemptId: v.id("attempts"),
+  },
+  handler: async ({ db }, { attemptId }) => {
+    const messages = await db
+      .query("messages")
+      .withIndex("by_attempt", (q) => q.eq("attemptId", attemptId))
+      .filter((q) => q.eq("appearance", undefined))
+      .collect();
+
+    return messages
+      .map(
+        ({ content, system }) =>
+          `<message from="${system ? "chatbot" : "student"}">${content}</message>`,
+      )
+      .join("\n\n");
+  },
+});
+
+export const saveFeedback = internalMutation({
+  args: {
+    feedbackMessageId: v.id("messages"),
+    feedback: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.feedbackMessageId, {
+      content: args.feedback,
     });
   },
 });

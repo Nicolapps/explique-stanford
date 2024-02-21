@@ -133,47 +133,24 @@ export const update = actionWithAuth({
     id: v.id("exercises"),
     ...exerciseAdminSchema,
   },
-  handler: async (
-    { runMutation, session },
-    {
-      id,
-      name,
-      image,
-      imagePrompt,
-      instructions,
-      model,
-      weekId,
-      text,
-      quiz,
-      firstMessage,
-      controlGroup,
-      completionFunctionDescription,
-    },
-  ) => {
+  handler: async ({ runMutation, session }, { id, ...row }) => {
     validateAdminSession(session);
-    validateQuiz(quiz);
+    validateQuiz(row.quiz);
 
     const assistant = await createAssistant(
-      instructions,
-      model,
-      completionFunctionDescription,
+      row.instructions,
+      row.model,
+      row.completionFunctionDescription,
     );
 
     await runMutation(internal.admin.exercises.updateRow, {
       id,
       row: {
-        name,
-        image,
-        imagePrompt,
-        instructions,
+        ...{
+          ...row,
+          sessionId: undefined,
+        },
         assistantId: assistant.id,
-        weekId,
-        text,
-        quiz,
-        model,
-        firstMessage,
-        controlGroup,
-        completionFunctionDescription,
       },
     });
   },

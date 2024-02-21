@@ -34,6 +34,7 @@ export default function EditExercise() {
               instructions: exercise.instructions,
               model: exercise.model,
               text: exercise.text,
+              feedback: exercise.feedback ?? null,
 
               quizBatches: exercise.quiz.batches.map((batch) => ({
                 questions: batch.questions.map(({ question, answers }) => ({
