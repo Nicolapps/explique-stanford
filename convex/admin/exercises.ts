@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
-import { quizSchema } from "../schema";
+import { exerciseAdminSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
 
@@ -43,20 +43,7 @@ export const list = queryWithAuth({
 });
 
 export const insertRow = internalMutation({
-  args: {
-    name: v.string(),
-    image: v.optional(v.string()),
-    imagePrompt: v.optional(v.string()),
-    instructions: v.string(),
-    assistantId: v.string(),
-    weekId: v.id("weeks"),
-    text: v.string(),
-    quiz: quizSchema,
-    model: v.string(),
-    firstMessage: v.string(),
-    controlGroup: v.union(v.literal("A"), v.literal("B")),
-    completionFunctionDescription: v.string(),
-  },
+  args: { ...exerciseAdminSchema, assistantId: v.string() },
   handler: async ({ db }, row) => {
     return await db.insert("exercises", row);
   },
@@ -66,18 +53,8 @@ export const updateRow = internalMutation({
   args: {
     id: v.id("exercises"),
     row: v.object({
-      name: v.string(),
-      image: v.optional(v.string()),
-      imagePrompt: v.optional(v.string()),
-      instructions: v.string(),
+      ...exerciseAdminSchema,
       assistantId: v.string(),
-      weekId: v.id("weeks"),
-      text: v.string(),
-      quiz: quizSchema,
-      model: v.string(),
-      firstMessage: v.string(),
-      controlGroup: v.union(v.literal("A"), v.literal("B")),
-      completionFunctionDescription: v.string(),
     }),
   },
   handler: async ({ db }, { id, row }) => {
@@ -108,19 +85,7 @@ async function createAssistant(
 }
 
 export const create = actionWithAuth({
-  args: {
-    name: v.string(),
-    image: v.optional(v.string()),
-    imagePrompt: v.optional(v.string()),
-    instructions: v.string(),
-    model: v.string(),
-    weekId: v.id("weeks"),
-    text: v.string(),
-    quiz: quizSchema,
-    firstMessage: v.string(),
-    controlGroup: v.union(v.literal("A"), v.literal("B")),
-    completionFunctionDescription: v.string(),
-  },
+  args: exerciseAdminSchema,
   handler: async (
     { runMutation, session },
     {
@@ -166,17 +131,7 @@ export const create = actionWithAuth({
 export const update = actionWithAuth({
   args: {
     id: v.id("exercises"),
-    image: v.optional(v.string()),
-    imagePrompt: v.optional(v.string()),
-    name: v.string(),
-    instructions: v.string(),
-    model: v.string(),
-    weekId: v.id("weeks"),
-    text: v.string(),
-    quiz: quizSchema,
-    firstMessage: v.string(),
-    controlGroup: v.union(v.literal("A"), v.literal("B")),
-    completionFunctionDescription: v.string(),
+    ...exerciseAdminSchema,
   },
   handler: async (
     { runMutation, session },

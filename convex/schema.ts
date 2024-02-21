@@ -1,23 +1,35 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const quizSchema = v.object({
-  batches: v.array(
-    v.object({
-      questions: v.array(
-        v.object({
-          question: v.string(),
-          answers: v.array(
-            v.object({
-              text: v.string(),
-              correct: v.boolean(),
-            }),
-          ),
-        }),
-      ),
-    }),
-  ),
-});
+export const exerciseAdminSchema = {
+  name: v.string(),
+  instructions: v.string(),
+  model: v.string(),
+  weekId: v.id("weeks"),
+  text: v.string(),
+  quiz: v.object({
+    batches: v.array(
+      v.object({
+        questions: v.array(
+          v.object({
+            question: v.string(),
+            answers: v.array(
+              v.object({
+                text: v.string(),
+                correct: v.boolean(),
+              }),
+            ),
+          }),
+        ),
+      }),
+    ),
+  }),
+  firstMessage: v.optional(v.string()),
+  controlGroup: v.union(v.literal("A"), v.literal("B")),
+  completionFunctionDescription: v.string(),
+  image: v.optional(v.union(v.string(), v.id("images"))),
+  imagePrompt: v.optional(v.string()),
+};
 
 export default defineSchema(
   {
@@ -46,20 +58,7 @@ export default defineSchema(
       // are invalidated.
       cacheInvalidation: v.optional(v.number()),
     }).index("startDate", ["startDate"]),
-    exercises: defineTable({
-      name: v.string(),
-      instructions: v.string(),
-      model: v.string(),
-      assistantId: v.string(),
-      weekId: v.id("weeks"),
-      text: v.string(),
-      quiz: quizSchema,
-      firstMessage: v.optional(v.string()),
-      controlGroup: v.union(v.literal("A"), v.literal("B")),
-      completionFunctionDescription: v.string(),
-      image: v.optional(v.union(v.string(), v.id("images"))),
-      imagePrompt: v.optional(v.string()),
-    }),
+    exercises: defineTable({ ...exerciseAdminSchema, assistantId: v.string() }),
     images: defineTable({
       original: v.string(),
       thumbnails: v.array(
