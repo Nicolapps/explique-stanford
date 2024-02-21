@@ -372,10 +372,10 @@ export const generateTranscript = internalQuery({
     const messages = await db
       .query("messages")
       .withIndex("by_attempt", (q) => q.eq("attemptId", attemptId))
-      .filter((q) => q.eq("appearance", undefined))
       .collect();
 
     return messages
+      .filter((q) => !q.appearance)
       .map(
         ({ content, system }) =>
           `<message from="${system ? "chatbot" : "student"}">${content}</message>`,
