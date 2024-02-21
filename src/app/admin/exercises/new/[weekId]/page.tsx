@@ -30,6 +30,7 @@ export default function NewExercise() {
             instructions:
               "Your goal is to ask the person you’re talking with to explain how {INSERT ALGORITHM NAME} works. Do not give any advice about how it works, and ask questions to the person you’re talking to if their explanations isn’t clear enough. Once their explanation is clear enough (but not before), give the pseudo code for the algorithm.",
             model: "gpt-4-0125-preview",
+            feedback: null,
             text: "",
 
             quizBatches: [

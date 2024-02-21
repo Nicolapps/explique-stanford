@@ -1,6 +1,6 @@
 import React, { useId, useState } from "react";
 import Input, { Select, Textarea } from "@/components/Input";
-import { PlusIcon } from "@heroicons/react/16/solid";
+import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/16/solid";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { QuizContents } from "@/components/exercises/QuizExercise";
 import Markdown from "@/components/Markdown";
@@ -24,11 +24,27 @@ export type State = {
   imagePrompt?: string;
 
   quizBatches: { questions: Question[] }[];
+  feedback: {
+    model: string;
+    prompt: string;
+  } | null;
 
   firstMessage: string;
   controlGroup: "A" | "B";
   completionFunctionDescription: string;
 };
+
+const OPENAI_MODELS = [
+  "gpt-4",
+  "gpt-4-turbo-preview",
+  "gpt-4-0125-preview",
+  "gpt-4-1106-preview",
+  "gpt-4-0613",
+  "gpt-3.5-turbo",
+  "gpt-3.5-turbo-0125",
+  "gpt-3.5-turbo-1106",
+  "gpt-3.5-turbo-0613",
+] as const;
 
 export function toConvexState(state: State) {
   return {
@@ -39,6 +55,8 @@ export function toConvexState(state: State) {
     model: state.model,
     text: state.text,
     weekId: state.weekId,
+
+    feedback: state.feedback ?? undefined,
 
     quiz: {
       batches: state.quizBatches.map((batch) => ({
@@ -107,6 +125,8 @@ export default function ExerciseForm({
   const weeks = useQuery(api.admin.weeks.list, {});
   const generateImage = useAction(api.admin.image.generate);
 
+  const [feedback, setFeedback] = useState(initialState.feedback);
+
   return (
     <form
       onSubmit={async (e) => {
@@ -122,6 +142,7 @@ export default function ExerciseForm({
           firstMessage,
           controlGroup,
           completionFunctionDescription,
+          feedback,
         });
       }}
     >
@@ -233,17 +254,7 @@ export default function ExerciseForm({
           label="Model"
           value={model}
           onChange={setModel}
-          values={[
-            "gpt-4",
-            "gpt-4-turbo-preview",
-            "gpt-4-0125-preview",
-            "gpt-4-1106-preview",
-            "gpt-4-0613",
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-0125",
-            "gpt-3.5-turbo-1106",
-            "gpt-3.5-turbo-0613",
-          ].map((value) => ({ value, label: value }))}
+          values={OPENAI_MODELS.map((value) => ({ value, label: value }))}
           hint={
             <>
               More information about the models can be found in the{" "}
@@ -283,6 +294,83 @@ export default function ExerciseForm({
             </>
           }
         />
+
+        <label className="block mb-3 text-sm font-medium text-slate-800">
+          <input
+            type="checkbox"
+            className="mr-2"
+            checked={feedback !== null}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setFeedback({
+                  model: "gpt-4",
+                  prompt:
+                    "You will be provided a conversation between a student and a chatbot, where the student had to explain a concept. Provide feedback to the student on whether they followed the instructions correctly. The messages are delimited by XML tags.",
+                });
+              } else {
+                setFeedback(null);
+              }
+            }}
+          />
+          <h3 className="inline">Provide automatic feedback to the student</h3>
+        </label>
+        {feedback && (
+          <div className="pl-6">
+            <div className="grid md:grid-cols-2 gap-x-12">
+              <div>
+                <Select
+                  label="Model"
+                  value={feedback.model}
+                  onChange={(m) => setFeedback({ ...feedback, model: m })}
+                  values={OPENAI_MODELS.map((value) => ({
+                    value,
+                    label: value,
+                  }))}
+                  hint={
+                    <>
+                      More information about the models can be found in the{" "}
+                      <a
+                        className="underline font-semibold"
+                        href="https://platform.openai.com/docs/models/overview"
+                        target="_blank"
+                      >
+                        OpenAI documentation
+                      </a>
+                      .
+                    </>
+                  }
+                />
+                <Textarea
+                  label="System prompt"
+                  value={feedback.prompt}
+                  onChange={(prompt) => setFeedback({ ...feedback, prompt })}
+                  required
+                />{" "}
+              </div>
+
+              <div className="prose">
+                <h4 className="text-xs uppercase tracking-wide text-slate-600">
+                  System instructions
+                </h4>
+                <pre className="whitespace-pre-wrap">{feedback.prompt}</pre>
+                <h4 className="text-xs uppercase tracking-wide text-slate-600">
+                  Query
+                </h4>
+                <pre className="whitespace-pre-wrap">
+                  {`<message from="student">${firstMessage}</message>\n\n`}
+                  {`<message from="chatbot">`}
+                  <div className="inline-flex items-center justify-center w-7 h-5 rounded bg-slate-600 text-slate-400 align-middle">
+                    <EllipsisHorizontalIcon className="w-5 h-5" />
+                  </div>
+                  {`</message>\n\n`}
+                  <div className="inline-flex items-center justify-center w-7 h-5 rounded bg-slate-600 text-slate-400 align-middle">
+                    <EllipsisHorizontalIcon className="w-5 h-5" />
+                  </div>
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       <section>
@@ -357,7 +445,7 @@ export default function ExerciseForm({
 
       <div className="h-36"></div>
 
-      <div className="p-8 bg-white/30 backdrop-blur-md fixed bottom-0 left-0 w-full flex justify-end shadow-2xl">
+      <div className="p-8 bg-white/60 backdrop-blur-xl fixed bottom-0 left-0 w-full flex justify-end shadow-2xl">
         <button
           type="submit"
           className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 overflow-hidden"

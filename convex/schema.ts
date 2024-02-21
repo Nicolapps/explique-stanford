@@ -5,6 +5,12 @@ export const exerciseAdminSchema = {
   name: v.string(),
   instructions: v.string(),
   model: v.string(),
+  feedback: v.optional(
+    v.object({
+      model: v.string(),
+      prompt: v.string(),
+    }),
+  ),
   weekId: v.id("weeks"),
   text: v.string(),
   quiz: v.object({
