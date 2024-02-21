@@ -305,7 +305,7 @@ export default function ExerciseForm({
                 setFeedback({
                   model: "gpt-4",
                   prompt:
-                    "You will be provided a conversation between a student and a chatbot, where the student had to explain a concept. Provide feedback to the student on whether they followed the instructions correctly. The messages are delimited by XML tags.",
+                    "You will be provided a conversation between a student and a chatbot, where the student had to explain a concept. Provide feedback to the student on whether their explanation is correct. Please address the student directly (e.g. “You have understood correctly the algorithm” and not “The student has understood correctly the algorithm”). The messages are delimited by XML tags.",
                 });
               } else {
                 setFeedback(null);
