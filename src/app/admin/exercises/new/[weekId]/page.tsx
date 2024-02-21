@@ -7,6 +7,7 @@ import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import { api } from "../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
+import { toast } from "sonner";
 
 export default function NewExercise() {
   const router = useRouter();
@@ -52,6 +53,7 @@ export default function NewExercise() {
           }}
           onSubmit={async (state) => {
             await create(toConvexState(state));
+            toast.success("Exercise created successfully.");
             router.push("/admin");
           }}
         />

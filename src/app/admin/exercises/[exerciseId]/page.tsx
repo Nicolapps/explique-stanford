@@ -7,6 +7,7 @@ import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
 import Title from "@/components/typography";
+import { toast } from "sonner";
 
 export default function EditExercise() {
   const router = useRouter();
@@ -54,6 +55,7 @@ export default function EditExercise() {
                 id: exercise._id,
                 ...toConvexState(state),
               });
+              toast.success("Exercise updated successfully.");
               router.push("/admin");
             }}
           />
