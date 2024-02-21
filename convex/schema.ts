@@ -84,7 +84,12 @@ export default defineSchema(
       system: v.boolean(),
       content: v.string(),
       appearance: v.optional(
-        v.union(v.literal("finished"), v.literal("typing"), v.literal("error")),
+        v.union(
+          v.literal("finished"),
+          v.literal("feedback"),
+          v.literal("typing"),
+          v.literal("error"),
+        ),
       ),
     }).index("by_attempt", ["attemptId"]),
     logs: defineTable({

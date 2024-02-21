@@ -8,7 +8,7 @@ import {
 import { useMutation, useQuery } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
-import { ArrowRightIcon } from "@heroicons/react/16/solid";
+import { ArrowRightIcon, SparklesIcon } from "@heroicons/react/16/solid";
 import Markdown from "../Markdown";
 
 export default function ExplainExercise({
@@ -58,12 +58,74 @@ export default function ExplainExercise({
                       }}
                       disabled={nextButton === "disable"}
                     >
-                      Continue
+                      Continue to the quiz
                       <ArrowRightIcon className="w-5 h-5" />
                     </button>
                   </div>
                 )}
               </div>
+            ) : message.appearance === "feedback" ? (
+              <>
+                <div className="flex flex-col items-center gap-4">
+                  <p className="text-lg font-light flex items-center justify-center gap-1">
+                    <CheckCircleIcon
+                      className="w-6 h-6 text-purple-700"
+                      aria-hidden="true"
+                    />
+                    <span>
+                      <strong className="font-medium text-purple-700">
+                        Great!
+                      </strong>{" "}
+                      We will now provide feedback on your explanation.
+                    </span>
+                  </p>
+
+                  {message.content === "" ? (
+                    <div className="flex gap-2 my-4" aria-label="Loading">
+                      <div className="w-3 h-3 rounded-full bg-slate-400 animate-pulse"></div>
+                      <div className="w-3 h-3 rounded-full bg-slate-400 animate-pulse animation-delay-1-3"></div>
+                      <div className="w-3 h-3 rounded-full bg-slate-400 animate-pulse animation-delay-2-3"></div>
+                    </div>
+                  ) : message.content === "error" ? (
+                    <p className="font-light flex items-center justify-center gap-1">
+                      <ExclamationCircleIcon
+                        className="w-6 h-6 text-red-600"
+                        aria-hidden="true"
+                      />
+                      <span className="flex-1">
+                        <strong className="font-medium text-red-600">
+                          An error occurred.
+                        </strong>
+                      </span>
+                    </p>
+                  ) : (
+                    <div>
+                      <div className="border-l-4 border-slate-300 pl-4 py-1">
+                        <Markdown text={message.content} />
+                      </div>
+                      <p className="text-slate-500 flex items-center gap-2 w-full my-2">
+                        <SparklesIcon className="w-4 h-4" />
+                        This feedback is AI-generated and may be inaccurate.
+                      </p>
+                    </div>
+                  )}
+
+                  {nextButton !== "hide" && message.content !== "" && (
+                    <div className="flex flex-col gap-2 items-center">
+                      <button
+                        className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                        onClick={async () => {
+                          await goToQuiz({ attemptId });
+                        }}
+                        disabled={nextButton === "disable"}
+                      >
+                        Continue to the quiz
+                        <ArrowRightIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             ) : (
               <div
                 className={clsx(

@@ -45,7 +45,7 @@ export default function ReadingExercise({
               }}
               disabled={nextButton === "disable"}
             >
-              Continue
+              Continue to the quiz
               <ArrowRightIcon className="w-5 h-5" />
             </button>
 
