@@ -346,7 +346,6 @@ export const startFeedback = internalAction({
           },
         ],
         temperature: 0.7,
-        max_tokens: 64,
         stream: false,
       });
 
