@@ -239,7 +239,7 @@ export const checkAnswer = internalAction({
           ),
         });
 
-        break;
+        return;
       case "failed":
       case "expired":
       case "cancelled":
