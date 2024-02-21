@@ -35,7 +35,7 @@ export default function QuizExercise({
   succeeded: boolean;
   isDue: boolean;
 }) {
-  const submit = useMutation(api.attempts.submitQuiz);
+  const submit = useMutation(api.quiz.submit);
 
   const [selectedAnswerIndexes, setSelectedAnswerIndexes] = useState<
     (number | null)[]

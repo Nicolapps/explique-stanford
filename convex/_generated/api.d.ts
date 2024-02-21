@@ -26,6 +26,7 @@ import type * as chat from "../chat.js";
 import type * as exercises from "../exercises.js";
 import type * as lucia from "../lucia.js";
 import type * as lucia_epfl from "../lucia_epfl.js";
+import type * as quiz from "../quiz.js";
 import type * as researchConsent from "../researchConsent.js";
 import type * as weeks from "../weeks.js";
 import type * as withAuth from "../withAuth.js";
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   exercises: typeof exercises;
   lucia: typeof lucia;
   lucia_epfl: typeof lucia_epfl;
+  quiz: typeof quiz;
   researchConsent: typeof researchConsent;
   weeks: typeof weeks;
   withAuth: typeof withAuth;
