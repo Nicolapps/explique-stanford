@@ -30,6 +30,36 @@ export type State = {
   completionFunctionDescription: string;
 };
 
+export function toConvexState(state: State) {
+  return {
+    name: state.name,
+    image: state.image,
+    imagePrompt: state.imagePrompt,
+    instructions: state.instructions,
+    model: state.model,
+    text: state.text,
+    weekId: state.weekId,
+
+    quiz: {
+      batches: state.quizBatches.map((batch) => ({
+        questions: batch.questions.map(
+          ({ question, answers, correctAnswerIndex }) => ({
+            question,
+            answers: answers.map((text, index) => ({
+              text,
+              correct: index === correctAnswerIndex,
+            })),
+          }),
+        ),
+      })),
+    },
+
+    firstMessage: state.firstMessage,
+    controlGroup: state.controlGroup,
+    completionFunctionDescription: state.completionFunctionDescription,
+  };
+}
+
 function MarkdownTip() {
   return (
     <>

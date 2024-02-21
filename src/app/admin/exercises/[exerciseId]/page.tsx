@@ -5,7 +5,7 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
-import ExerciseForm from "@/components/ExerciseForm";
+import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
 import Title from "@/components/typography";
 
 export default function EditExercise() {
@@ -51,32 +51,7 @@ export default function EditExercise() {
             onSubmit={async (state) => {
               await update({
                 id: exercise._id,
-                name: state.name,
-                image: state.image,
-                imagePrompt: state.imagePrompt,
-                instructions: state.instructions,
-                model: state.model,
-                text: state.text,
-                weekId: state.weekId,
-
-                quiz: {
-                  batches: state.quizBatches.map((batch) => ({
-                    questions: batch.questions.map(
-                      ({ question, answers, correctAnswerIndex }) => ({
-                        question,
-                        answers: answers.map((text, index) => ({
-                          text,
-                          correct: index === correctAnswerIndex,
-                        })),
-                      }),
-                    ),
-                  })),
-                },
-
-                firstMessage: state.firstMessage,
-                controlGroup: state.controlGroup,
-                completionFunctionDescription:
-                  state.completionFunctionDescription,
+                ...toConvexState(state),
               });
               router.push("/admin");
             }}

@@ -3,7 +3,7 @@
 import { useAction } from "@/usingSession";
 import { useParams, useRouter } from "next/navigation";
 
-import ExerciseForm from "@/components/ExerciseForm";
+import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import { api } from "../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
@@ -50,35 +50,7 @@ export default function NewExercise() {
               "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
           }}
           onSubmit={async (state) => {
-            await create({
-              name: state.name,
-              image: state.image,
-              imagePrompt: state.imagePrompt,
-              instructions: state.instructions,
-              model: state.model,
-              text: state.text,
-              weekId: state.weekId,
-
-              quiz: {
-                batches: state.quizBatches.map((batch) => ({
-                  questions: batch.questions.map(
-                    ({ question, answers, correctAnswerIndex }) => ({
-                      question,
-                      answers: answers.map((text, index) => ({
-                        text,
-                        correct: index === correctAnswerIndex,
-                      })),
-                    }),
-                  ),
-                })),
-              },
-
-              firstMessage: state.firstMessage,
-              controlGroup: state.controlGroup,
-              completionFunctionDescription:
-                state.completionFunctionDescription,
-            });
-
+            await create(toConvexState(state));
             router.push("/admin");
           }}
         />
