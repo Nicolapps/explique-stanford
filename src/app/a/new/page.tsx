@@ -23,7 +23,7 @@ export default function Page() {
       const newAttemptId = await startAttempt({
         exerciseId: exerciseIdStr as Id<"exercises">,
       });
-      router.push(`/a/${newAttemptId}`);
+      router.replace(`/a/${newAttemptId}`);
       window.location.href = "/";
     })();
   });
