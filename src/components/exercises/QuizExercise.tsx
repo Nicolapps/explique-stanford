@@ -26,7 +26,7 @@ export default function QuizExercise({
   questions: {
     question: string;
     answers: string[];
-    correctAnswerIndex: number | null;
+    correctAnswer: string | null;
   }[];
   lastSubmission: {
     answers: number[];
