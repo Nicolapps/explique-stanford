@@ -109,7 +109,11 @@ export default defineSchema(
       email: v.string(),
       group: v.union(v.literal("A"), v.literal("B")),
       researchConsent: v.optional(v.literal(true)),
-    }).index("byEmail", ["email"]),
+      positionInGroup: v.optional(v.number()),
+      groupLength: v.optional(v.number()),
+    })
+      .index("byEmail", ["email"])
+      .index("byGroup", ["group"]),
 
     // Lucia
     users: defineTable({

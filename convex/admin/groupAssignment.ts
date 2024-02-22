@@ -30,6 +30,27 @@ export const importAndAssign = internalMutation({
   },
 });
 
+export const assignNumbers = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    for (const group of ["A", "B"] as const) {
+      const usersInGroup = await ctx.db
+        .query("groupAssignments")
+        .withIndex("byGroup", (q) => q.eq("group", group))
+        .collect();
+
+      let i = 0;
+      for (const user of usersInGroup) {
+        await ctx.db.patch(user._id, {
+          positionInGroup: i,
+          groupLength: usersInGroup.length,
+        });
+        i++;
+      }
+    }
+  },
+});
+
 export const stats = queryWithAuth({
   args: {},
   handler: async ({ db, session }) => {
@@ -49,7 +70,17 @@ export const stats = queryWithAuth({
       earlyAccess,
     }: Doc<"users">) => ({ group, email, isAdmin, earlyAccess });
 
+    async function isGroupValid(group: "A" | "B") {
+      const peopleInGroups = assignments.filter((u) => u.group === group);
+
+      return peopleInGroups.every(
+        (p, i) =>
+          p.groupLength === peopleInGroups.length && p.positionInGroup === i,
+      );
+    }
+
     return {
+      numbersValid: (await isGroupValid("A")) && (await isGroupValid("B")),
       evenlyAssigned: {
         A: assignments.filter((u) => u.group === "A").length,
         B: assignments.filter((u) => u.group === "B").length,

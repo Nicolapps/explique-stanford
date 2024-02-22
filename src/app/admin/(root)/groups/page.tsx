@@ -23,6 +23,12 @@ export default function GroupsPage() {
             B.
           </p>
 
+          {!stats.numbersValid && (
+            <p className="prose text-red-600">
+              The numbers in the group assignments are invalid.
+            </p>
+          )}
+
           {stats.assignmentChanged.length > 0 && (
             <>
               <h2 className="text-lg mt-8 mb-2 font-medium">
