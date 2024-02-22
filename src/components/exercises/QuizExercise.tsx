@@ -83,13 +83,13 @@ export default function QuizExercise({
       </p>
 
       <div className="flex flex-col gap-4">
-        {questions.map(({ question, answers, correctAnswerIndex }, index) => (
+        {questions.map(({ question, answers, correctAnswer }, index) => (
           <QuizContents
             key={index}
             question={question}
             answers={answers}
             selectedAnswerIndex={selectedAnswerIndexes[index]}
-            correctAnswerIndex={correctAnswerIndex}
+            correctAnswer={correctAnswer}
             onChange={(newSelectedIndex) => {
               const newIndexes = [...selectedAnswerIndexes];
               newIndexes[index] = newSelectedIndex;
@@ -172,14 +172,14 @@ export function QuizContents({
   question,
   answers,
   selectedAnswerIndex,
-  correctAnswerIndex,
+  correctAnswer,
   onChange,
   disabled = false,
 }: {
   question: string;
   answers: string[];
   selectedAnswerIndex: number | null;
-  correctAnswerIndex: number | null;
+  correctAnswer: string | null;
   onChange?: (index: number) => void;
   disabled?: boolean;
 }) {
@@ -208,15 +208,15 @@ export function QuizContents({
 
               <Markdown text={answer} className="flex-1" />
 
-              {correctAnswerIndex === index && (
+              {correctAnswer === answer && (
                 <CheckCircleIcon
                   className="w-6 h-6 text-green-600"
                   title="Correct answer"
                 />
               )}
-              {correctAnswerIndex !== null &&
+              {correctAnswer !== null &&
                 selectedAnswerIndex === index &&
-                correctAnswerIndex !== selectedAnswerIndex && (
+                correctAnswer !== answer && (
                   <XCircleIcon
                     className="w-6 h-6 text-red-600"
                     title="Incorrect answer"

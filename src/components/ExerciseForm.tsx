@@ -7,6 +7,7 @@ import Markdown from "@/components/Markdown";
 import { Id } from "../../convex/_generated/dataModel";
 import { api } from "../../convex/_generated/api";
 import { useAction, useQuery } from "@/usingSession";
+import Chance from "chance";
 
 type Question = {
   question: string;
@@ -543,6 +544,8 @@ function QuizBatch({
                 ),
               });
             }}
+            batchNumber={batchIndex}
+            questionNumber={questionIndex}
           />
         ))}
       </div>
@@ -555,13 +558,20 @@ function QuizQuestion({
   onChange,
   showDeleteButton,
   onDelete,
+  batchNumber,
+  questionNumber,
 }: {
   question: Question;
   onChange: (question: Question) => void;
   showDeleteButton: boolean;
   onDelete: () => void;
+  batchNumber: number;
+  questionNumber: number;
 }) {
   const correctAnswerName = useId();
+
+  const chance = new Chance(`${batchNumber} ${questionNumber} example order`);
+  const shuffledAnswers = chance.shuffle(question.answers);
 
   return (
     <div>
@@ -670,9 +680,13 @@ function QuizQuestion({
         <div className="mt-6">
           <QuizContents
             question={question.question}
-            answers={question.answers}
+            answers={shuffledAnswers}
             selectedAnswerIndex={null}
-            correctAnswerIndex={question.correctAnswerIndex}
+            correctAnswer={
+              question.correctAnswerIndex === null
+                ? null
+                : question.answers[question.correctAnswerIndex]
+            }
             disabled
           />
         </div>

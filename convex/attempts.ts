@@ -2,10 +2,11 @@ import { ConvexError, v } from "convex/values";
 import { internalMutation, internalQuery } from "./_generated/server";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { actionWithAuth, mutationWithAuth, queryWithAuth } from "./withAuth";
 import { validateDueDate, validateDueDateFromAction } from "./weeks";
 import { Question, shownQuestions } from "./quiz";
+import { Chance } from "chance";
 
 export const get = queryWithAuth({
   args: {
@@ -67,13 +68,7 @@ export const get = queryWithAuth({
         attempt.status === "quiz" ||
         attempt.status === "quizCompleted" ||
         isSolutionShown
-          ? shownQuestions(
-              exercise.quiz,
-              attempt.userId,
-              attempt.exerciseId,
-            ).map((question) =>
-              toUserVisibleQuestion(question, isSolutionShown),
-            )
+          ? formatQuiz(exercise, attempt, session.user._id, isSolutionShown)
           : null,
       lastQuizSubmission: lastQuizSubmission
         ? {
@@ -85,19 +80,51 @@ export const get = queryWithAuth({
   },
 });
 
+function formatQuiz(
+  exercise: Doc<"exercises">,
+  attempt: Doc<"attempts">,
+  userId: Id<"users">,
+  isSolutionShown: boolean,
+) {
+  const questions = shownQuestions(
+    exercise.quiz,
+    attempt.userId,
+    attempt.exerciseId,
+  );
+
+  return questions.map((question, questionIndex) =>
+    toUserVisibleQuestion(
+      question,
+      isSolutionShown,
+      userId,
+      exercise._id,
+      questionIndex,
+    ),
+  );
+}
+
 function toUserVisibleQuestion(
   question: Question,
   isSolutionShown: boolean,
+  userId: Id<"users">,
+  exerciseId: Id<"exercises">,
+  questionIndex: number,
 ): {
   question: string;
   answers: string[];
-  correctAnswerIndex: number | null;
+  correctAnswer: string | null;
 } {
+  const chanceAnswersOrder = new Chance(
+    `${exerciseId} ${userId} ${questionIndex} answers order`,
+  );
+
   return {
     question: question.question,
-    answers: question.answers.map((answer) => answer.text),
-    correctAnswerIndex: isSolutionShown
-      ? question.answers.findIndex((a) => a.correct)
+    answers: chanceAnswersOrder.shuffle(
+      question.answers.map((answer) => answer.text),
+    ),
+    correctAnswer: isSolutionShown
+      ? question.answers.find((a) => a.correct)!.text
       : null,
   };
 }

@@ -14,13 +14,12 @@ export function shownQuestions(
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
 ): Question[] {
-  const chance = new Chance(`${userId} ${exerciseId}`);
-
   const batch = quiz.batches[0]; // @TODO Choose batch correctly
 
-  return chance.shuffle(batch.questions);
-
-  // @TODO Randomize the individual answers
+  const chanceQuestionsOrder = new Chance(
+    `${userId} ${exerciseId} questions order`,
+  );
+  return chanceQuestionsOrder.shuffle(batch.questions);
 }
 
 export const submit = mutationWithAuth({
@@ -52,8 +51,14 @@ export const submit = mutationWithAuth({
       attempt.userId,
       attempt.exerciseId,
     );
-    const correctAnswers = questions.map((q) => {
-      const correctAnswer = q.answers.findIndex((a) => a.correct);
+    const correctAnswers = questions.map((q, questionIndex) => {
+      const chanceAnswersOrder = new Chance(
+        `${exercise._id} ${userId} ${questionIndex} answers order`,
+      );
+
+      const correctAnswer = chanceAnswersOrder
+        .shuffle(q.answers)
+        .findIndex((a) => a.correct);
       if (correctAnswer === -1) throw new ConvexError("No correct answer");
       return correctAnswer;
     });
