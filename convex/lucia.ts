@@ -33,6 +33,7 @@ export function getAuth(db: AuthDbWriter) {
         extraTime: user.extraTime,
         group: user.group,
         researchConsent: user.researchConsent,
+        completedExercises: user.completedExercises,
       };
     },
 

@@ -122,6 +122,21 @@ export const submit = mutationWithAuth({
     });
 
     if (isCorrect) {
+      // @todo Make completedExercises non-optional
+      const user = await db
+        .query("users")
+        .withIndex("byEmail", (q) => q.eq("email", session.user.email))
+        .first();
+      if (!user) throw new Error("No user");
+      if (!(user.completedExercises ?? []).includes(attempt.exerciseId)) {
+        await db.patch(user._id, {
+          completedExercises: [
+            ...(user.completedExercises ?? []),
+            attempt.exerciseId,
+          ],
+        });
+      }
+
       await db.patch(attemptId, {
         status: "quizCompleted",
       });

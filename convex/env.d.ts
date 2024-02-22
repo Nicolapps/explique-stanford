@@ -10,6 +10,7 @@ declare namespace Lucia {
     extraTime?: true;
     group: "A" | "B";
     researchConsent?: true;
+    completedExercises?: Array<import("./_generated/dataModel").Id<"exercises">>;
   };
   type DatabaseSessionAttributes = {
     _id: import("./_generated/dataModel").Id<"sessions">;

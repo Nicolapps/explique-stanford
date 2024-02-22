@@ -89,6 +89,7 @@ export const redirect = action({
             isAdmin: false,
             group,
             researchConsent: researchConsent ? true : undefined,
+            completedExercises: [],
 
             // These will be filled out by Convex
             _id: "" as Id<"users">,

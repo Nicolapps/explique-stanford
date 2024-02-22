@@ -11,6 +11,27 @@ export const getRow = internalQuery({
   },
 });
 
+export const getLastAttempt = queryWithAuth({
+  args: {
+    exerciseId: v.id("exercises"),
+  },
+  handler: async ({ db, session }, { exerciseId }) => {
+    if (!session) {
+      throw new ConvexError("Not logged in");
+    }
+
+    const attempt = await db
+      .query("attempts")
+      .withIndex("by_key", (x) =>
+        x.eq("userId", session.user._id).eq("exerciseId", exerciseId),
+      )
+      .order("desc") // latest attempt
+      .first();
+
+    return attempt ? attempt._id : null;
+  },
+});
+
 export const list = queryWithAuth({
   args: {},
   handler: async ({ db, session }, {}) => {
@@ -35,19 +56,12 @@ export const list = queryWithAuth({
     for (const week of weeks) {
       const exercisesResult = [];
       for (const exercise of exercises.filter((x) => x.weekId === week._id)) {
-        const attempt = await db
-          .query("attempts")
-          .withIndex("by_key", (x) =>
-            x.eq("userId", user._id).eq("exerciseId", exercise._id),
-          )
-          .order("desc") // latest attempt
-          .first();
         exercisesResult.push({
           id: exercise._id,
           name: exercise.name,
           image: exercise.image,
-          attemptId: attempt?._id ?? null,
-          completed: attempt?.status === "quizCompleted" ?? false,
+          // @TODO Make non-optional
+          completed: (user.completedExercises ?? []).includes(exercise._id),
         });
       }
 

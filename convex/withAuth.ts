@@ -13,7 +13,6 @@ import {
 } from "./_generated/server";
 import { Auth, getAuth } from "./lucia";
 import { actionAuthDbWriter, mutationAuthDbWriter } from "./authDbWriter";
-import { internal } from "./_generated/api";
 
 export function queryWithAuth<
   ArgsValidator extends PropertyValidators,

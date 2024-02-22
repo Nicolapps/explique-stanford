@@ -125,6 +125,7 @@ export default defineSchema(
       researchConsent: v.optional(v.literal(true)),
       group: v.union(v.literal("A"), v.literal("B")),
       extraTime: v.optional(v.literal(true)),
+      completedExercises: v.optional(v.array(v.id("exercises"))),
     })
       .index("byId", ["id"])
       .index("byEmail", ["email"]),

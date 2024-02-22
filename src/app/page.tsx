@@ -26,13 +26,12 @@ function ExerciseLink({
     id: string;
     name: string;
     image?: string;
-    attemptId: string | null;
     completed: boolean;
   };
 }) {
   return (
     <Link
-      href={`/a/${exercise.attemptId ?? `new?exerciseId=${exercise.id}`}`}
+      href={`/e/${exercise.id}`}
       className="block bg-white overflow-hidden rounded-3xl shadow-lg transition hover:scale-105 hover:shadow-2xl group"
     >
       <div
