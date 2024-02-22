@@ -9,6 +9,14 @@ export type Question = {
   answers: { text: string; correct: boolean }[];
 };
 
+function indexes(count: number) {
+  const result: number[] = [];
+  for (let i = 0; i < count; i++) {
+    result.push(i);
+  }
+  return result;
+}
+
 function batchIndex(
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
@@ -33,9 +41,7 @@ function batchIndex(
 
   // Split the group evenly between the batches
   const chanceBatch = new Chance(`${exerciseId} ${assignment.group} batch`);
-  const numbers = chanceBatch.shuffle([
-    ...Array(assignment.groupLength).keys(),
-  ]);
+  const numbers = chanceBatch.shuffle(indexes(assignment.groupLength));
   return numbers.indexOf(assignment.positionInGroup) % batchesCount;
 }
 
