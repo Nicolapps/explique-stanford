@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { mutationWithAuth } from "./withAuth";
 import { validateDueDate } from "./weeks";
-import { Id } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import Chance from "chance";
 
 export type Question = {
@@ -9,12 +9,48 @@ export type Question = {
   answers: { text: string; correct: boolean }[];
 };
 
+function batchIndex(
+  userId: Id<"users">,
+  exerciseId: Id<"exercises">,
+  assignment: Doc<"groupAssignments"> | null,
+  batchesCount: number,
+) {
+  // Not an imported student? Assign a random batch based on the user ID
+  if (assignment === null) {
+    const chanceBatch = new Chance(`${userId} ${exerciseId} batch`);
+    return chanceBatch.integer({ min: 0, max: batchesCount - 1 });
+  }
+
+  if (
+    assignment.positionInGroup === undefined ||
+    assignment.groupLength === undefined
+  ) {
+    console.warn("Invalid group assignment, please run assignNumbers");
+
+    const chanceBatch = new Chance(`${userId} ${exerciseId} batch`);
+    return chanceBatch.integer({ min: 0, max: batchesCount - 1 });
+  }
+
+  // Split the group evenly between the batches
+  const chanceBatch = new Chance(`${exerciseId} ${assignment.group} batch`);
+  const numbers = chanceBatch.shuffle([
+    ...Array(assignment.groupLength).keys(),
+  ]);
+  return numbers.indexOf(assignment.positionInGroup) % batchesCount;
+}
+
 export function shownQuestions(
   quiz: { batches: { questions: Question[] }[] },
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
+  assignment: Doc<"groupAssignments"> | null,
 ): Question[] {
-  const batch = quiz.batches[0]; // @TODO Choose batch correctly
+  if (quiz.batches.length === 0) throw new ConvexError("No quiz batches");
+
+  const batch =
+    quiz.batches[
+      batchIndex(userId, exerciseId, assignment, quiz.batches.length)
+    ];
 
   const chanceQuestionsOrder = new Chance(
     `${userId} ${exerciseId} questions order`,
@@ -46,10 +82,16 @@ export const submit = mutationWithAuth({
       throw new ConvexError("Incorrect status " + attempt.status);
     }
 
+    const assignment = await db
+      .query("groupAssignments")
+      .withIndex("byEmail", (q) => q.eq("email", session.user.email))
+      .first();
+
     const questions = shownQuestions(
       exercise.quiz,
       attempt.userId,
       attempt.exerciseId,
+      assignment,
     );
     const correctAnswers = questions.map((q, questionIndex) => {
       const chanceAnswersOrder = new Chance(

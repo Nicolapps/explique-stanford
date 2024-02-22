@@ -50,6 +50,33 @@ export const get = queryWithAuth({
       .order("desc")
       .first();
 
+    let quiz = null;
+    if (
+      attempt.status === "quiz" ||
+      attempt.status === "quizCompleted" ||
+      isSolutionShown
+    ) {
+      const assignment = await db
+        .query("groupAssignments")
+        .withIndex("byEmail", (q) => q.eq("email", session.user.email))
+        .first();
+
+      quiz = shownQuestions(
+        exercise.quiz,
+        attempt.userId,
+        attempt.exerciseId,
+        assignment,
+      ).map((question, questionIndex) =>
+        toUserVisibleQuestion(
+          question,
+          isSolutionShown,
+          session.user._id,
+          exercise._id,
+          questionIndex,
+        ),
+      );
+    }
+
     return {
       exerciseId: exercise._id,
       exerciseName: exercise.name,
@@ -64,12 +91,7 @@ export const get = queryWithAuth({
               attempt.status === "exercise" ||
               attempt.status === "exerciseCompleted") &&
             exercise.text,
-      quiz:
-        attempt.status === "quiz" ||
-        attempt.status === "quizCompleted" ||
-        isSolutionShown
-          ? formatQuiz(exercise, attempt, session.user._id, isSolutionShown)
-          : null,
+      quiz,
       lastQuizSubmission: lastQuizSubmission
         ? {
             answers: lastQuizSubmission.answers,
@@ -79,29 +101,6 @@ export const get = queryWithAuth({
     };
   },
 });
-
-function formatQuiz(
-  exercise: Doc<"exercises">,
-  attempt: Doc<"attempts">,
-  userId: Id<"users">,
-  isSolutionShown: boolean,
-) {
-  const questions = shownQuestions(
-    exercise.quiz,
-    attempt.userId,
-    attempt.exerciseId,
-  );
-
-  return questions.map((question, questionIndex) =>
-    toUserVisibleQuestion(
-      question,
-      isSolutionShown,
-      userId,
-      exercise._id,
-      questionIndex,
-    ),
-  );
-}
 
 function toUserVisibleQuestion(
   question: Question,
