@@ -1,10 +1,9 @@
 "use client";
 
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
-import { DocumentIcon } from "@heroicons/react/20/solid";
 import {
   DocumentCheckIcon,
-  FolderIcon,
+  TableCellsIcon,
   PuzzlePieceIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
@@ -46,6 +45,10 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
         <NavLink href="/admin">
           <PuzzlePieceIcon />
           Exercises
+        </NavLink>
+        <NavLink href="/admin/scores">
+          <TableCellsIcon />
+          Scores
         </NavLink>
         <NavLink href="/admin/researchConsent">
           <DocumentCheckIcon />
