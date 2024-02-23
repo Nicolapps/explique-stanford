@@ -6,13 +6,52 @@ import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
 import React from "react";
 import clsx from "clsx";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/16/solid";
+import { CheckIcon } from "@heroicons/react/16/solid";
+import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import { toast } from "sonner";
 
 export default function ScoresPage() {
   const data = useQuery(api.admin.scores.default, {});
   return (
     <>
-      <Title>Scores</Title>
+      <Title>
+        <span className="flex-1">Scores</span>
+        {data && (
+          <button
+            className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 text-base flex items-center gap-2"
+            onClick={() => {
+              const rows: string[][] = [
+                [
+                  "Student",
+                  "Role",
+                  ...data.weeks.flatMap((week) =>
+                    week.exercises.map((e) => e.name),
+                  ),
+                  "Completed exercises",
+                ],
+                ...data.users.map((user) => [
+                  user.email,
+                  user.isAdmin ? "Admin" : user.earlyAccess ? "TA" : "",
+                  ...data.weeks.flatMap((week) =>
+                    week.exercises.map((exercise) =>
+                      user.completedExercises.includes(exercise.id) ? "1" : "0",
+                    ),
+                  ),
+                  user.completedExercises.length.toString(),
+                ]),
+              ];
+
+              const text = rows.map((cols) => cols.join("\t")).join("\n");
+
+              navigator.clipboard.writeText(text);
+              toast.success("Copied to clipboard");
+            }}
+          >
+            <ClipboardDocumentIcon className="w-5 h-5" />
+            Copy
+          </button>
+        )}
+      </Title>
       {data ? (
         <div className="pb-8">
           <ScoresTable {...data} />
@@ -46,7 +85,7 @@ function ScoresTable({
         <tr>
           <th
             scope="col"
-            className="px-2 py-4 align-bottom text-left"
+            className="px-2 py-3 align-bottom text-left"
             colSpan={2}
           >
             Student
@@ -56,7 +95,7 @@ function ScoresTable({
               {week.exercises.map((exercise) => (
                 <th
                   scope="col"
-                  className={clsx("align-bottom px-2 py-4 h-24 relative")}
+                  className={clsx("align-bottom px-2 py-3 h-24 relative")}
                   key={exercise.id}
                 >
                   <div className="text-left w-full h-40 [writing-mode:vertical-rl] flex items-center rotate-180 leading-tight font-medium">
@@ -66,7 +105,7 @@ function ScoresTable({
               ))}
             </React.Fragment>
           ))}
-          <th scope="col" className="px-2 py-4 align-bottom text-right">
+          <th scope="col" className="px-2 py-3 align-bottom text-right">
             #
           </th>
         </tr>
@@ -74,7 +113,7 @@ function ScoresTable({
       <tbody className="divide-y divide-gray-200">
         {users.map((user) => (
           <tr key={user.email}>
-            <td className="px-2 py-4">{user.email.replace("@epfl.ch", "")}</td>
+            <td className="px-2 py-3">{user.email.replace("@epfl.ch", "")}</td>
             <td className="pl-2">
               {user.isAdmin ? (
                 <span className="inline-block bg-red-200 px-2 py-1 rounded-full mr-2 text-red-900 uppercase tracking-wider font-semibold text-xs">
@@ -91,7 +130,7 @@ function ScoresTable({
                 {week.exercises.map((exercise, exerciseIndex) => (
                   <td
                     className={clsx(
-                      "px-2 py-4 text-center",
+                      "px-2 py-3 text-center",
                       exerciseIndex === 0 ? "border-l border-slate-300" : "",
                       exerciseIndex === week.exercises.length - 1
                         ? "border-r border-slate-300"
@@ -108,7 +147,7 @@ function ScoresTable({
                 ))}
               </React.Fragment>
             ))}
-            <td className="px-2 py-4 items-center text-right tabular-nums font-semibold">
+            <td className="px-2 py-3 items-center text-right tabular-nums font-semibold">
               {user.completedExercises.length}
             </td>
           </tr>
