@@ -60,8 +60,7 @@ export const list = queryWithAuth({
           id: exercise._id,
           name: exercise.name,
           image: exercise.image,
-          // @TODO Make non-optional
-          completed: (user.completedExercises ?? []).includes(exercise._id),
+          completed: user.completedExercises.includes(exercise._id),
         });
       }
 
