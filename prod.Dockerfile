@@ -31,6 +31,9 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ARG CONVEX_DEPLOY_KEY
 ENV CONVEX_DEPLOY_KEY=${CONVEX_DEPLOY_KEY}
 
+ARG COMPRESS_API_KEY
+ENV COMPRESS_API_KEY=${COMPRESS_API_KEY}
+
 RUN npx convex deploy --cmd 'npm run build'
 
 # Production image, copy all the files and run next
