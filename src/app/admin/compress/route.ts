@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   }
 
   const { key, url, width, format } = json;
-  if (key !== process.env.COMPRESS_API_KEY) {
+  if (key !== "5570f676-ddbb-415b-939b-c1adf66fc4fc") {
     return new Response("Unauthorized", { status: 401 });
   }
 
