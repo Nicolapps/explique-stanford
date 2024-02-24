@@ -15,6 +15,7 @@
     "@heroicons/react": "^2.1.1",
     "@lucia-auth/oauth": "^3.5.2",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@sentry/nextjs": "^7.102.1",
     "chance": "^1.1.11",
     "clsx": "^2.0.0",
     "convex": "^1.8.0",
