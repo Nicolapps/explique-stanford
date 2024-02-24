@@ -2,7 +2,11 @@ import { v } from "convex/values";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { validateAdminSession } from "./exercises";
 import OpenAI from "openai";
-import { internalMutation } from "../_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+} from "../_generated/server";
 import { StorageActionWriter } from "convex/server";
 import { Id } from "../_generated/dataModel";
 import { internal } from "../_generated/api";
@@ -94,6 +98,58 @@ export const generate = actionWithAuth({
     );
 
     return imageId;
+  },
+});
+
+export const oldFormatExercises = internalQuery(async (ctx) => {
+  return (await ctx.db.query("exercises").collect()).filter(
+    (e) => e.image && e.image.startsWith("https"),
+  );
+});
+
+export const patchExerciseImage = internalMutation({
+  args: {
+    exerciseId: v.id("exercises"),
+    imageId: v.id("images"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.exerciseId, {
+      image: args.imageId,
+    });
+  },
+});
+
+export const migration = internalAction({
+  args: {},
+  handler: async ({ runQuery, storage, runMutation }, args) => {
+    const exercises = await runQuery(internal.admin.image.oldFormatExercises);
+    for (const exercise of exercises) {
+      const imageUrl = exercise.image!;
+      const blob = await (await fetch(imageUrl)).blob();
+      const storageId = await storage.store(blob);
+
+      const imageId: Id<"images"> = await runMutation(
+        internal.admin.image.store,
+        {
+          storageId,
+          thumbnails: [
+            await generateThumbnail(imageUrl, storage, "image/avif"),
+            await generateThumbnail(imageUrl, storage, "image/webp"),
+            await generateThumbnail(imageUrl, storage, "image/jpeg"),
+          ],
+          model: "unknown",
+          size: "unknown",
+          quality: "standard",
+          exerciseId: exercise._id,
+          prompt: exercise.imagePrompt ?? "unknown",
+        },
+      );
+
+      await runMutation(internal.admin.image.patchExerciseImage, {
+        exerciseId: exercise._id,
+        imageId,
+      });
+    }
   },
 });
 
