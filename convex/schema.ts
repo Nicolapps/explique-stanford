@@ -33,7 +33,7 @@ export const exerciseAdminSchema = {
   firstMessage: v.optional(v.string()),
   controlGroup: v.union(v.literal("A"), v.literal("B")),
   completionFunctionDescription: v.string(),
-  image: v.optional(v.union(v.string(), v.id("images"))),
+  image: v.optional(v.id("images")),
   imagePrompt: v.optional(v.string()),
 };
 
