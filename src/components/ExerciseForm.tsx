@@ -1,6 +1,7 @@
 import React, { useId, useState } from "react";
 import Input, { Select, Textarea } from "@/components/Input";
 import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/16/solid";
+import { PlusIcon as PlusIconLarge } from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { QuizContents } from "@/components/exercises/QuizExercise";
 import Markdown from "@/components/Markdown";
@@ -8,6 +9,8 @@ import { Id } from "../../convex/_generated/dataModel";
 import { api } from "../../convex/_generated/api";
 import { useAction, useQuery } from "@/usingSession";
 import Chance from "chance";
+import clsx from "clsx";
+import { toast } from "sonner";
 
 type Question = {
   question: string;
@@ -86,10 +89,12 @@ function MarkdownTip() {
 }
 
 export default function ExerciseForm({
+  exerciseId,
   initialState,
   onSubmit,
   submitLabel,
 }: {
+  exerciseId?: Id<"exercises">;
   initialState: State;
   onSubmit: (state: State) => void;
   submitLabel: string;
@@ -101,8 +106,6 @@ export default function ExerciseForm({
   const [model, setModel] = useState(initialState.model);
   const [text, setText] = useState(initialState.text);
   const [image, setImage] = useState(initialState.image);
-  const [imagePrompt, setImagePrompt] = useState(initialState.imagePrompt);
-  const [imageLoading, setImageLoading] = useState(false);
 
   const [quizBatches, setQuizBatches] = useState(initialState.quizBatches);
 
@@ -112,7 +115,6 @@ export default function ExerciseForm({
     useState(initialState.completionFunctionDescription);
 
   const weeks = useQuery(api.admin.weeks.list, {});
-  const generateImage = useAction(api.admin.image.generate);
 
   const [feedback, setFeedback] = useState(initialState.feedback);
 
@@ -152,51 +154,14 @@ export default function ExerciseForm({
         />
       )}
 
-      <div className="grid md:grid-cols-2 gap-x-12">
-        <label className="block mb-6 text-sm font-medium text-slate-800">
-          Image
-          <div className="flex flex-wrap gap-2 mt-1">
-            {imagePrompt !== undefined && (
-              <input
-                className="p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1"
-                value={imagePrompt ?? ""}
-                onChange={(e) => setImagePrompt(e.target.value)}
-                required
-                disabled={imageLoading}
-              />
-            )}
-
-            <button
-              type="button"
-              className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1 disabled:cursor-not-allowed disabled:bg-slate-200"
-              onClick={async () => {
-                // Set a default prompt
-                const prompt =
-                  imagePrompt ??
-                  `Generate an cartoon-style image representing ${name}`;
-                setImagePrompt(prompt);
-                setImageLoading(true);
-
-                const image = await generateImage({
-                  prompt,
-                });
-                setImage(image);
-                setImageLoading(false);
-              }}
-              disabled={imageLoading}
-            >
-              Generate
-            </button>
-          </div>
-        </label>
-
-        {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="mb-6" src={image} alt="" />
-        ) : imageLoading ? (
-          <div className="bg-slate-200 animate-pulse rounded aspect-video"></div>
-        ) : null}
-      </div>
+      {exerciseId && (
+        <ThumbnailPicker
+          image={image}
+          setImage={setImage}
+          exerciseId={exerciseId}
+          name={name}
+        />
+      )}
 
       <Select
         label="Control group"
@@ -690,6 +655,107 @@ function QuizQuestion({
             disabled
           />
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ThumbnailPicker({
+  image,
+  setImage,
+  exerciseId,
+  name,
+}: {
+  image: string | Id<"images"> | undefined;
+  setImage: (value: Id<"images"> | undefined) => void;
+  exerciseId: Id<"exercises">;
+  name: string;
+}) {
+  const images = useQuery(api.admin.image.list, {
+    exerciseId,
+  });
+  const generateImage = useAction(api.admin.image.generate);
+
+  return (
+    <div className="mb-6">
+      <div className="block mb-1 text-sm font-medium text-slate-800">Image</div>
+
+      <div className="flex gap-4 flex-wrap">
+        <button
+          type="button"
+          className={clsx(
+            "w-40 h-28 p-2 rounded-xl bg-slate-200 cursor-pointer hover:bg-slate-300 text-xl font-light transition-colors",
+            image === undefined && "ring-4 ring-purple-500",
+          )}
+          onClick={() => setImage(undefined)}
+        >
+          None
+        </button>
+
+        {images?.map((i) => (
+          <button
+            key={i._id}
+            type="button"
+            className={clsx(
+              "w-40 h-28 p-2 rounded-xl bg-slate-200 cursor-pointer hover:bg-slate-300 transition-colors",
+              i._id === image && "ring-4 ring-purple-500",
+            )}
+            onClick={() => setImage(i._id)}
+          >
+            <picture>
+              {i.thumbnails.map((t, tIndex) => (
+                <source
+                  key={tIndex}
+                  srcSet={t.src}
+                  type={t.type}
+                  sizes={t.sizes}
+                />
+              ))}
+              <img
+                className="w-full h-full rounded-lg object-cover"
+                src={
+                  i.thumbnails.find((t) => t.type === "image/avif")?.src ??
+                  i.src
+                }
+                alt={i.prompt}
+                title={i.prompt}
+              />
+            </picture>
+          </button>
+        ))}
+
+        <button
+          type="button"
+          className={clsx(
+            "w-40 h-28 p-2 flex items-center justify-center rounded-xl bg-slate-200 cursor-pointer hover:bg-slate-300 text-xl font-light transition-colors",
+          )}
+          onClick={async () => {
+            const answer = prompt(
+              "Which prompt to use to generate the image?",
+              (images ?? []).find((i) => i._id === image)?.prompt ??
+                `Generate an cartoon-style image representing ${name}`,
+            );
+            if (!answer) {
+              return;
+            }
+
+            async function generate(prompt: string) {
+              const imageId = await generateImage({
+                prompt,
+                exerciseId,
+              });
+
+              setImage(imageId);
+            }
+
+            toast.promise(generate(answer), {
+              loading: "Generating image…",
+              success: "Image generated",
+            });
+          }}
+        >
+          <PlusIconLarge className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );

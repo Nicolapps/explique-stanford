@@ -26,6 +26,7 @@ export default function EditExercise() {
         {exercise === null && <p>Not found</p>}
         {exercise && (
           <ExerciseForm
+            exerciseId={exercise._id}
             submitLabel="Save"
             initialState={{
               weekId: exercise.weekId,

@@ -66,19 +66,20 @@ export default defineSchema(
     }).index("startDate", ["startDate"]),
     exercises: defineTable({ ...exerciseAdminSchema, assistantId: v.string() }),
     images: defineTable({
-      original: v.string(),
+      storageId: v.id("_storage"),
       thumbnails: v.array(
         v.object({
           type: v.string(),
-          srcset: v.string(),
           storageId: v.id("_storage"),
           sizes: v.optional(v.string()),
         }),
       ),
       model: v.string(),
       size: v.string(),
+      prompt: v.string(),
       quality: v.union(v.literal("standard"), v.literal("hd")),
-    }),
+      exerciseId: v.id("exercises"),
+    }).index("by_exercise_id", ["exerciseId"]),
     messages: defineTable({
       attemptId: v.id("attempts"),
       system: v.boolean(),
