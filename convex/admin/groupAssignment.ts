@@ -57,7 +57,7 @@ export const stats = queryWithAuth({
     validateAdminSession(session);
 
     const assignments = await db.query("groupAssignments").collect();
-    const assignmentAsMap = new Map<string, string>(
+    const assignmentAsMap = new Map<string, "A" | "B">(
       assignments.map((a) => [a.email, a.group]),
     );
 
@@ -97,5 +97,28 @@ export const stats = queryWithAuth({
         )
         .map(mapTable),
     };
+  },
+});
+
+export const fixNonMatchingAssigments = internalMutation({
+  args: {},
+  handler: async ({ db }, {}) => {
+    const assignments = await db.query("groupAssignments").collect();
+    const assignmentAsMap = new Map<string, "A" | "B">(
+      assignments.map((a) => [a.email, a.group]),
+    );
+    const users = await db.query("users").collect();
+
+    const nonMatchingAssignments = users.filter(
+      (user) =>
+        assignmentAsMap.has(user.email) &&
+        assignmentAsMap.get(user.email) !== user.group,
+    );
+
+    for (const user of nonMatchingAssignments) {
+      await db.patch(user._id, {
+        group: assignmentAsMap.get(user.email)!,
+      });
+    }
   },
 });
