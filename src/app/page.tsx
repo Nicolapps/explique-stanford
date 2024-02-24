@@ -25,7 +25,9 @@ function ExerciseLink({
   exercise: {
     id: string;
     name: string;
-    image?: string;
+    image: {
+      thumbnails: { type: string; sizes: string; src: string }[];
+    } | null;
     completed: boolean;
   };
 }) {
@@ -41,19 +43,31 @@ function ExerciseLink({
           !exercise.image && "bg-slate-600",
         )}
       >
-        {exercise.image && false && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            className="absolute inset-0 object-cover group-hover:scale-105 transition-transform"
-            src={exercise.image}
-            alt=""
-          />
+        {exercise.image && (
+          <picture>
+            {exercise.image.thumbnails.map((t, tIndex) => (
+              <source
+                key={tIndex}
+                srcSet={t.src}
+                type={t.type}
+                sizes={t.sizes}
+              />
+            ))}
+            <img
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform object-center"
+              src={
+                exercise.image.thumbnails.find((t) => t.type === "image/avif")
+                  ?.src ?? undefined
+              }
+              alt={""}
+            />
+          </picture>
         )}
 
         <div
           className={clsx(
             "absolute inset-0 flex p-4 text-white items-end",
-            exercise.image && "bg-gradient-to-t via-black/25 from-black/90",
+            exercise.image && "bg-gradient-to-t via-black/25 from-black/70",
           )}
         >
           <h2 className="font-semibold text-2xl text-shadow-lg">

@@ -140,7 +140,7 @@ async function generateThumbnail(
           : type === "image/avif"
             ? "avif"
             : "jpeg",
-      width: 500,
+      width: 600,
     }),
   });
   const blob = await res.blob();

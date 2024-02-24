@@ -34,7 +34,7 @@ export const getLastAttempt = queryWithAuth({
 
 export const list = queryWithAuth({
   args: {},
-  handler: async ({ db, session }, {}) => {
+  handler: async ({ db, session, storage }, {}) => {
     if (!session) throw new ConvexError("Not logged in");
 
     const { user } = session;
@@ -56,10 +56,36 @@ export const list = queryWithAuth({
     for (const week of weeks) {
       const exercisesResult = [];
       for (const exercise of exercises.filter((x) => x.weekId === week._id)) {
+        let image = null;
+        if (exercise.image) {
+          const imageRow = await db.get(exercise.image);
+          if (imageRow) {
+            const thumbnails = [];
+            for (const thumbnail of imageRow.thumbnails) {
+              const thumbnailUrl = await storage.getUrl(thumbnail.storageId);
+              if (!thumbnailUrl) {
+                continue;
+              }
+
+              thumbnails.push({
+                type: thumbnail.type,
+                sizes: thumbnail.sizes,
+                src: thumbnailUrl,
+              });
+            }
+
+            image = {
+              thumbnails,
+            };
+          } else {
+            console.warn("Image not found for exercise", exercise._id);
+          }
+        }
+
         exercisesResult.push({
           id: exercise._id,
           name: exercise.name,
-          image: exercise.image,
+          image,
           completed: user.completedExercises.includes(exercise._id),
         });
       }
