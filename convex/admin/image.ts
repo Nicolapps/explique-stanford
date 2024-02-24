@@ -10,7 +10,6 @@ import {
 import { StorageActionWriter } from "convex/server";
 import { Id } from "../_generated/dataModel";
 import { internal } from "../_generated/api";
-import { ImageGenerateParams } from "openai/resources";
 
 export const list = queryWithAuth({
   args: {
@@ -63,9 +62,9 @@ export const generate = actionWithAuth({
   ) => {
     validateAdminSession(session);
 
-    const model: ImageGenerateParams["model"] = "dall-e-3";
-    const size: ImageGenerateParams["size"] = "1792x1024";
-    const quality: ImageGenerateParams["quality"] = "hd";
+    const model = "dall-e-3";
+    const size = "1792x1024";
+    const quality = "hd";
 
     const openai = new OpenAI();
     const opanaiResponse = await openai.images.generate({
