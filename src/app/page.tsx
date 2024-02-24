@@ -26,7 +26,7 @@ function ExerciseLink({
     id: string;
     name: string;
     image: {
-      thumbnails: { type: string; sizes: string; src: string }[];
+      thumbnails: { type: string; sizes?: string; src: string }[];
     } | null;
     completed: boolean;
   };

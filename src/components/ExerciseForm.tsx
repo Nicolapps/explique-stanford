@@ -24,7 +24,7 @@ export type State = {
   instructions: string;
   model: string;
   text: string;
-  image?: string;
+  image?: Id<"images">;
   imagePrompt?: string;
 
   quizBatches: { questions: Question[] }[];
@@ -666,7 +666,7 @@ function ThumbnailPicker({
   exerciseId,
   name,
 }: {
-  image: string | Id<"images"> | undefined;
+  image: Id<"images"> | undefined;
   setImage: (value: Id<"images"> | undefined) => void;
   exerciseId: Id<"exercises">;
   name: string;
