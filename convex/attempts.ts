@@ -212,10 +212,13 @@ export const isUsingExplainVariant = internalQuery({
     const exercise = await db.get(exerciseId);
     if (exercise === null) throw new Error("Unknown exercise");
 
+    const { controlGroup } = exercise;
+    if (controlGroup === "all") return false;
+    if (controlGroup === "none") return true;
+
     const user = await db.get(userId);
     if (user === null) throw new Error("Unknown user");
 
-    const { controlGroup } = exercise;
     const { group } = user;
 
     return group !== controlGroup;

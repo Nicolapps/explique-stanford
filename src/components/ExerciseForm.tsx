@@ -34,7 +34,7 @@ export type State = {
   } | null;
 
   firstMessage: string;
-  controlGroup: "A" | "B";
+  controlGroup: "A" | "B" | "all" | "none";
   completionFunctionDescription: string;
 };
 
@@ -164,16 +164,23 @@ export default function ExerciseForm({
       )}
 
       <Select
-        label="Control group"
+        label="Exercise repartition"
         value={controlGroup}
         onChange={(val) => setControlGroup(val)}
-        values={(["A", "B"] as const).map((value) => ({ value, label: value }))}
-        hint={
-          <>
-            This group of students will get the reading exercise, while the
-            other group will get the explanation exercise.
-          </>
-        }
+        values={[
+          {
+            value: "A",
+            label:
+              "Group A gets the reading exercise, Group B gets the explanation exercise",
+          },
+          {
+            value: "B",
+            label:
+              "Group B gets the reading exercise, Group A gets the explanation exercise",
+          },
+          { value: "none", label: "Everyone gets the explanation exercise" },
+          { value: "all", label: "Everyone gets the reading exercise" },
+        ]}
       />
 
       <section>
