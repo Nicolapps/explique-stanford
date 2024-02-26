@@ -135,12 +135,22 @@ export const insert = internalMutation({
     threadId: v.union(v.string(), v.null()),
   },
   handler: async ({ db }, { exerciseId, userId, threadId }) => {
-    return await db.insert("attempts", {
+    const attemptId = await db.insert("attempts", {
       status: "exercise",
       exerciseId,
       userId,
       threadId,
     });
+
+    await db.insert("logs", {
+      type: "attemptStarted",
+      userId,
+      attemptId,
+      exerciseId,
+      variant: threadId === null ? "reading" : "explain",
+    });
+
+    return attemptId;
   },
 });
 

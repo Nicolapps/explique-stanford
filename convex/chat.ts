@@ -65,14 +65,34 @@ export const insertMessage = internalMutation({
   },
 });
 
-export const editMessage = internalMutation({
+export const writeSystemResponse = internalMutation({
   args: {
-    messageId: v.id("messages"),
+    attemptId: v.id("attempts"),
+    userMessageId: v.id("messages"),
+    systemMessageId: v.id("messages"),
     content: v.string(),
     appearance: v.optional(v.union(v.literal("finished"), v.literal("error"))),
   },
-  handler: async ({ db }, { messageId, content, appearance }) => {
-    await db.patch(messageId, { content, appearance });
+  handler: async (
+    { db },
+    { attemptId, userMessageId, systemMessageId, content, appearance },
+  ) => {
+    const attempt = await db.get(attemptId);
+    if (!attempt) {
+      throw new Error("Can’t find the attempt");
+    }
+
+    await db.patch(systemMessageId, { content, appearance });
+
+    await db.insert("logs", {
+      type: "answerGenerated",
+      userId: attempt.userId,
+      attemptId,
+      exerciseId: attempt.exerciseId,
+      userMessageId,
+      systemMessageId,
+      variant: "explain",
+    });
   },
 });
 
@@ -92,7 +112,7 @@ async function sendMessageController(
   const exercise = await ctx.db.get(attempt.exerciseId);
   if (!exercise) throw new Error(`Exercise ${attempt.exerciseId} not found`);
 
-  await ctx.db.insert("messages", {
+  const userMessageId = await ctx.db.insert("messages", {
     attemptId,
     system: false,
     content: message,
@@ -105,11 +125,22 @@ async function sendMessageController(
     content: "",
   });
 
+  await ctx.db.insert("logs", {
+    type: "messageSent",
+    userId: attempt.userId,
+    attemptId,
+    exerciseId: attempt.exerciseId,
+    userMessageId,
+    systemMessageId,
+    variant: "explain",
+  });
+
   ctx.scheduler.runAfter(0, internal.chat.answer, {
     attemptId,
     message,
     threadId: attempt.threadId!,
     assistantId: exercise.assistantId,
+    userMessageId,
     systemMessageId,
   });
 }
@@ -151,11 +182,19 @@ export const answer = internalAction({
     attemptId: v.id("attempts"),
     message: v.string(),
     assistantId: v.string(),
+    userMessageId: v.id("messages"),
     systemMessageId: v.id("messages"),
   },
   handler: async (
     ctx,
-    { threadId, attemptId, message, assistantId, systemMessageId },
+    {
+      threadId,
+      attemptId,
+      message,
+      assistantId,
+      userMessageId,
+      systemMessageId,
+    },
   ) => {
     const openai = new OpenAI();
 
@@ -174,6 +213,7 @@ export const answer = internalAction({
       threadId,
       attemptId,
       lastMessageId,
+      userMessageId,
       systemMessageId,
     });
   },
@@ -231,11 +271,19 @@ export const checkAnswer = internalAction({
     runId: v.string(),
     attemptId: v.id("attempts"),
     lastMessageId: v.string(),
+    userMessageId: v.id("messages"),
     systemMessageId: v.id("messages"),
   },
   handler: async (
     { runMutation, scheduler },
-    { runId, threadId, attemptId, lastMessageId, systemMessageId },
+    {
+      runId,
+      threadId,
+      attemptId,
+      lastMessageId,
+      userMessageId,
+      systemMessageId,
+    },
   ) => {
     const openai = new OpenAI();
     const run = await openai.beta.threads.runs.retrieve(threadId, runId);
@@ -264,8 +312,10 @@ export const checkAnswer = internalAction({
       case "expired":
       case "cancelled":
         console.error("Run failed with status ", run.status, run);
-        await runMutation(internal.chat.editMessage, {
-          messageId: systemMessageId,
+        await runMutation(internal.chat.writeSystemResponse, {
+          attemptId,
+          userMessageId,
+          systemMessageId,
           appearance: "error",
           content: "",
         });
@@ -281,8 +331,10 @@ export const checkAnswer = internalAction({
           .filter((item): item is MessageContentText => item.type === "text")
           .map(({ text }) => text.value)
           .join("\n\n");
-        await runMutation(internal.chat.editMessage, {
-          messageId: systemMessageId,
+        await runMutation(internal.chat.writeSystemResponse, {
+          attemptId,
+          userMessageId,
+          systemMessageId,
           appearance: undefined,
           content: text,
         });
@@ -294,6 +346,7 @@ export const checkAnswer = internalAction({
       threadId,
       attemptId,
       lastMessageId,
+      userMessageId,
       systemMessageId,
     });
   },
@@ -350,12 +403,14 @@ export const startFeedback = internalAction({
       });
 
       await ctx.runMutation(internal.chat.saveFeedback, {
+        attemptId,
         feedbackMessageId,
         feedback: response.choices[0].message.content!,
       });
     } catch (err) {
       console.error("Feedback error", err);
       await ctx.runMutation(internal.chat.saveFeedback, {
+        attemptId,
         feedbackMessageId,
         feedback: "error",
       });
@@ -385,12 +440,27 @@ export const generateTranscript = internalQuery({
 
 export const saveFeedback = internalMutation({
   args: {
+    attemptId: v.id("attempts"),
     feedbackMessageId: v.id("messages"),
     feedback: v.string(),
   },
   handler: async (ctx, args) => {
+    const attempt = await ctx.db.get(args.attemptId);
+    if (!attempt) {
+      throw new Error("Can’t find the attempt");
+    }
+
     await ctx.db.patch(args.feedbackMessageId, {
       content: args.feedback,
+    });
+
+    await ctx.db.insert("logs", {
+      type: "feedbackGiven",
+      userId: attempt.userId,
+      attemptId: args.attemptId,
+      exerciseId: attempt.exerciseId,
+      systemMessageId: args.feedbackMessageId,
+      variant: "explain",
     });
   },
 });
