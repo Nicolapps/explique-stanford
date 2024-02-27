@@ -554,8 +554,8 @@ function QuizQuestion({
           <label className="block mb-6 text-sm font-medium text-slate-800">
             Question
             <div className="flex">
-              <input
-                className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed"
+              <textarea
+                className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed resize-y"
                 value={question.question}
                 onChange={(e) =>
                   onChange({ ...question, question: e.target.value })
@@ -598,9 +598,8 @@ function QuizQuestion({
                   />
                 </label>
 
-                <input
-                  type="text"
-                  className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1"
+                <textarea
+                  className="mt-1 p-2 w-full border border-slate-300 rounded-md text-base disabled:bg-slate-200 disabled:cursor-not-allowed flex-1 resize-y"
                   value={answer}
                   onChange={(e) => {
                     onChange({

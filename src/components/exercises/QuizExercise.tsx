@@ -188,25 +188,29 @@ export function QuizContents({
   return (
     <div className="bg-white border rounded-xl p-4">
       <header>
-        <Markdown className="text-xl mb-2" text={question} />
+        <Markdown
+          className="text-xl prose-p:mt-0 prose-p:mb-1"
+          text={question}
+        />
       </header>
 
       <div>
         {answers.map((answer, index) => (
           <div key={index}>
-            <label className="flex items-center py-1">
-              <input
-                type="radio"
-                id={`${id}-${index}`}
-                name={id}
-                value={index}
-                checked={selectedAnswerIndex === index}
-                disabled={disabled}
-                className="mr-2"
-                onChange={(e) => onChange?.(parseInt(e.target.value, 10))}
-              />
+            <label className="flex py-2">
+              <div className="h-[1em] mr-2 box-content">
+                <input
+                  type="radio"
+                  id={`${id}-${index}`}
+                  name={id}
+                  value={index}
+                  checked={selectedAnswerIndex === index}
+                  disabled={disabled}
+                  onChange={(e) => onChange?.(parseInt(e.target.value, 10))}
+                />
+              </div>
 
-              <Markdown text={answer} className="flex-1" />
+              <Markdown text={answer} className="flex-1 prose-p:my-0" />
 
               {correctAnswer === answer && (
                 <CheckCircleIcon
