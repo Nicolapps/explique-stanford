@@ -7,11 +7,13 @@ export default mutationWithAuth({
   },
   handler: async (ctx, { emails }) => {
     const validatedEmails = emails
-      .split(",")
+      .split("\n")
       .map((l) => l.trim())
       .filter((email) => !!email);
 
-    const invalidEmail = validatedEmails.find((e) => !e.endsWith("@epfl.ch"));
+    const invalidEmail = validatedEmails.find(
+      (e) => !e.endsWith("@epfl.ch") || e.includes(" ") || e.includes(","),
+    );
     if (invalidEmail) {
       throw new ConvexError("Invalid email: " + invalidEmail);
     }
