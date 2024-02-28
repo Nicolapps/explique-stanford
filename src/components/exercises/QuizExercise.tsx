@@ -76,9 +76,8 @@ export default function QuizExercise({
         <span className="flex-1">
           <strong className="font-medium text-purple-700">
             Answer the following{" "}
-            {questions.length === 1 ? "question" : "questions"}
-          </strong>{" "}
-          about {title}.
+            {questions.length === 1 ? "question" : "questions"}.
+          </strong>
         </span>
       </p>
 

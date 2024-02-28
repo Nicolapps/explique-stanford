@@ -27,9 +27,8 @@ export default function ReadingExercise({
         />
         <span className="flex-1">
           <strong className="font-medium text-purple-700">
-            Read the following text
-          </strong>{" "}
-          about {title}.
+            Read the following text.
+          </strong>
         </span>
       </p>
 
