@@ -8,6 +8,7 @@ import {
 } from "lucia";
 import { AuthDbWriter } from "./authDbWriter";
 import { epfl } from "./lucia_epfl";
+import { google } from "@lucia-auth/oauth/providers";
 
 type SessionId = string;
 type UserId = string;
@@ -43,8 +44,22 @@ export function getAuth(db: AuthDbWriter) {
   });
 }
 
-export function getGoogleAuth(db: AuthDbWriter) {
+export function getEpflAuth(db: AuthDbWriter) {
   return epfl(getAuth(db), {
+    clientId: process.env.GOOGLE_CLIENT_ID ?? "",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+    redirectUri:
+      (process.env.BASE_URL ?? "http://localhost:3000") + "/authRedirect",
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "openid",
+    ],
+  });
+}
+
+export function getGoogleAuth(db: AuthDbWriter) {
+  return google(getAuth(db), {
     clientId: process.env.GOOGLE_CLIENT_ID ?? "",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
     redirectUri:

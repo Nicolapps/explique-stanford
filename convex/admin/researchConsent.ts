@@ -12,7 +12,7 @@ export default mutationWithAuth({
       .filter((email) => !!email);
 
     const invalidEmail = validatedEmails.find(
-      (e) => !e.endsWith("@epfl.ch") || e.includes(" ") || e.includes(","),
+      (e) => !e.includes("@") || e.includes(" ") || e.includes(","),
     );
     if (invalidEmail) {
       throw new ConvexError("Invalid email: " + invalidEmail);

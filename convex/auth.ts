@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
 import { action, internalQuery } from "./_generated/server";
-import { getAuth, getGoogleAuth } from "./lucia";
+import { getAuth, getEpflAuth, getGoogleAuth } from "./lucia";
 import { actionAuthDbWriter } from "./authDbWriter";
 import { OAuthRequestError } from "@lucia-auth/oauth";
 import { internal } from "./_generated/api";
@@ -24,10 +24,15 @@ export const get = queryWithAuth({
 });
 
 export const getLoginUrl = action({
-  async handler(ctx) {
-    const googleAuth = getGoogleAuth(actionAuthDbWriter(ctx));
+  args: {
+    external: v.optional(v.literal(true)),
+  },
+  async handler(ctx, { external }) {
+    const auth = external
+      ? getGoogleAuth(actionAuthDbWriter(ctx))
+      : getEpflAuth(actionAuthDbWriter(ctx));
 
-    const [url] = await googleAuth.getAuthorizationUrl();
+    const [url] = await auth.getAuthorizationUrl();
     return url.toString();
   },
 });
@@ -61,7 +66,7 @@ export const redirect = action({
   },
   handler: async (ctx, { code }) => {
     const auth = getAuth(actionAuthDbWriter(ctx));
-    const googleAuth = getGoogleAuth(actionAuthDbWriter(ctx));
+    const googleAuth = getEpflAuth(actionAuthDbWriter(ctx));
 
     try {
       const { getExistingUser, googleUser, createUser } =

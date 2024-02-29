@@ -15,8 +15,13 @@ export default function Page() {
     executed.current = true;
 
     (async () => {
-      const url = await authUrlAction();
-      window.location.href = url;
+      const urlParams = new URLSearchParams(window.location.search);
+      const external = urlParams.has("external") ? true : undefined;
+
+      const redirectUrl = await authUrlAction({
+        external,
+      });
+      window.location.href = redirectUrl;
     })();
   });
 
