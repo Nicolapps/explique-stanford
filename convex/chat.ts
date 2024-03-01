@@ -238,10 +238,10 @@ export const answer = internalAction({
     }
 
     await ctx.scheduler.runAfter(2000, internal.chat.checkAnswer, {
-      runId: runId!,
+      runId,
       threadId,
       attemptId,
-      lastMessageId: lastMessageId!,
+      lastMessageId,
       userMessageId,
       systemMessageId,
     });
