@@ -217,6 +217,7 @@ export const answer = internalAction({
         appearance: "error",
         content: "",
       });
+      return;
     }
 
     try {
@@ -233,6 +234,7 @@ export const answer = internalAction({
         appearance: "error",
         content: "",
       });
+      return;
     }
 
     await ctx.scheduler.runAfter(2000, internal.chat.checkAnswer, {
