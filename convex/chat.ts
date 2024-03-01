@@ -198,21 +198,48 @@ export const answer = internalAction({
   ) => {
     const openai = new OpenAI();
 
+    let lastMessageId;
+    let runId;
+
     // Add the user message to the thread
-    const { id: lastMessageId } = await openai.beta.threads.messages.create(
-      threadId,
-      { role: "user", content: message },
-    );
+    try {
+      const { id } = await openai.beta.threads.messages.create(threadId, {
+        role: "user",
+        content: message,
+      });
+      lastMessageId = id;
+    } catch (err) {
+      console.error("Can’t create a message", err);
+      await ctx.runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: "error",
+        content: "",
+      });
+    }
 
-    const { id: runId } = await openai.beta.threads.runs.create(threadId, {
-      assistant_id: assistantId,
-    });
+    try {
+      const { id } = await openai.beta.threads.runs.create(threadId, {
+        assistant_id: assistantId,
+      });
+      runId = id;
+    } catch (err) {
+      console.error("Can’t create a run", err);
+      await ctx.runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: "error",
+        content: "",
+      });
+    }
 
-    await ctx.scheduler.runAfter(500, internal.chat.checkAnswer, {
-      runId,
+    await ctx.scheduler.runAfter(2000, internal.chat.checkAnswer, {
+      runId: runId!,
       threadId,
       attemptId,
-      lastMessageId,
+      lastMessageId: lastMessageId!,
       userMessageId,
       systemMessageId,
     });
@@ -341,7 +368,7 @@ export const checkAnswer = internalAction({
         return;
     }
 
-    await scheduler.runAfter(1000, internal.chat.checkAnswer, {
+    await scheduler.runAfter(2000, internal.chat.checkAnswer, {
       runId,
       threadId,
       attemptId,
