@@ -315,7 +315,22 @@ export const checkAnswer = internalAction({
     },
   ) => {
     const openai = new OpenAI();
-    const run = await openai.beta.threads.runs.retrieve(threadId, runId);
+    let run;
+    try {
+      run = await openai.beta.threads.runs.retrieve(threadId, runId, {
+        timeout: 2 * 60 * 1000, // 2 minutes
+      });
+    } catch (err) {
+      await runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: "error",
+        content: "",
+      });
+      console.error("Run retrieve error", err);
+      return;
+    }
 
     switch (run.status) {
       case "requires_action":
