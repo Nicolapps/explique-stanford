@@ -284,7 +284,7 @@ export const markFinished = internalMutation({
     });
 
     if (exercise.feedback) {
-      ctx.scheduler.runAfter(0, internal.chat.startFeedback, {
+      await ctx.scheduler.runAfter(0, internal.chat.startFeedback, {
         feedbackMessageId: systemMessageId,
         attemptId,
         model: exercise.feedback.model,
