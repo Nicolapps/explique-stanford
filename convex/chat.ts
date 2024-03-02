@@ -13,6 +13,23 @@ import { mutationWithAuth, queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
 import { Session } from "lucia";
 
+const COMPLETION_VALID_MODELS = [
+  "gpt-4-1106-preview",
+  "gpt-4-vision-preview",
+  "gpt-4",
+  "gpt-4-0314",
+  "gpt-4-0613",
+  "gpt-4-32k",
+  "gpt-4-32k-0314",
+  "gpt-4-32k-0613",
+  "gpt-3.5-turbo",
+  "gpt-3.5-turbo-16k",
+  "gpt-3.5-turbo-0301",
+  "gpt-3.5-turbo-0613",
+  "gpt-3.5-turbo-1106",
+  "gpt-3.5-turbo-16k-0613",
+] as const;
+
 async function getAttemptIfAuthorized(
   db: DatabaseReader,
   session: Session | null,
@@ -135,14 +152,24 @@ async function sendMessageController(
     variant: "explain",
   });
 
-  ctx.scheduler.runAfter(0, internal.chat.answer, {
-    attemptId,
-    message,
-    threadId: attempt.threadId!,
-    assistantId: exercise.assistantId,
-    userMessageId,
-    systemMessageId,
-  });
+  if (exercise.chatCompletionsApi) {
+    ctx.scheduler.runAfter(0, internal.chat.answerChatCompletionsApi, {
+      attemptId,
+      userMessageId,
+      systemMessageId,
+      model: exercise.model,
+      completionFunctionDescription: exercise.completionFunctionDescription,
+    });
+  } else {
+    ctx.scheduler.runAfter(0, internal.chat.answerAssistantsApi, {
+      attemptId,
+      message,
+      threadId: attempt.threadId!,
+      assistantId: exercise.assistantId,
+      userMessageId,
+      systemMessageId,
+    });
+  }
 }
 
 export const sendMessageInternal = internalMutation({
@@ -176,7 +203,7 @@ export const sendMessage = mutationWithAuth({
   },
 });
 
-export const answer = internalAction({
+export const answerAssistantsApi = internalAction({
   args: {
     threadId: v.string(),
     attemptId: v.id("attempts"),
@@ -237,7 +264,7 @@ export const answer = internalAction({
       return;
     }
 
-    await ctx.scheduler.runAfter(2000, internal.chat.checkAnswer, {
+    await ctx.scheduler.runAfter(2000, internal.chat.checkAnswerAssistantsApi, {
       runId,
       threadId,
       attemptId,
@@ -248,53 +275,7 @@ export const answer = internalAction({
   },
 });
 
-export const markFinished = internalMutation({
-  args: {
-    attemptId: v.id("attempts"),
-    systemMessageId: v.id("messages"),
-  },
-  handler: async (ctx, { attemptId, systemMessageId }) => {
-    const attempt = await ctx.db.get(attemptId);
-    if (!attempt) {
-      throw new Error("Can’t find the attempt");
-    }
-    if (attempt.status === "exercise") {
-      await ctx.db.patch(attemptId, { status: "exerciseCompleted" });
-    }
-
-    // Start feedback
-    const exercise = await ctx.db.get(attempt.exerciseId);
-    if (!exercise) {
-      throw new Error(
-        "Can’t find the exercise for the attempt that was just completed",
-      );
-    }
-
-    await ctx.db.patch(systemMessageId, {
-      content: "",
-      appearance: exercise.feedback ? "feedback" : "finished",
-    });
-
-    await ctx.db.insert("logs", {
-      type: "exerciseCompleted",
-      userId: attempt.userId,
-      attemptId,
-      exerciseId: attempt.exerciseId,
-      variant: "explain",
-    });
-
-    if (exercise.feedback) {
-      await ctx.scheduler.runAfter(0, internal.chat.startFeedback, {
-        feedbackMessageId: systemMessageId,
-        attemptId,
-        model: exercise.feedback.model,
-        prompt: exercise.feedback.prompt,
-      });
-    }
-  },
-});
-
-export const checkAnswer = internalAction({
+export const checkAnswerAssistantsApi = internalAction({
   args: {
     threadId: v.string(),
     runId: v.string(),
@@ -385,7 +366,7 @@ export const checkAnswer = internalAction({
         return;
     }
 
-    await scheduler.runAfter(2000, internal.chat.checkAnswer, {
+    await scheduler.runAfter(2000, internal.chat.checkAnswerAssistantsApi, {
       runId,
       threadId,
       attemptId,
@@ -393,6 +374,153 @@ export const checkAnswer = internalAction({
       userMessageId,
       systemMessageId,
     });
+  },
+});
+
+export const answerChatCompletionsApi = internalAction({
+  args: {
+    attemptId: v.id("attempts"),
+    userMessageId: v.id("messages"),
+    systemMessageId: v.id("messages"),
+    model: v.string(),
+    completionFunctionDescription: v.string(),
+  },
+  handler: async (
+    ctx,
+    {
+      attemptId,
+      userMessageId,
+      systemMessageId,
+      model,
+      completionFunctionDescription,
+    },
+  ) => {
+    const openai = new OpenAI();
+
+    if (!COMPLETION_VALID_MODELS.includes(model as any)) {
+      await ctx.runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: "error",
+        content: "",
+      });
+      throw new Error(`Invalid model ${model}`);
+    }
+
+    const messages = await ctx.runQuery(
+      internal.chat.generateTranscriptMessages,
+      {
+        attemptId,
+      },
+    );
+
+    let response;
+    try {
+      response = await openai.chat.completions.create(
+        {
+          model,
+          messages,
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "markComplete",
+                description: completionFunctionDescription,
+                parameters: {},
+              },
+            },
+          ],
+          temperature: 0.7,
+          stream: false,
+        },
+        {
+          timeout: 3 * 60 * 1000, // 3 minutes
+        },
+      );
+    } catch (err) {
+      console.error("Can’t create a completion", err);
+      await ctx.runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: "error",
+        content: "",
+      });
+      return;
+    }
+
+    const message = response.choices[0].message;
+    if (message.tool_calls) {
+      // Mark as finished
+      await ctx.runMutation(internal.chat.markFinished, {
+        attemptId,
+        systemMessageId,
+      });
+    } else if (!message.content) {
+      console.error("No content in the response", message);
+      await ctx.runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: "error",
+        content: "",
+      });
+    } else {
+      await ctx.runMutation(internal.chat.writeSystemResponse, {
+        attemptId,
+        userMessageId,
+        systemMessageId,
+        appearance: undefined,
+        content: message.content,
+      });
+    }
+  },
+});
+
+export const markFinished = internalMutation({
+  args: {
+    attemptId: v.id("attempts"),
+    systemMessageId: v.id("messages"),
+  },
+  handler: async (ctx, { attemptId, systemMessageId }) => {
+    const attempt = await ctx.db.get(attemptId);
+    if (!attempt) {
+      throw new Error("Can’t find the attempt");
+    }
+    if (attempt.status === "exercise") {
+      await ctx.db.patch(attemptId, { status: "exerciseCompleted" });
+    }
+
+    // Start feedback
+    const exercise = await ctx.db.get(attempt.exerciseId);
+    if (!exercise) {
+      throw new Error(
+        "Can’t find the exercise for the attempt that was just completed",
+      );
+    }
+
+    await ctx.db.patch(systemMessageId, {
+      content: "",
+      appearance: exercise.feedback ? "feedback" : "finished",
+    });
+
+    await ctx.db.insert("logs", {
+      type: "exerciseCompleted",
+      userId: attempt.userId,
+      attemptId,
+      exerciseId: attempt.exerciseId,
+      variant: "explain",
+    });
+
+    if (exercise.feedback) {
+      await ctx.scheduler.runAfter(0, internal.chat.startFeedback, {
+        feedbackMessageId: systemMessageId,
+        attemptId,
+        model: exercise.feedback.model,
+        prompt: exercise.feedback.prompt,
+      });
+    }
   },
 });
 
@@ -405,23 +533,7 @@ export const startFeedback = internalAction({
   },
   handler: async (ctx, { attemptId, feedbackMessageId, model, prompt }) => {
     try {
-      const validModels = [
-        "gpt-4-1106-preview",
-        "gpt-4-vision-preview",
-        "gpt-4",
-        "gpt-4-0314",
-        "gpt-4-0613",
-        "gpt-4-32k",
-        "gpt-4-32k-0314",
-        "gpt-4-32k-0613",
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-16k",
-        "gpt-3.5-turbo-0301",
-        "gpt-3.5-turbo-0613",
-        "gpt-3.5-turbo-1106",
-        "gpt-3.5-turbo-16k-0613",
-      ] as const;
-      if (!validModels.includes(model as any)) {
+      if (!COMPLETION_VALID_MODELS.includes(model as any)) {
         throw new Error(`Invalid model ${model}`);
       }
 
@@ -479,6 +591,25 @@ export const generateTranscript = internalQuery({
           `<message from="${system ? "chatbot" : "student"}">${content}</message>`,
       )
       .join("\n\n");
+  },
+});
+
+export const generateTranscriptMessages = internalQuery({
+  args: {
+    attemptId: v.id("attempts"),
+  },
+  handler: async ({ db }, { attemptId }) => {
+    const messages = await db
+      .query("messages")
+      .withIndex("by_attempt", (q) => q.eq("attemptId", attemptId))
+      .collect();
+
+    return messages
+      .filter((q) => !q.appearance)
+      .map(({ content, system }) => ({
+        role: system ? ("system" as const) : ("user" as const),
+        content,
+      }));
   },
 });
 
