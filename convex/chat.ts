@@ -159,6 +159,7 @@ async function sendMessageController(
       systemMessageId,
       model: exercise.model,
       completionFunctionDescription: exercise.completionFunctionDescription,
+      instructions: exercise.instructions,
     });
   } else {
     ctx.scheduler.runAfter(0, internal.chat.answerAssistantsApi, {
@@ -383,6 +384,7 @@ export const answerChatCompletionsApi = internalAction({
     userMessageId: v.id("messages"),
     systemMessageId: v.id("messages"),
     model: v.string(),
+    instructions: v.string(),
     completionFunctionDescription: v.string(),
   },
   handler: async (
@@ -393,6 +395,7 @@ export const answerChatCompletionsApi = internalAction({
       systemMessageId,
       model,
       completionFunctionDescription,
+      instructions,
     },
   ) => {
     const openai = new OpenAI();
@@ -420,7 +423,7 @@ export const answerChatCompletionsApi = internalAction({
       response = await openai.chat.completions.create(
         {
           model,
-          messages,
+          messages: [{ role: "system", content: instructions }, ...messages],
           tools: [
             {
               type: "function",
