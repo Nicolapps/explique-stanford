@@ -106,7 +106,7 @@ export const create = actionWithAuth({
     );
 
     await runMutation(internal.admin.exercises.insertRow, {
-      ...row,
+      ...{ ...row, sessionId: undefined },
       assistantId: assistant.id,
     });
   },
