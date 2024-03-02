@@ -5,6 +5,7 @@ import { internal } from "../_generated/api";
 import { exerciseAdminSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
+import { COMPLETION_VALID_MODELS } from "../chat";
 
 export function validateAdminSession(session: Session | null) {
   if (!session) throw new ConvexError("Not logged in");
@@ -89,6 +90,14 @@ export const create = actionWithAuth({
   handler: async ({ runMutation, session }, row) => {
     validateAdminSession(session);
     validateQuiz(row.quiz);
+    if (
+      row.chatCompletionsApi &&
+      !COMPLETION_VALID_MODELS.includes(row.model as any)
+    ) {
+      throw new ConvexError(
+        `The model ${row.model} is not supported by the Chat Completions API.`,
+      );
+    }
 
     const assistant = await createAssistant(
       row.instructions,
@@ -111,6 +120,14 @@ export const update = actionWithAuth({
   handler: async ({ runMutation, session }, { id, ...row }) => {
     validateAdminSession(session);
     validateQuiz(row.quiz);
+    if (
+      row.chatCompletionsApi &&
+      !COMPLETION_VALID_MODELS.includes(row.model as any)
+    ) {
+      throw new ConvexError(
+        `The model ${row.model} is not supported by the Chat Completions API.`,
+      );
+    }
 
     const assistant = await createAssistant(
       row.instructions,

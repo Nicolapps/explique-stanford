@@ -13,7 +13,7 @@ import { mutationWithAuth, queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
 import { Session } from "lucia";
 
-const COMPLETION_VALID_MODELS = [
+export const COMPLETION_VALID_MODELS = [
   "gpt-4-1106-preview",
   "gpt-4-vision-preview",
   "gpt-4",
