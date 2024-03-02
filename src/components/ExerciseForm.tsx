@@ -260,8 +260,8 @@ export default function ExerciseForm({
           ]}
           hint={
             <>
-              The Chat Completion API is more expensive but is rate-limited to
-              60 requests per minute.
+              The Assistants API is less expensive but is rate-limited to 60
+              requests per minute.
               {api === "assistants" &&
                 initialState.api === "chatCompletions" && (
                   <>
