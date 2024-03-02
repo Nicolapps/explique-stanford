@@ -86,44 +86,19 @@ async function createAssistant(
 
 export const create = actionWithAuth({
   args: exerciseAdminSchema,
-  handler: async (
-    { runMutation, session },
-    {
-      name,
-      image,
-      imagePrompt,
-      instructions,
-      model,
-      weekId,
-      text,
-      quiz,
-      firstMessage,
-      controlGroup,
-      completionFunctionDescription,
-    },
-  ) => {
+  handler: async ({ runMutation, session }, row) => {
     validateAdminSession(session);
-    validateQuiz(quiz);
+    validateQuiz(row.quiz);
 
     const assistant = await createAssistant(
-      instructions,
-      model,
-      completionFunctionDescription,
+      row.instructions,
+      row.model,
+      row.completionFunctionDescription,
     );
 
     await runMutation(internal.admin.exercises.insertRow, {
-      name,
-      image,
-      imagePrompt,
-      instructions,
+      ...row,
       assistantId: assistant.id,
-      weekId,
-      text,
-      quiz,
-      model,
-      firstMessage,
-      controlGroup,
-      completionFunctionDescription,
     });
   },
 });
