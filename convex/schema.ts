@@ -5,6 +5,7 @@ export const exerciseAdminSchema = {
   name: v.string(),
   instructions: v.string(),
   model: v.string(),
+  chatCompletionsApi: v.optional(v.literal(true)),
   feedback: v.optional(
     v.object({
       model: v.string(),

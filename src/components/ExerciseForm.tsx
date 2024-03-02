@@ -1,12 +1,16 @@
 import React, { useId, useState } from "react";
 import Input, { Select, Textarea } from "@/components/Input";
-import { EllipsisHorizontalIcon, PlusIcon } from "@heroicons/react/16/solid";
+import {
+  EllipsisHorizontalIcon,
+  ExclamationCircleIcon,
+  PlusIcon,
+} from "@heroicons/react/16/solid";
 import { PlusIcon as PlusIconLarge } from "@heroicons/react/24/outline";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { QuizContents } from "@/components/exercises/QuizExercise";
 import Markdown from "@/components/Markdown";
 import { Id } from "../../convex/_generated/dataModel";
-import { api } from "../../convex/_generated/api";
+import { api as convexApi } from "../../convex/_generated/api";
 import { useAction, useQuery } from "@/usingSession";
 import Chance from "chance";
 import clsx from "clsx";
@@ -23,6 +27,7 @@ export type State = {
   name: string;
   instructions: string;
   model: string;
+  api: "chatCompletions" | "assistants";
   text: string;
   image?: Id<"images">;
   imagePrompt?: string;
@@ -47,6 +52,8 @@ export function toConvexState(state: State) {
     model: state.model,
     text: state.text,
     weekId: state.weekId,
+    chatCompletionsApi:
+      state.api === "chatCompletions" ? (true as const) : undefined,
 
     feedback: state.feedback ?? undefined,
 
@@ -104,6 +111,7 @@ export default function ExerciseForm({
 
   const [instructions, setInstructions] = useState(initialState.instructions);
   const [model, setModel] = useState(initialState.model);
+  const [api, setApi] = useState(initialState.api);
   const [text, setText] = useState(initialState.text);
   const [image, setImage] = useState(initialState.image);
 
@@ -114,7 +122,7 @@ export default function ExerciseForm({
   const [completionFunctionDescription, setCompletionFunctionDescription] =
     useState(initialState.completionFunctionDescription);
 
-  const weeks = useQuery(api.admin.weeks.list, {});
+  const weeks = useQuery(convexApi.admin.weeks.list, {});
 
   const [feedback, setFeedback] = useState(initialState.feedback);
 
@@ -125,6 +133,7 @@ export default function ExerciseForm({
         onSubmit({
           name,
           instructions,
+          api,
           image,
           model,
           text,
@@ -240,6 +249,35 @@ export default function ExerciseForm({
             </>
           }
         />
+
+        <Select
+          label="API"
+          value={api}
+          onChange={setApi}
+          values={[
+            { value: "chatCompletions", label: "Chat Completion API" },
+            { value: "assistants", label: "Assistants API" },
+          ]}
+          hint={
+            <>
+              The Chat Completion API is more expensive but is rate-limited to
+              60 requests per minute.
+              {api === "assistants" &&
+                initialState.api === "chatCompletions" && (
+                  <>
+                    <span className="block mt-1 text-red-600">
+                      <ExclamationCircleIcon className="w-4 h-4 inline mr-1" />
+                      Students that started an attempt when the Chat Completions
+                      API was used will continue their attempt with the
+                      Assistants API, but the Assistants API won’t be able to
+                      read the previous messages of the conversation.
+                    </span>
+                  </>
+                )}
+            </>
+          }
+        />
+
         <Textarea
           label="Model instructions"
           value={instructions}
@@ -677,10 +715,10 @@ function ThumbnailPicker({
   exerciseId: Id<"exercises">;
   name: string;
 }) {
-  const images = useQuery(api.admin.image.list, {
+  const images = useQuery(convexApi.admin.image.list, {
     exerciseId,
   });
-  const generateImage = useAction(api.admin.image.generate);
+  const generateImage = useAction(convexApi.admin.image.generate);
 
   return (
     <div className="mb-6">
