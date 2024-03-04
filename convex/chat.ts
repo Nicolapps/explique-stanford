@@ -610,7 +610,7 @@ export const generateTranscriptMessages = internalQuery({
     return messages
       .filter((q) => !q.appearance)
       .map(({ content, system }) => ({
-        role: system ? ("system" as const) : ("user" as const),
+        role: system ? ("assistant" as const) : ("user" as const),
         content,
       }));
   },
