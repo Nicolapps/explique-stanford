@@ -545,21 +545,26 @@ export const startFeedback = internalAction({
       });
 
       const openai = new OpenAI();
-      const response = await openai.chat.completions.create({
-        model,
-        messages: [
-          {
-            role: "system",
-            content: prompt,
-          },
-          {
-            role: "user",
-            content: transcript,
-          },
-        ],
-        temperature: 0.7,
-        stream: false,
-      });
+      const response = await openai.chat.completions.create(
+        {
+          model,
+          messages: [
+            {
+              role: "system",
+              content: prompt,
+            },
+            {
+              role: "user",
+              content: transcript,
+            },
+          ],
+          temperature: 0.7,
+          stream: false,
+        },
+        {
+          timeout: 3 * 60 * 1000, // 3 minutes
+        },
+      );
 
       await ctx.runMutation(internal.chat.saveFeedback, {
         attemptId,
