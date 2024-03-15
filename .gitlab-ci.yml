@@ -46,7 +46,7 @@ build-a-docker:
     - echo $DOCKER_AUTH_CONFIG > /kaniko/.docker/config.json
     - env
     - cat /kaniko/.docker/config.json
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/$DOCKERFILE_PATH --destination $HARBOR_REGISTRY/$REPO_NAME/$APPLICATION_NAME:$TAG --build-arg CONVEX_DEPLOY_KEY=$CONVEX_DEPLOY_KEY --build-arg COMPRESS_API_KEY=$COMPRESS_API_KEY --build-arg SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN --build-arg BASE_URL=$BASE_URL --build-arg JWT_KEY=$JWT_KEY
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/$DOCKERFILE_PATH --destination $HARBOR_REGISTRY/$REPO_NAME/$APPLICATION_NAME:$TAG --build-arg CONVEX_DEPLOY_KEY=$CONVEX_DEPLOY_KEY --build-arg COMPRESS_API_KEY=$COMPRESS_API_KEY --build-arg SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN --build-arg BASE_URL=$BASE_URL --build-arg JWT_KEY=$JWT_KEY --build-arg IDENTIFIER_SALT=$IDENTIFIER_SALT
 
 deploy-to-prod:
   stage: deploy
