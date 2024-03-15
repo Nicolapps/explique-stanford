@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSetSessionId } from "@/components/SessionProvider";
 import Link from "next/link";
 
-export function LoginError({ retryLink }: { retryLink: string }) {
+function LoginError({ retryLink }: { retryLink: string }) {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <p className="text-xl font-light mb-8">
