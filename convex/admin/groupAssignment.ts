@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import Chance from "chance";
 import { queryWithAuth } from "../withAuth";
@@ -10,6 +10,8 @@ export const importAndAssign = internalMutation({
     emails: v.string(),
   },
   handler: async (ctx, args) => {
+    throw new ConvexError("Temporarily disabled");
+
     const existingEmails = new Set(
       (await ctx.db.query("groupAssignments").collect()).map((a) => a.email),
     );
@@ -20,10 +22,11 @@ export const importAndAssign = internalMutation({
     emails = chance.shuffle(emails);
 
     for (let i = 0; i < emails.length; i++) {
-      await ctx.db.insert("groupAssignments", {
-        email: emails[i],
-        group: i % 2 === 0 ? "A" : "B",
-      });
+      // @TODO(Tequila) Migrate
+      // await ctx.db.insert("groupAssignments", {
+      //   email: emails[i],
+      //   group: i % 2 === 0 ? "A" : "B",
+      // });
     }
 
     console.log("Successfully imported " + emails.length + " emails");
