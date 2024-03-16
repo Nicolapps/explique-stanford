@@ -81,7 +81,7 @@ export async function GET(req: Request) {
       identifier,
       ...identity,
     })
-    .onConflictDoNothing({ target: users.identifier });
+    .onConflictDoNothing({ target: users.uniqueid });
 
   const jwtKey = process.env.JWT_KEY;
   if (!jwtKey) {
