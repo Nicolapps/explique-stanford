@@ -56,10 +56,14 @@ export const get = queryWithAuth({
       attempt.status === "quizCompleted" ||
       isSolutionShown
     ) {
-      const assignment = await db
-        .query("groupAssignments")
-        .withIndex("byEmail", (q) => q.eq("email", session.user.email))
-        .first();
+      const { identifier } = session.user;
+      const assignment =
+        identifier !== undefined
+          ? await db
+              .query("groupAssignments")
+              .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
+              .first()
+          : null;
 
       quiz = shownQuestions(
         exercise.quiz,

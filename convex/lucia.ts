@@ -35,6 +35,7 @@ export function getAuth(db: AuthDbWriter) {
         group: user.group,
         researchConsent: user.researchConsent,
         completedExercises: user.completedExercises,
+        identifier: user.identifier,
       };
     },
 

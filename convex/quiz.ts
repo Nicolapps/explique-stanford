@@ -42,6 +42,7 @@ function batchIndex(
   // Split the group evenly between the batches
   const chanceBatch = new Chance(`${exerciseId} ${assignment.group} batch`);
   const numbers = chanceBatch.shuffle(indexes(assignment.groupLength));
+
   return numbers.indexOf(assignment.positionInGroup) % batchesCount;
 }
 
