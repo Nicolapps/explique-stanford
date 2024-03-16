@@ -120,18 +120,21 @@ export default defineSchema(
 
     groupAssignments: defineTable({
       email: v.string(),
+      identifier: v.optional(v.string()),
       group: v.union(v.literal("A"), v.literal("B")),
       researchConsent: v.optional(v.literal(true)),
       positionInGroup: v.optional(v.number()),
       groupLength: v.optional(v.number()),
     })
       .index("byEmail", ["email"])
+      .index("byIdentifier", ["identifier"])
       .index("byGroup", ["group"]),
 
     // Lucia
     users: defineTable({
       id: v.string(), // Lucia ID
       email: v.string(),
+      identifier: v.optional(v.string()),
       name: v.string(),
       isAdmin: v.boolean(),
       earlyAccess: v.optional(v.literal(true)),
@@ -141,7 +144,8 @@ export default defineSchema(
       completedExercises: v.array(v.id("exercises")),
     })
       .index("byId", ["id"])
-      .index("byEmail", ["email"]),
+      .index("byEmail", ["email"])
+      .index("byIdentifier", ["identifier"]),
 
     sessions: defineTable({
       id: v.string(),

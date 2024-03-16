@@ -11,6 +11,7 @@ declare namespace Lucia {
     group: "A" | "B";
     researchConsent?: true;
     completedExercises: Array<import("./_generated/dataModel").Id<"exercises">>;
+    identifier?: string;
   };
   type DatabaseSessionAttributes = {
     _id: import("./_generated/dataModel").Id<"sessions">;
