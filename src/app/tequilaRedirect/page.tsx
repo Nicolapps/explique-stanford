@@ -1,10 +1,11 @@
 "use client";
 
-import { useAction } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useEffect, useRef, useState } from "react";
-import { useSetSessionId } from "@/components/SessionProvider";
+import { useSetSession } from "@/components/SessionProvider";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function LoginError({ retryLink }: { retryLink: string }) {
   return (
@@ -30,12 +31,19 @@ async function login(key: string, authCheck: string) {
     throw new Error("Invalid response");
   }
 
-  return value;
+  const jwt = value.jwt as string;
+  const identity = value.identity as {
+    displayName: string;
+    email: string;
+  };
+
+  return { jwt, identity };
 }
 
 export default function Page() {
-  const authMutation = useAction(api.auth.redirect);
-  const setSessionId = useSetSessionId();
+  const tequilaLogin = useMutation(api.auth.tequilaLogin);
+  const setSession = useSetSession();
+  const router = useRouter();
   const [showError, setShowError] = useState(false);
 
   const executed = useRef(false);
@@ -44,20 +52,26 @@ export default function Page() {
     const authCheck =
       new URLSearchParams(window.location.search).get("auth_check") ?? null;
 
-    if (executed.current || !key || !authCheck) {
+    if (executed.current || !key || !authCheck || !router) {
       return;
     }
     executed.current = true;
 
     (async () => {
+      let result;
       try {
-        await login(key, authCheck);
-        // @TODO
-        // window.location.href = "/";
+        result = await login(key, authCheck);
       } catch (e) {
         console.error(e);
         setShowError(true);
+        return;
       }
+
+      const { identity, jwt } = result;
+      const newSessionId = await tequilaLogin({ jwt });
+      setSession(newSessionId, identity);
+
+      router.replace("/");
     })();
   });
 

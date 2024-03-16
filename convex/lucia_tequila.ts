@@ -4,6 +4,7 @@ import { GlobalDatabaseUserAttributes, LuciaError, User } from "lucia";
 import { getAuth } from "./lucia";
 import { mutationAuthDbWriter } from "./authDbWriter";
 import { Doc, Id } from "./_generated/dataModel";
+import * as jsrsasign from "jsrsasign";
 
 const PROVIDER_ID = "tequila";
 

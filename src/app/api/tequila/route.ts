@@ -4,6 +4,25 @@ import * as jsrsasign from "jsrsasign";
 
 export const dynamic = "force-dynamic"; // defaults to auto
 
+interface TequilaFields {
+  version: string;
+  provider: string;
+  firstname: string;
+  status: string;
+  key: string;
+  email: string;
+  user: string;
+  requesthost: string;
+  authstrength: string;
+  org: string;
+  uniqueid: string;
+  name: string;
+  username: string;
+  host: string;
+  authorig: string;
+  displayname: string;
+}
+
 export async function GET(req: Request) {
   const flow = new ServerSideFlow({
     service: "CS-250",
@@ -41,13 +60,16 @@ export async function GET(req: Request) {
 
   let identity;
   try {
-    identity = await flow.validateTequilaReturn(key, authCheck);
+    identity = (await flow.validateTequilaReturn(
+      key,
+      authCheck,
+    )) as TequilaFields;
   } catch (e) {
     console.log("Error: " + e);
     return Response.json({ ok: false, error: "tequila" });
   }
 
-  const { email, uniqueid } = identity;
+  const { email, uniqueid, displayname: displayName } = identity;
   const accountIdentifier = email ? email : uniqueid;
   const identifier = getIdentifier(accountIdentifier);
 
@@ -69,5 +91,12 @@ export async function GET(req: Request) {
     jwtKey,
   );
 
-  return Response.json({ ok: true, identity, jwt });
+  return Response.json({
+    ok: true,
+    identity: {
+      displayName,
+      email,
+    },
+    jwt,
+  });
 }
