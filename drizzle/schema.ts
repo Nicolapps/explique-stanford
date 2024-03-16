@@ -10,6 +10,7 @@ export const users = sqliteTable(
   {
     id: integer("id").primaryKey(),
 
+    identifier: text("identifier"),
     version: text("version"),
     provider: text("provider"),
     firstname: text("firstname"),
