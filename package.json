@@ -19,6 +19,7 @@
     "chance": "^1.1.11",
     "clsx": "^2.0.0",
     "convex": "^1.8.0",
+    "crypto-js": "^4.2.0",
     "jsrsasign": "^11.1.0",
     "lucia": "^2.7.6",
     "next": "^14.1.0",
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
     "@types/chance": "^1.1.6",
+    "@types/crypto-js": "^4.2.2",
     "@types/jsrsasign": "^10.5.13",
     "@types/node": "^20",
     "@types/react": "^18",

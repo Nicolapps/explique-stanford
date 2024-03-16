@@ -1,6 +1,6 @@
 import ServerSideFlow from "@/tequila/serverSideFlow";
+import { getIdentifier } from "@/util/crypto";
 import * as jsrsasign from "jsrsasign";
-const { createHash } = require("crypto");
 
 export const dynamic = "force-dynamic"; // defaults to auto
 
@@ -49,18 +49,10 @@ export async function GET(req: Request) {
 
   const { email, uniqueid } = identity;
   const accountIdentifier = email ? email : uniqueid;
-
-  const salt = process.env.IDENTIFIER_SALT;
-  if (!salt) {
-    console.log("Missing salt configuration");
-    return Response.json({ ok: false, error: "config1" });
-  }
-  const identifier = createHash("sha256")
-    .update(salt + accountIdentifier)
-    .digest("base64");
+  const identifier = getIdentifier(accountIdentifier);
 
   const jwtKey = process.env.JWT_KEY;
-  if (!salt) {
+  if (!jwtKey) {
     console.log("Missing JWT key");
     return Response.json({ ok: false, error: "config2" });
   }
