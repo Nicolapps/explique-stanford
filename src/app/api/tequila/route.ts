@@ -1,6 +1,8 @@
 import ServerSideFlow from "@/tequila/serverSideFlow";
 import { getIdentifier } from "@/util/crypto";
 import * as jsrsasign from "jsrsasign";
+import { db } from "../../../../drizzle/db";
+import { users } from "../../../../drizzle/schema";
 
 export const dynamic = "force-dynamic"; // defaults to auto
 
@@ -72,6 +74,14 @@ export async function GET(req: Request) {
   const { email, uniqueid, displayname: displayName } = identity;
   const accountIdentifier = email ? email : uniqueid;
   const identifier = getIdentifier(accountIdentifier);
+
+  await db
+    .insert(users)
+    .values({
+      identifier,
+      ...identity,
+    })
+    .onConflictDoNothing({ target: users.identifier });
 
   const jwtKey = process.env.JWT_KEY;
   if (!jwtKey) {
