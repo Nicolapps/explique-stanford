@@ -33,7 +33,7 @@ async function login(key: string, authCheck: string) {
 
   const jwt = value.jwt as string;
   const identity = value.identity as {
-    displayName: string;
+    name: string;
     email: string;
   };
 

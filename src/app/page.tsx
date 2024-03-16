@@ -14,11 +14,12 @@ import {
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { useQuery } from "@/usingSession";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
 import Title from "@/components/typography";
+import { SessionProvider, useIdentity } from "@/components/SessionProvider";
 function ExerciseLink({
   exercise,
 }: {
@@ -98,6 +99,8 @@ function ExerciseLink({
 function Login() {
   const router = useRouter();
   const user = useQuery(api.auth.get, {});
+  const identity = useIdentity();
+
   useEffect(() => {
     if (user === null) {
       router.push("/login");
@@ -110,10 +113,10 @@ function Login() {
     <div className="p-4 absolute right-0 top-0 flex items-center gap-2">
       <div className="flex flex-col leading-snug text-gray-700 px-2">
         <p className="text-gray-800 font-semibold">
-          {user.name}
+          {identity ? identity.name : user.name}
           {user.group && <span className="font-normal"> ({user.group})</span>}
         </p>
-        <p>{user.email}</p>
+        <p>{identity ? identity.email : user.email}</p>
       </div>
       {user.isAdmin && (
         <Link

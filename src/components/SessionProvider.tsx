@@ -1,13 +1,32 @@
 import { createContext, useCallback, useContext, useState } from "react";
 
-const SessionContext = createContext(undefined as any);
+const SessionContext = createContext(
+  null as {
+    sessionId: string | null;
+    identity: Identity | null;
+    setSession: (sessionId: string | null, identity: Identity | null) => void;
+  } | null,
+);
 
 export function useSessionId(): string | null {
-  return useContext(SessionContext).sessionId;
+  const context = useContext(SessionContext);
+  if (context === null) throw new Error("No session context found.");
+
+  return context.sessionId;
+}
+
+export function useIdentity(): Identity | null {
+  const context = useContext(SessionContext);
+  if (context === null) throw new Error("No session context found.");
+
+  return context.identity;
 }
 
 export function useSetSession() {
-  return useContext(SessionContext).setSession;
+  const context = useContext(SessionContext);
+  if (context === null) throw new Error("No session context found.");
+
+  return context.setSession;
 }
 
 type Identity = {
