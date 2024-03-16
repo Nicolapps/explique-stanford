@@ -1,11 +1,17 @@
 import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
-import { action, internalQuery } from "./_generated/server";
+import {
+  DatabaseReader,
+  action,
+  internalQuery,
+  mutation,
+} from "./_generated/server";
 import { getAuth, getEpflAuth, getGoogleAuth } from "./lucia";
-import { actionAuthDbWriter } from "./authDbWriter";
+import { actionAuthDbWriter, mutationAuthDbWriter } from "./authDbWriter";
 import { OAuthRequestError } from "@lucia-auth/oauth";
 import { internal } from "./_generated/api";
+import * as TequilaLucia from "./lucia_tequila";
 
 export const get = queryWithAuth({
   args: {},
@@ -121,5 +127,29 @@ export const redirect = action({
       }
       throw e;
     }
+  },
+});
+
+export const tequilaLogin = mutation({
+  args: { jwt: v.string() },
+  handler: async (ctx, { jwt }) => {
+    const sub = TequilaLucia.validateToken(jwt);
+    if (sub === false) {
+      throw new ConvexError("Invalid authentication token");
+    }
+
+    const user = await TequilaLucia.getOrCreateUser(sub, ctx.db);
+
+    const auth = getAuth(mutationAuthDbWriter(ctx.db));
+    const session = await auth.createSession({
+      userId: user.userId,
+      attributes: {
+        // These will be filled out by Convex
+        _id: "" as Id<"sessions">,
+        _creationTime: 0,
+      },
+    });
+
+    return session.sessionId;
   },
 });
