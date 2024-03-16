@@ -159,6 +159,7 @@ const convexAdapter = (db: AuthDbWriter) => {
       }
       const user = await this.getUser(key.user_id);
       if (user === null) {
+        console.error("Invalid user ID when creating a key: " + key.user_id);
         throw new LuciaError("AUTH_INVALID_USER_ID");
       }
       await db.insert("auth_keys", key);
@@ -186,6 +187,7 @@ const convexAdapter = (db: AuthDbWriter) => {
     ): Promise<void> {
       const user = await getUser(db, userId);
       if (user === null) {
+        console.error("Invalid user ID when updating an user: " + userId);
         throw new LuciaError("AUTH_INVALID_USER_ID");
       }
       await db.patch(user._id, partialUser);
