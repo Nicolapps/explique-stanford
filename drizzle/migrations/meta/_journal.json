@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1710618543616,
+      "tag": "0000_cynical_silver_fox",
+      "breakpoints": true
+    }
+  ]
+}
