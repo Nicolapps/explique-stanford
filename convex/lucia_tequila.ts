@@ -86,6 +86,7 @@ export async function getOrCreateUser(
   if (existingUser) return existingUser;
 
   const user = await createUser(identifier, db, {
+    identifier,
     name: "", // @TODO(Tequila) Allow null names
     email: "", // @TODO(Tequila) Allow null names
     group: "A", // @TODO(Tequila) Use correct group assignment
