@@ -3,7 +3,7 @@ import { useConvex } from "convex/react";
 import { useEffect, useState } from "react";
 import { api } from "../../convex/_generated/api";
 
-type Identities = Record<string, { email: string }>;
+export type Identities = Record<string, { email: string }>;
 
 export function useIdentities(): Identities | undefined {
   const convex = useConvex();

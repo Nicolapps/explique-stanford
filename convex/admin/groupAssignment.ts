@@ -65,17 +65,18 @@ export const stats = queryWithAuth({
 
     const assignments = await db.query("groupAssignments").collect();
     const assignmentAsMap = new Map<string, "A" | "B">(
-      assignments.map((a) => [a.email, a.group]),
+      assignments.map((a) => [a.identifier, a.group]),
     );
 
     const users = await db.query("users").collect();
 
     const mapTable = ({
+      _id,
       group,
-      email,
+      identifier,
       isAdmin,
       earlyAccess,
-    }: Doc<"users">) => ({ group, email, isAdmin, earlyAccess });
+    }: Doc<"users">) => ({ id: _id, group, identifier, isAdmin, earlyAccess });
 
     async function isGroupValid(group: "A" | "B") {
       const peopleInGroups = assignments.filter((u) => u.group === group);
@@ -94,13 +95,18 @@ export const stats = queryWithAuth({
         total: assignments.length,
       },
       randomAssigned: users
-        .filter((user) => !assignmentAsMap.has(user.email))
+        .filter(
+          (user) =>
+            user.identifier === undefined ||
+            !assignmentAsMap.has(user.identifier),
+        )
         .map(mapTable),
       assignmentChanged: users
         .filter(
           (user) =>
-            assignmentAsMap.has(user.email) &&
-            assignmentAsMap.get(user.email) !== user.group,
+            user.identifier !== undefined &&
+            assignmentAsMap.has(user.identifier) &&
+            assignmentAsMap.get(user.identifier) !== user.group,
         )
         .map(mapTable),
     };
@@ -112,19 +118,20 @@ export const fixNonMatchingAssigments = internalMutation({
   handler: async ({ db }, {}) => {
     const assignments = await db.query("groupAssignments").collect();
     const assignmentAsMap = new Map<string, "A" | "B">(
-      assignments.map((a) => [a.email, a.group]),
+      assignments.map((a) => [a.identifier, a.group]),
     );
     const users = await db.query("users").collect();
 
     const nonMatchingAssignments = users.filter(
       (user) =>
-        assignmentAsMap.has(user.email) &&
-        assignmentAsMap.get(user.email) !== user.group,
+        user.identifier !== undefined &&
+        assignmentAsMap.has(user.identifier) &&
+        assignmentAsMap.get(user.identifier) !== user.group,
     );
 
     for (const user of nonMatchingAssignments) {
       await db.patch(user._id, {
-        group: assignmentAsMap.get(user.email)!,
+        group: assignmentAsMap.get(user.identifier!)!,
       });
     }
   },

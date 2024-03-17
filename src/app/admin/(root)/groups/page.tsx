@@ -3,15 +3,17 @@
 import { useQuery } from "@/usingSession";
 import { api } from "../../../../../convex/_generated/api";
 import Title from "@/components/typography";
+import { Identities, useIdentities } from "@/hooks/useIdentities";
 
 export default function GroupsPage() {
   const stats = useQuery(api.admin.groupAssignment.stats, {});
+  const identities = useIdentities();
 
   return (
     <>
       <Title>Groups</Title>
 
-      {stats && (
+      {stats && identities && (
         <>
           <h2 className="text-lg mt-8 mb-2 font-medium">Initial assignments</h2>
 
@@ -40,7 +42,7 @@ export default function GroupsPage() {
                 their initial assignment.
               </p>
 
-              <Table rows={stats.assignmentChanged} />
+              <Table rows={stats.assignmentChanged} identities={identities} />
             </>
           )}
 
@@ -68,13 +70,16 @@ export default function GroupsPage() {
 
 function Table({
   rows,
+  identities,
 }: {
   rows: {
-    email: string;
+    id: string;
+    identity?: string;
     group: string;
     isAdmin?: boolean;
     earlyAccess?: boolean;
   }[];
+  identities: Identities;
 }) {
   return (
     <table className="divide-y divide-slate-300 w-full">
@@ -108,9 +113,11 @@ function Table({
       </thead>
       <tbody className="divide-y divide-gray-200">
         {rows.map((student) => (
-          <tr key={student.email}>
+          <tr key={student.id}>
             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-              {student.email}
+              {student.identity && student.identity in identities
+                ? identities[student.identity].email
+                : "Unknown"}
             </td>
             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
               {student.group}
