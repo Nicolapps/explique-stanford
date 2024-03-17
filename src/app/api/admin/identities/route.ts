@@ -1,4 +1,5 @@
 import { db } from "../../../../../drizzle/db";
+import * as jsrsasign from "jsrsasign";
 
 export async function GET(req: Request) {
   const publicKey = process.env.ADMIN_API_PUBLIC_KEY;
