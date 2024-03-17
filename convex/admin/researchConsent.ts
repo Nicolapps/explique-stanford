@@ -3,37 +3,25 @@ import { mutationWithAuth } from "../withAuth";
 
 export default mutationWithAuth({
   args: {
-    emails: v.string(),
+    identifiers: v.array(v.string()),
   },
-  handler: async (ctx, { emails }) => {
-    const validatedEmails = emails
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((email) => !!email);
-
-    const invalidEmail = validatedEmails.find(
-      (e) => !e.includes("@") || e.includes(" ") || e.includes(","),
-    );
-    if (invalidEmail) {
-      throw new ConvexError("Invalid email: " + invalidEmail);
-    }
-
+  handler: async (ctx, { identifiers }) => {
     let added = 0;
     const notInGroups: string[] = [];
-    for (const email of validatedEmails) {
+    for (const identifier of identifiers) {
       const groupAssignment = await ctx.db
         .query("groupAssignments")
-        .withIndex("byEmail", (q) => q.eq("email", email))
+        .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
         .first();
       if (groupAssignment) {
         await ctx.db.patch(groupAssignment._id, { researchConsent: true });
       } else {
-        notInGroups.push(email);
+        notInGroups.push(identifier);
       }
 
       const user = await ctx.db
         .query("users")
-        .withIndex("byEmail", (q) => q.eq("email", email))
+        .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
         .first();
       if (user) {
         await ctx.db.patch(user._id, { researchConsent: true });
