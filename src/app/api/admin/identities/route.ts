@@ -1,5 +1,10 @@
 import { db } from "../../../../../drizzle/db";
 
+// Disable prerendering
+export async function getServerSideProps() {
+  return { props: {} };
+}
+
 export async function GET(req: Request) {
   // TODO Gate this API
 
