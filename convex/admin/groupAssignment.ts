@@ -13,7 +13,7 @@ export const importAndAssign = internalMutation({
     const existingIdentifiers = new Set(
       (await ctx.db.query("groupAssignments").collect())
         .filter((a) => a.identifier)
-        .map((a) => a.email),
+        .map((a) => a.identifier),
     );
 
     let identifiers = args.identifiers
@@ -24,7 +24,6 @@ export const importAndAssign = internalMutation({
     identifiers = chance.shuffle(identifiers);
 
     for (let i = 0; i < identifiers.length; i++) {
-      // @TODO(Tequila) Migrate
       await ctx.db.insert("groupAssignments", {
         identifier: identifiers[i],
         group: i % 2 === 0 ? "A" : "B",
