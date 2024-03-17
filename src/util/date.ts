@@ -66,6 +66,7 @@ export function formatTimestampHumanFormat(timestamp: number) {
       date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
     month: "long",
     day: "2-digit",
+    weekday: "long",
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
