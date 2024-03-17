@@ -7,29 +7,33 @@ import { Doc } from "../_generated/dataModel";
 
 export const importAndAssign = internalMutation({
   args: {
-    emails: v.string(),
+    identifiers: v.string(),
   },
   handler: async (ctx, args) => {
-    throw new ConvexError("Temporarily disabled");
-
-    const existingEmails = new Set(
-      (await ctx.db.query("groupAssignments").collect()).map((a) => a.email),
+    const existingIdentifiers = new Set(
+      (await ctx.db.query("groupAssignments").collect())
+        .filter((a) => a.identifier)
+        .map((a) => a.email),
     );
 
-    let emails = args.emails.split(",").filter((e) => !existingEmails.has(e));
+    let identifiers = args.identifiers
+      .split(",")
+      .filter((e) => !existingIdentifiers.has(e));
 
     const chance = new Chance();
-    emails = chance.shuffle(emails);
+    identifiers = chance.shuffle(identifiers);
 
-    for (let i = 0; i < emails.length; i++) {
+    for (let i = 0; i < identifiers.length; i++) {
       // @TODO(Tequila) Migrate
-      // await ctx.db.insert("groupAssignments", {
-      //   email: emails[i],
-      //   group: i % 2 === 0 ? "A" : "B",
-      // });
+      await ctx.db.insert("groupAssignments", {
+        identifier: identifiers[i],
+        group: i % 2 === 0 ? "A" : "B",
+
+        email: "", // @TODO(Tequila) Remove this field
+      });
     }
 
-    console.log("Successfully imported " + emails.length + " emails");
+    console.log("Successfully imported " + identifiers.length + " students");
   },
 });
 
