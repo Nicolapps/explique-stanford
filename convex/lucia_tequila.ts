@@ -1,9 +1,8 @@
-import { ConvexError } from "convex/values";
-import { DatabaseReader, DatabaseWriter } from "./_generated/server";
+import { DatabaseWriter } from "./_generated/server";
 import { GlobalDatabaseUserAttributes, LuciaError, User } from "lucia";
 import { getAuth } from "./lucia";
 import { mutationAuthDbWriter } from "./authDbWriter";
-import { Doc, Id } from "./_generated/dataModel";
+import { Id } from "./_generated/dataModel";
 import * as jsrsasign from "jsrsasign";
 
 const PROVIDER_ID = "tequila";
