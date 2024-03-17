@@ -15,6 +15,13 @@
       "when": 1710619467249,
       "tag": "0001_parched_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1710709863241,
+      "tag": "0002_acoustic_namorita",
+      "breakpoints": true
     }
   ]
 }

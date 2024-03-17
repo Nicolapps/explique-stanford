@@ -32,3 +32,16 @@ export const users = sqliteTable(
     uniqueidIndex: uniqueIndex("uniqueid").on(users.uniqueid),
   }),
 );
+
+export const legacyIdentities = sqliteTable(
+  "legacy_identities",
+  {
+    id: integer("id").primaryKey(),
+
+    identifier: text("identifier"),
+    email: text("email"),
+  },
+  (legacyIdentity) => ({
+    identifierIndxe: uniqueIndex("identifier").on(legacyIdentity.identifier),
+  }),
+);

@@ -15,13 +15,20 @@ export async function GET(req: Request) {
     },
   });
 
+  const legacyRows = await db.query.legacyIdentities.findMany({
+    columns: {
+      identifier: true,
+      email: true,
+    },
+  });
+
   const results: Record<
     string,
     {
       email: string;
     }
   > = Object.fromEntries(
-    rows.map((row) => [
+    [...rows, ...legacyRows].map((row) => [
       row.identifier,
       {
         ...row,
