@@ -59,7 +59,7 @@ export default function GroupsPage() {
                 groups.
               </p>
 
-              <Table rows={stats.randomAssigned} />
+              <Table rows={stats.randomAssigned} identities={identities} />
             </>
           )}
         </>
