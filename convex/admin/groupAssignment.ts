@@ -1,4 +1,4 @@
-import { ConvexError, v } from "convex/values";
+import { v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import Chance from "chance";
 import { queryWithAuth } from "../withAuth";
