@@ -1,17 +1,44 @@
 "use client";
 
 import Title from "@/components/typography";
-import { useQuery } from "@/usingSession";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
+import { useConvex } from "convex/react";
+import { useSessionId } from "@/components/SessionProvider";
+
+type ScoresQueryResult = {
+  weeks: {
+    id: Id<"weeks">;
+    name: string;
+    exercises: { id: Id<"exercises">; name: string }[];
+  }[];
+  users: {
+    email: string;
+    completedExercises: Id<"exercises">[];
+    isAdmin?: boolean;
+    earlyAccess?: boolean;
+  }[];
+};
 
 export default function ScoresPage() {
-  const data = useQuery(api.admin.scores.default, {});
+  const convex = useConvex();
+  const sessionId = useSessionId();
+
+  const [data, setData] = useState<ScoresQueryResult | undefined>(undefined);
+  useEffect(() => {
+    if (data) return;
+
+    (async () => {
+      const data = await convex.query(api.admin.scores.default, { sessionId });
+      setData(data);
+    })();
+  }, [data, convex, sessionId]);
+
   return (
     <>
       <Title>

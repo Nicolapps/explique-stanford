@@ -31,7 +31,6 @@ export default queryWithAuth({
 
     return {
       weeks,
-      exercises,
       users: [...users],
     };
   },
