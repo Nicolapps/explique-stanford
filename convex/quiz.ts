@@ -47,7 +47,7 @@ function batchIndex(
 }
 
 export function shownQuestions(
-  quiz: { batches: { questions: Question[] }[] },
+  quiz: { batches: { randomize?: boolean; questions: Question[] }[] },
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
   assignment: Doc<"groupAssignments"> | null,
@@ -58,6 +58,8 @@ export function shownQuestions(
     quiz.batches[
       batchIndex(userId, exerciseId, assignment, quiz.batches.length)
     ];
+
+  if (batch.randomize === false) return batch.questions;
 
   const chanceQuestionsOrder = new Chance(
     `${userId} ${exerciseId} questions order`,
