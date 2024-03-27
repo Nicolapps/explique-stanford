@@ -37,6 +37,7 @@ export default function NewExercise() {
 
             quizBatches: [
               {
+                randomize: true,
                 questions: [
                   {
                     question: "Question",

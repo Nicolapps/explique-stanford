@@ -47,6 +47,8 @@ export default function EditExercise() {
                   answers: answers.map((a) => a.text),
                   correctAnswerIndex: answers.findIndex((a) => a.correct),
                 })),
+                randomize:
+                  typeof batch.randomize === "boolean" ? batch.randomize : true,
               })),
 
               firstMessage: exercise.firstMessage ?? "",

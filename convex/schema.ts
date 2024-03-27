@@ -17,6 +17,7 @@ export const exerciseAdminSchema = {
   quiz: v.object({
     batches: v.array(
       v.object({
+        randomize: v.optional(v.boolean()),
         questions: v.array(
           v.object({
             question: v.string(),
