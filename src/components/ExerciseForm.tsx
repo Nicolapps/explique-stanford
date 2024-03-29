@@ -22,6 +22,8 @@ type Question = {
   correctAnswerIndex: number | null;
 };
 
+export type Batch = { questions: Question[]; randomize: boolean };
+
 export type State = {
   weekId: Id<"weeks">;
   name: string;
@@ -32,7 +34,7 @@ export type State = {
   image?: Id<"images">;
   imagePrompt?: string;
 
-  quizBatches: { questions: Question[] }[];
+  quizBatches: Batch[];
   feedback: {
     model: string;
     prompt: string;
@@ -59,6 +61,7 @@ export function toConvexState(state: State) {
 
     quiz: {
       batches: state.quizBatches.map((batch) => ({
+        randomize: batch.randomize,
         questions: batch.questions.map(
           ({ question, answers, correctAnswerIndex }) => ({
             question,
@@ -425,6 +428,7 @@ export default function ExerciseForm({
               setQuizBatches([
                 ...quizBatches,
                 {
+                  randomize: true,
                   questions: [
                     {
                       question: "Question",
@@ -487,37 +491,53 @@ function QuizBatch({
   canDelete,
   onDelete,
 }: {
-  batch: { questions: Question[] };
+  batch: Batch;
   batchIndex: number;
-  onChange: (batch: { questions: Question[] }) => void;
+  onChange: (batch: Batch) => void;
   canDelete: boolean;
   onDelete: () => void;
 }) {
-  const { questions } = batch;
+  const { questions, randomize } = batch;
 
   return (
     <div className="bg-gray-50 shadow-xl p-6 rounded-xl mb-8">
-      <div className="flex flex-wrap items-baseline gap-4 mb-2">
-        <h3 className="flex-1 font-regular text-2xl text-gray-700">
-          Batch #{batchIndex + 1}
-          {canDelete && (
-            <button
-              type="button"
-              className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
-              onClick={() => {
-                onDelete();
+      <div className="flex flex-wrap items-center gap-4 mb-2">
+        <div className="flex-1 flex flex-col gap-1">
+          <h3 className="font-regular text-2xl text-gray-700">
+            Batch #{batchIndex + 1}
+            {canDelete && (
+              <button
+                type="button"
+                className="ml-3 text-gray-500 hover:text-gray-700 transition-colors"
+                onClick={() => {
+                  onDelete();
+                }}
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            )}
+          </h3>
+          <label className="py-1 flex items-center gap-2 text-gray-700">
+            <input
+              type="checkbox"
+              checked={randomize}
+              onChange={(e) => {
+                onChange({
+                  randomize: e.target.checked,
+                  questions,
+                });
               }}
-            >
-              <XMarkIcon className="w-5 h-5" />
-            </button>
-          )}
-        </h3>
+            />{" "}
+            Randomize the questions order
+          </label>
+        </div>
 
         <button
           type="button"
           className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
           onClick={() => {
             onChange({
+              randomize,
               questions: [
                 ...questions,
                 {
@@ -541,6 +561,7 @@ function QuizBatch({
             question={question}
             onChange={(question) => {
               onChange({
+                randomize,
                 questions: questions.map((q, index) =>
                   index === questionIndex ? question : q,
                 ),
@@ -549,6 +570,7 @@ function QuizBatch({
             showDeleteButton={questions.length > 1}
             onDelete={() => {
               onChange({
+                randomize,
                 questions: questions.filter(
                   (_, index) => index !== questionIndex,
                 ),
