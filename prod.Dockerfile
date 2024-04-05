@@ -77,6 +77,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
+RUN npm run migrate
+
 EXPOSE 8000
 
 ENV PORT 8000
