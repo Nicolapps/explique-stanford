@@ -9,8 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "dev:server": "convex dev",
-    "generate-migration-files": "drizzle-kit generate:sqlite",
-    "migrate": "node --import tsx drizzle/migrate.ts"
+    "generate-migration-files": "drizzle-kit generate:sqlite"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",

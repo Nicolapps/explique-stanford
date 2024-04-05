@@ -36,8 +36,6 @@ ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 
 RUN npx convex deploy --cmd 'npm run build'
 
-RUN npm run migrate
-
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
