@@ -24,7 +24,7 @@ spec:
         - name: EXAMPLE
           value: "Your example value"
         volumeMounts:
-        - mountPath: /data
+        - mountPath: /app/drizzle/storage
           name: data
       volumes:
       - name: data
