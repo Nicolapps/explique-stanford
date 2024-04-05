@@ -4,7 +4,10 @@ export function validateAdminRequest(req: Request): Response | null {
   const publicKey = process.env.ADMIN_API_PUBLIC_KEY;
   if (!publicKey) {
     console.error("Configuration issue: ADMIN_API_PUBLIC_KEY is not set");
-    return Response.json({ error: "Configuration issue" }, { status: 500 });
+    return Response.json(
+      { error: "Configuration issue (f4986905-cad2-48bc-b0ae-70b0ee594ec)" },
+      { status: 500 },
+    );
   }
 
   const token = req.headers.get("Authorization");
