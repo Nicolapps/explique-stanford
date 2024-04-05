@@ -33,19 +33,6 @@ ENV CONVEX_DEPLOY_KEY=${CONVEX_DEPLOY_KEY}
 
 ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
-RUN echo "SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}" >> .env.local
-
-ARG BASE_URL
-ENV BASE_URL=${BASE_URL}
-RUN echo "BASE_URL=${BASE_URL}" >> .env.local
-
-ARG JWT_KEY
-ENV JWT_KEY=${JWT_KEY}
-RUN echo "JWT_KEY=${JWT_KEY}" >> .env.local
-
-ARG ADMIN_API_PUBLIC_KEY
-ENV ADMIN_API_PUBLIC_KEY=${ADMIN_API_PUBLIC_KEY}
-RUN echo "ADMIN_API_PUBLIC_KEY=${ADMIN_API_PUBLIC_KEY}" >> .env.local
 
 RUN npx convex deploy --cmd 'npm run build'
 
@@ -58,6 +45,15 @@ WORKDIR /app
 ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED 1
+
+ARG BASE_URL
+ENV BASE_URL=${BASE_URL}
+
+ARG JWT_KEY
+ENV JWT_KEY=${JWT_KEY}
+
+ARG ADMIN_API_PUBLIC_KEY
+ENV ADMIN_API_PUBLIC_KEY=${ADMIN_API_PUBLIC_KEY}
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
