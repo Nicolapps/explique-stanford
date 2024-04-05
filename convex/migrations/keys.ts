@@ -8,10 +8,18 @@ export default internalMutation(async ({ db }) => {
       continue;
     }
 
-    await db.insert("auth_keys", {
-      user_id: user.id,
-      id: `tequila:${user.identifier}`,
-      hashed_password: null,
-    });
+    const id = `tequila:${user.identifier}`;
+    const currentIdentifier = await db
+      .query("users")
+      .withIndex("byId", (q) => q.eq("id", id))
+      .first();
+
+    if (!currentIdentifier) {
+      await db.insert("auth_keys", {
+        user_id: user.id,
+        id,
+        hashed_password: null,
+      });
+    }
   }
 });
