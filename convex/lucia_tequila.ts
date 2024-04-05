@@ -84,13 +84,24 @@ export async function getOrCreateUser(
   const existingUser = await getExistingUser(identifier, db);
   if (existingUser) return existingUser;
 
+  const existingAssignment = await db
+    .query("groupAssignments")
+    .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
+    .first();
+  const group = existingAssignment
+    ? existingAssignment.group
+    : Math.random() > 0.5
+      ? "A"
+      : "B";
+  const researchConsent = existingAssignment?.researchConsent ?? false;
+
   const user = await createUser(identifier, db, {
     identifier,
     name: "", // @TODO(Tequila) Allow null names
     email: "", // @TODO(Tequila) Allow null names
-    group: "A", // @TODO(Tequila) Use correct group assignment
+    group,
     isAdmin: false,
-    researchConsent: /*researchConsent ? true : undefined*/ undefined, // @TODO(Tequila) Use correct research consent
+    researchConsent: researchConsent ? true : undefined,
     completedExercises: [],
 
     // These will be filled out by Convex
