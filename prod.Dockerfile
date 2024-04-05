@@ -53,6 +53,8 @@ RUN echo "COMPRESS_API_KEY=${COMPRESS_API_KEY}" >> .env.local
 
 RUN npx convex deploy --cmd 'npm run build'
 
+RUN npm run migrate
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
@@ -76,8 +78,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
-
-RUN npm run migrate
 
 EXPOSE 8000
 
