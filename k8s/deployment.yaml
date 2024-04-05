@@ -23,8 +23,11 @@ spec:
         env:
         - name: EXAMPLE
           value: "Your example value"
-#      volumes:
-#      - name: shared-data
-#        persistentVolumeClaim:
-#          claimName: APPLICATION-NAME-pvc
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: cs250
       restartPolicy: Always
