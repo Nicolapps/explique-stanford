@@ -3,8 +3,8 @@ declare namespace Lucia {
   type DatabaseUserAttributes = {
     _id: import("./_generated/dataModel").Id<"users">;
     _creationTime: number;
-    email: string;
-    name: string;
+    email: string | null;
+    name: string | null;
     isAdmin: boolean;
     earlyAccess?: true;
     extraTime?: true;

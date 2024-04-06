@@ -98,8 +98,8 @@ export async function getOrCreateUser(
 
   const user = await createUser(identifier, db, {
     identifier,
-    name: "", // @TODO(Tequila) Allow null names
-    email: "", // @TODO(Tequila) Allow null names
+    name: null,
+    email: null,
     group,
     isAdmin: false,
     researchConsent: researchConsent ? true : undefined,

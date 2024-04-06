@@ -9,9 +9,11 @@ export const migrateUsers = internalMutation({
       .collect();
 
     for (const row of rows) {
-      await ctx.db.patch(row._id, {
-        identifier: getIdentifier(row.email),
-      });
+      if (row.email) {
+        await ctx.db.patch(row._id, {
+          identifier: getIdentifier(row.email),
+        });
+      }
     }
   },
 });

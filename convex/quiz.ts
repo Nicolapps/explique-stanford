@@ -91,10 +91,13 @@ export const submit = mutationWithAuth({
       throw new ConvexError("Incorrect status " + attempt.status);
     }
 
-    const assignment = await db
-      .query("groupAssignments")
-      .withIndex("byEmail", (q) => q.eq("email", session.user.email))
-      .first();
+    const { identifier } = session.user;
+    const assignment = identifier
+      ? await db
+          .query("groupAssignments")
+          .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
+          .first()
+      : null;
 
     const questions = shownQuestions(
       exercise.quiz,

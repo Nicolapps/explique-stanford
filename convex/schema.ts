@@ -134,9 +134,9 @@ export default defineSchema(
     // Lucia
     users: defineTable({
       id: v.string(), // Lucia ID
-      email: v.string(),
+      email: v.union(v.string(), v.null()),
+      name: v.union(v.string(), v.null()),
       identifier: v.optional(v.string()),
-      name: v.string(),
       isAdmin: v.boolean(),
       earlyAccess: v.optional(v.literal(true)),
       researchConsent: v.optional(v.literal(true)),

@@ -21,7 +21,7 @@ type ScoresQueryResult = {
   users: {
     id: string;
 
-    email: string;
+    email: string | null;
     identifier?: string;
     shownEmail: string;
 
