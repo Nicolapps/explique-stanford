@@ -120,7 +120,7 @@ export default defineSchema(
     }),
 
     groupAssignments: defineTable({
-      email: v.string(),
+      email: v.optional(v.string()),
       identifier: v.string(),
       group: v.union(v.literal("A"), v.literal("B")),
       researchConsent: v.optional(v.literal(true)),
