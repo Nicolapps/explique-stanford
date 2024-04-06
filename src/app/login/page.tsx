@@ -30,9 +30,9 @@ export default function Page() {
     (async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const external = urlParams.has("external") ? true : undefined;
-      const internal = urlParams.has("internal") ? true : undefined;
+      const legacy = urlParams.has("legacy") ? true : undefined;
 
-      if (!internal) {
+      if (external || legacy) {
         const redirectUrl = await authUrlAction({
           external,
         });
