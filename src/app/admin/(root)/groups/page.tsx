@@ -74,7 +74,7 @@ function Table({
 }: {
   rows: {
     id: string;
-    identity?: string;
+    identifier?: string;
     group: string;
     isAdmin?: boolean;
     earlyAccess?: boolean;
@@ -115,8 +115,8 @@ function Table({
         {rows.map((student) => (
           <tr key={student.id}>
             <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
-              {student.identity && student.identity in identities
-                ? identities[student.identity].email
+              {student.identifier && student.identifier in identities
+                ? identities[student.identifier].email
                 : "Unknown"}
             </td>
             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
