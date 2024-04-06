@@ -27,8 +27,6 @@ export const importAndAssign = internalMutation({
       await ctx.db.insert("groupAssignments", {
         identifier: identifiers[i],
         group: i % 2 === 0 ? "A" : "B",
-
-        email: "", // @TODO(Tequila) Remove this field
       });
     }
 

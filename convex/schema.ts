@@ -120,14 +120,12 @@ export default defineSchema(
     }),
 
     groupAssignments: defineTable({
-      email: v.optional(v.string()),
       identifier: v.string(),
       group: v.union(v.literal("A"), v.literal("B")),
       researchConsent: v.optional(v.literal(true)),
       positionInGroup: v.optional(v.number()),
       groupLength: v.optional(v.number()),
     })
-      .index("byEmail", ["email"])
       .index("byIdentifier", ["identifier"])
       .index("byGroup", ["group"]),
 
