@@ -20,6 +20,7 @@ export function validateAdminRequest(req: Request): Response | null {
     alg: ["RS256"],
     iss: ["https://cs250.epfl.ch"],
     aud: ["admin"],
+    gracePeriod: 10 * 60, // 10 minutes
   });
   if (!verify) {
     return Response.json({ error: "Invalid token" }, { status: 401 });

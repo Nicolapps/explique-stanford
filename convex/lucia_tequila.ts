@@ -17,6 +17,7 @@ export function validateToken(jwt: string): string | false {
   const verify = jsrsasign.KJUR.jws.JWS.verifyJWT(jwt, jwtKey, {
     alg: ["RS256"],
     iss: ["https://cs250.epfl.ch"],
+    gracePeriod: 10 * 60, // 10 minutes
   });
   if (!verify) {
     return false;
