@@ -13,6 +13,8 @@ export default internalMutation(async (ctx) => {
         email: null,
         name: null,
       });
+
+      changed++;
     }
   }
   return { changed };
