@@ -20,16 +20,14 @@ export default queryWithAuth({
         })),
     }));
 
-    const users = (await db.query("users").withIndex("byEmail").collect()).map(
-      (user) => ({
-        id: user._id,
-        email: user.email,
-        identifier: user.identifier,
-        completedExercises: user.completedExercises,
-        isAdmin: user.isAdmin,
-        earlyAccess: user.earlyAccess,
-      }),
-    );
+    const users = (await db.query("users").collect()).map((user) => ({
+      id: user._id,
+      email: user.email,
+      identifier: user.identifier,
+      completedExercises: user.completedExercises,
+      isAdmin: user.isAdmin,
+      earlyAccess: user.earlyAccess,
+    }));
 
     return {
       weeks,

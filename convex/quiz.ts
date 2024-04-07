@@ -128,10 +128,7 @@ export const submit = mutationWithAuth({
     });
 
     if (isCorrect) {
-      const user = await db
-        .query("users")
-        .withIndex("byEmail", (q) => q.eq("email", session.user.email))
-        .first();
+      const user = await db.get(session.user._id);
       if (!user) throw new Error("No user");
       if (!user.completedExercises.includes(attempt.exerciseId)) {
         await db.patch(user._id, {
