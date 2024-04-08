@@ -25,6 +25,11 @@ export default internalMutation({
       completedExercisesByUser[log.userId].push(log.exerciseId);
     }
 
+    const result: Array<{
+      user: Id<"users">;
+      expected: Array<Id<"exercises">>;
+      actual: Array<Id<"exercises">>;
+    }> = [];
     for (const user of users) {
       const actuallyCompletedExercises =
         completedExercisesByUser[user._id] ?? null;
@@ -36,9 +41,11 @@ export default internalMutation({
           (id, index) => user.completedExercises[index] !== id,
         )
       ) {
-        console.log("User " + user._id);
-        console.log("Expected: " + user.completedExercises);
-        console.log("Actual: " + actuallyCompletedExercises);
+        result.push({
+          user: user._id,
+          expected: user.completedExercises,
+          actual: actuallyCompletedExercises,
+        });
 
         if (args.actual) {
           await db.patch(user._id, {
@@ -47,5 +54,6 @@ export default internalMutation({
         }
       }
     }
+    return result;
   },
 });
