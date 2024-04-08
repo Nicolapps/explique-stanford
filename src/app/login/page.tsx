@@ -30,7 +30,8 @@ export default function Page() {
     (async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const external = urlParams.has("external") ? true : undefined;
-      const legacy = urlParams.has("legacy") ? true : undefined;
+      const legacy =
+        urlParams.has("legacy") || window.location.host === "cs250.epfl.ch";
 
       if (external || legacy) {
         const redirectUrl = await authUrlAction({
