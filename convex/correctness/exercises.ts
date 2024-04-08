@@ -43,7 +43,7 @@ export default internalMutation({
       if (
         user.completedExercises.length !== actuallyCompletedExercises.length ||
         actuallyCompletedExercises.some(
-          (id, index) => user.completedExercises[index] !== id,
+          (id) => !user.completedExercises.includes(id),
         )
       ) {
         result.push({
