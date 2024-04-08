@@ -8,9 +8,9 @@ export default internalMutation({
   },
   handler: async ({ db }, args) => {
     const users = await db.query("users").collect();
-    const logs = await db
-      .query("logs")
-      .withIndex("by_type", (q) => q.eq("type", "exerciseCompleted"))
+    const successes = await db
+      .query("attempts")
+      .withIndex("by_status", (q) => q.eq("status", "quizCompleted"))
       .collect();
 
     const completedExercisesByUser: Record<
@@ -18,15 +18,20 @@ export default internalMutation({
       Array<Id<"exercises">>
     > = {};
 
-    for (const log of logs) {
-      if (!completedExercisesByUser[log.userId]) {
-        completedExercisesByUser[log.userId] = [];
+    for (const success of successes) {
+      if (!completedExercisesByUser[success.userId]) {
+        completedExercisesByUser[success.userId] = [];
       }
-      completedExercisesByUser[log.userId].push(log.exerciseId);
+
+      if (
+        !completedExercisesByUser[success.userId].includes(success.exerciseId)
+      ) {
+        completedExercisesByUser[success.userId].push(success.exerciseId);
+      }
     }
 
     const result: Array<{
-      user: Id<"users">;
+      identifier: string | undefined;
       expected: Array<Id<"exercises">>;
       actual: Array<Id<"exercises">>;
     }> = [];
@@ -42,9 +47,9 @@ export default internalMutation({
         )
       ) {
         result.push({
-          user: user._id,
-          expected: user.completedExercises,
-          actual: actuallyCompletedExercises,
+          identifier: user.identifier,
+          expected: actuallyCompletedExercises,
+          actual: user.completedExercises,
         });
 
         if (args.actual) {

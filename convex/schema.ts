@@ -56,7 +56,9 @@ export default defineSchema(
       exerciseId: v.id("exercises"),
       userId: v.id("users"),
       threadId: v.union(v.string(), v.null()), // null: reading variant, otherwise: explain variant
-    }).index("by_key", ["userId", "exerciseId"]),
+    })
+      .index("by_key", ["userId", "exerciseId"])
+      .index("by_status", ["status"]),
     quizSubmissions: defineTable({
       attemptId: v.id("attempts"),
       answers: v.array(v.number()),
