@@ -25,6 +25,7 @@ import type * as attempts from "../attempts.js";
 import type * as auth from "../auth.js";
 import type * as authDbWriter from "../authDbWriter.js";
 import type * as chat from "../chat.js";
+import type * as correctness_exercises from "../correctness/exercises.js";
 import type * as exercises from "../exercises.js";
 import type * as lucia from "../lucia.js";
 import type * as lucia_epfl from "../lucia_epfl.js";
@@ -57,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authDbWriter: typeof authDbWriter;
   chat: typeof chat;
+  "correctness/exercises": typeof correctness_exercises;
   exercises: typeof exercises;
   lucia: typeof lucia;
   lucia_epfl: typeof lucia_epfl;
