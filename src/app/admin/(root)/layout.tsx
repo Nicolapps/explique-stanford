@@ -6,6 +6,7 @@ import {
   TableCellsIcon,
   PuzzlePieceIcon,
   TagIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Link from "next/link";
@@ -57,6 +58,10 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
         <NavLink href="/admin/groups">
           <TagIcon />
           Groups
+        </NavLink>
+        <NavLink href="/admin/users">
+          <UserIcon />
+          Users
         </NavLink>
       </nav>
       <div className="max-w-6xl md:flex-1">{children}</div>
