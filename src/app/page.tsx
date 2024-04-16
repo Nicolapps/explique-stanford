@@ -14,12 +14,12 @@ import {
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { useQuery } from "@/usingSession";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
 import Title from "@/components/typography";
-import { SessionProvider, useIdentity } from "@/components/SessionProvider";
+import { useIdentity } from "@/components/SessionProvider";
 function ExerciseLink({
   exercise,
 }: {
@@ -134,7 +134,7 @@ export default function Home() {
   const user = useQuery(api.auth.get, {});
 
   return (
-    <div className="bg-slate-100 h-full p-10 flex justify-center">
+    <div className="bg-slate-100 h-full p-6 sm:p-10 flex justify-center">
       {user && <ResearchConsent />}
 
       <div className="max-w-6xl flex-1">

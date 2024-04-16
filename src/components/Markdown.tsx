@@ -13,7 +13,7 @@ export default function Markdown({
 }) {
   return (
     <SrcMarkdown
-      className={clsx("prose", className)}
+      className={clsx("prose prose-sm sm:prose-base", className)}
       remarkPlugins={[remarkMath]}
       rehypePlugins={[rehypeKatex]}
     >

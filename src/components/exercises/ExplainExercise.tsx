@@ -36,7 +36,7 @@ export default function ExplainExercise({
           <div key={message.id}>
             {message.appearance === "finished" ? (
               <div className="flex flex-col items-center gap-4">
-                <p className="text-lg font-light flex items-center justify-center gap-1">
+                <p className="sm:text-lg font-light flex items-center justify-center gap-1">
                   <CheckCircleIcon
                     className="w-6 h-6 text-purple-700"
                     aria-hidden="true"
@@ -52,7 +52,7 @@ export default function ExplainExercise({
                 {nextButton !== "hide" && (
                   <div className="flex flex-col gap-2 items-center">
                     <button
-                      className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                      className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
                       onClick={async () => {
                         await goToQuiz({ attemptId });
                       }}
@@ -67,7 +67,7 @@ export default function ExplainExercise({
             ) : message.appearance === "feedback" ? (
               <>
                 <div className="flex flex-col items-center gap-4">
-                  <p className="text-lg font-light flex items-center justify-center gap-1">
+                  <p className="sm:text-lg font-light flex items-center justify-center gap-1">
                     <CheckCircleIcon
                       className="w-6 h-6 text-purple-700"
                       aria-hidden="true"
@@ -113,7 +113,7 @@ export default function ExplainExercise({
                   {nextButton !== "hide" && message.content !== "" && (
                     <div className="flex flex-col gap-2 items-center">
                       <button
-                        className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                        className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
                         onClick={async () => {
                           await goToQuiz({ attemptId });
                         }}
@@ -136,7 +136,7 @@ export default function ExplainExercise({
               >
                 <div
                   className={clsx(
-                    "inline-block p-4 rounded-xl shadow",
+                    "inline-block p-3 sm:p-4 rounded-xl shadow",
                     message.system && "bg-white rounded-bl-none",
                     !message.system &&
                       "bg-gradient-to-b from-purple-500 to-purple-600 text-white rounded-br-none ml-auto",
@@ -168,7 +168,7 @@ export default function ExplainExercise({
                       <Markdown text={message.content} />
                     )
                   ) : (
-                    <p className="prose text-white whitespace-pre-wrap">
+                    <p className="prose prose-sm sm:prose-base text-white whitespace-pre-wrap">
                       {message.content}
                     </p>
                   )}
@@ -182,7 +182,7 @@ export default function ExplainExercise({
       {!writeDisabled && <NewMessage attemptId={attemptId} />}
 
       {nextButton === "disable" && (
-        <p className="text-lg font-light flex items-center justify-center gap-1">
+        <p className="sm:text-lg font-light flex items-center justify-center gap-1">
           <ExclamationCircleIcon
             className="w-6 h-6 text-red-600"
             aria-hidden="true"
@@ -246,7 +246,7 @@ function NewMessage({ attemptId }: { attemptId: Id<"attempts"> }) {
           ref={textareaRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full bg-transparent text-lg px-4 rounded-xl resize-none bg-white py-4 h-[60px] pr-16"
+          className="w-full bg-transparent sm:text-lg px-4 rounded-xl resize-none bg-white py-4 h-[60px] pr-16"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();

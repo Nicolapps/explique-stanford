@@ -68,7 +68,7 @@ export default function QuizExercise({
 
   return (
     <>
-      <p className="text-lg font-light flex items-center justify-center gap-1 my-8">
+      <p className="sm:text-lg font-light flex items-center justify-center gap-1 my-8">
         <InformationCircleIcon
           className="w-6 h-6 text-purple-700"
           aria-hidden="true"
@@ -101,7 +101,7 @@ export default function QuizExercise({
 
       <footer className="flex flex-col items-center my-8 gap-8">
         <button
-          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
           disabled={selectedAnswerIndexes.includes(null) || disabled}
           onClick={async () => {
             await submit({
@@ -119,7 +119,7 @@ export default function QuizExercise({
 
         {!succeeded && !isDue && timeoutSeconds !== null && (
           <div>
-            <p className="text-lg font-light flex items-center justify-center gap-1">
+            <p className="sm:text-lg font-light flex items-center justify-center gap-1">
               <ExclamationCircleIcon
                 className="w-6 h-6 text-red-600"
                 aria-hidden="true"
@@ -139,7 +139,7 @@ export default function QuizExercise({
         )}
 
         {succeeded && (
-          <p className="text-lg font-light flex items-center justify-center gap-1">
+          <p className="sm:text-lg font-light flex items-center justify-center gap-1">
             <CheckCircleIcon
               className="w-6 h-6 text-purple-700"
               aria-hidden="true"
@@ -154,7 +154,7 @@ export default function QuizExercise({
         )}
 
         {!succeeded && isDue && (
-          <p className="text-lg font-light flex items-center justify-center gap-1">
+          <p className="sm:text-lg font-light flex items-center justify-center gap-1">
             <ExclamationCircleIcon
               className="w-6 h-6 text-red-600"
               aria-hidden="true"
