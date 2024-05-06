@@ -47,11 +47,13 @@ function batchIndex(
 }
 
 export function shownQuestions(
-  quiz: { batches: { randomize?: boolean; questions: Question[] }[] },
+  quiz: { batches: { randomize?: boolean; questions: Question[] }[] } | null,
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
   assignment: Doc<"groupAssignments"> | null,
 ): Question[] {
+  if (quiz === null) return [];
+
   if (quiz.batches.length === 0) throw new ConvexError("No quiz batches");
 
   const batch =

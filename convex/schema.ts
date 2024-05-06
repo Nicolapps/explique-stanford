@@ -14,24 +14,27 @@ export const exerciseAdminSchema = {
   ),
   weekId: v.id("weeks"),
   text: v.string(),
-  quiz: v.object({
-    batches: v.array(
-      v.object({
-        randomize: v.optional(v.boolean()),
-        questions: v.array(
-          v.object({
-            question: v.string(),
-            answers: v.array(
-              v.object({
-                text: v.string(),
-                correct: v.boolean(),
-              }),
-            ),
-          }),
-        ),
-      }),
-    ),
-  }),
+  quiz: v.union(
+    v.object({
+      batches: v.array(
+        v.object({
+          randomize: v.optional(v.boolean()),
+          questions: v.array(
+            v.object({
+              question: v.string(),
+              answers: v.array(
+                v.object({
+                  text: v.string(),
+                  correct: v.boolean(),
+                }),
+              ),
+            }),
+          ),
+        }),
+      ),
+    }),
+    v.null(),
+  ),
   firstMessage: v.optional(v.string()),
   controlGroup: v.union(
     v.literal("A"),

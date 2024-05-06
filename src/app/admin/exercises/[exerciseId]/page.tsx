@@ -41,15 +41,24 @@ export default function EditExercise() {
               text: exercise.text,
               feedback: exercise.feedback ?? null,
 
-              quizBatches: exercise.quiz.batches.map((batch) => ({
-                questions: batch.questions.map(({ question, answers }) => ({
-                  question,
-                  answers: answers.map((a) => a.text),
-                  correctAnswerIndex: answers.findIndex((a) => a.correct),
-                })),
-                randomize:
-                  typeof batch.randomize === "boolean" ? batch.randomize : true,
-              })),
+              quizBatches:
+                exercise.quiz === null
+                  ? null
+                  : exercise.quiz.batches.map((batch) => ({
+                      questions: batch.questions.map(
+                        ({ question, answers }) => ({
+                          question,
+                          answers: answers.map((a) => a.text),
+                          correctAnswerIndex: answers.findIndex(
+                            (a) => a.correct,
+                          ),
+                        }),
+                      ),
+                      randomize:
+                        typeof batch.randomize === "boolean"
+                          ? batch.randomize
+                          : true,
+                    })),
 
               firstMessage: exercise.firstMessage ?? "",
               controlGroup: exercise.controlGroup,

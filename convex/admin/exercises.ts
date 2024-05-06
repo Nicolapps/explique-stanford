@@ -148,7 +148,7 @@ export const update = actionWithAuth({
   },
 });
 
-type Quiz = {
+type Quiz = null | {
   batches: {
     questions: {
       answers: {
@@ -161,6 +161,7 @@ type Quiz = {
 };
 
 function validateQuiz(quiz: Quiz) {
+  if (quiz === null) return;
   for (const { questions } of quiz.batches) {
     for (const question of questions) {
       if (question.answers.length < 2) {

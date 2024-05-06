@@ -34,7 +34,7 @@ export type State = {
   image?: Id<"images">;
   imagePrompt?: string;
 
-  quizBatches: Batch[];
+  quizBatches: Batch[] | null;
   feedback: {
     model: string;
     prompt: string;
@@ -420,50 +420,92 @@ export default function ExerciseForm({
 
       <section>
         <header className="flex flex-wrap justify-between items-center mt-8 mb-4 border-t py-4 border-slate-300">
-          <h2 className="text-2xl font-medium">Validation Quiz</h2>
-          <button
-            type="button"
-            className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
-            onClick={() => {
-              setQuizBatches([
-                ...quizBatches,
-                {
-                  randomize: true,
-                  questions: [
-                    {
-                      question: "Question",
-                      answers: ["Answer 1", "Answer 2", "Answer 3", "Answer 4"],
-                      correctAnswerIndex: null,
-                    },
-                  ],
-                },
-              ]);
-            }}
-          >
-            <PlusIcon className="w-5 h-5" />
-            New Batch
-          </button>
+          <label className="flex text-sm font-medium text-slate-800 items-center">
+            <input
+              type="checkbox"
+              className="w-6 h-6 mr-1"
+              checked={quizBatches !== null}
+              onChange={(e) => {
+                setQuizBatches(
+                  e.target.checked
+                    ? [
+                        {
+                          randomize: true,
+                          questions: [
+                            {
+                              question: "Question",
+                              answers: [
+                                "Answer 1",
+                                "Answer 2",
+                                "Answer 3",
+                                "Answer 4",
+                              ],
+                              correctAnswerIndex: null,
+                            },
+                          ],
+                        },
+                      ]
+                    : null,
+                );
+              }}
+            />
+            <h2 className="text-2xl font-medium">Validation Quiz</h2>
+          </label>
+
+          {quizBatches && (
+            <button
+              type="button"
+              className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
+              onClick={() => {
+                setQuizBatches([
+                  ...quizBatches,
+                  {
+                    randomize: true,
+                    questions: [
+                      {
+                        question: "Question",
+                        answers: [
+                          "Answer 1",
+                          "Answer 2",
+                          "Answer 3",
+                          "Answer 4",
+                        ],
+                        correctAnswerIndex: null,
+                      },
+                    ],
+                  },
+                ]);
+              }}
+            >
+              <PlusIcon className="w-5 h-5" />
+              New Batch
+            </button>
+          )}
         </header>
-        {quizBatches.map((batch, batchIndex) => (
-          <QuizBatch
-            key={batchIndex}
-            batch={batch}
-            batchIndex={batchIndex}
-            onChange={(newBatch) => {
-              setQuizBatches((quizBatches) =>
-                quizBatches.map((b, index) =>
-                  index === batchIndex ? newBatch : b,
-                ),
-              );
-            }}
-            canDelete={quizBatches.length > 1}
-            onDelete={() => {
-              setQuizBatches((quizBatches) =>
-                quizBatches.filter((_, index) => index !== batchIndex),
-              );
-            }}
-          />
-        ))}
+
+        {quizBatches &&
+          quizBatches.map((batch, batchIndex) => (
+            <QuizBatch
+              key={batchIndex}
+              batch={batch}
+              batchIndex={batchIndex}
+              onChange={(newBatch) => {
+                setQuizBatches((quizBatches) =>
+                  (quizBatches ?? []).map((b, index) =>
+                    index === batchIndex ? newBatch : b,
+                  ),
+                );
+              }}
+              canDelete={quizBatches.length > 1}
+              onDelete={() => {
+                setQuizBatches((quizBatches) =>
+                  (quizBatches ?? []).filter(
+                    (_, index) => index !== batchIndex,
+                  ),
+                );
+              }}
+            />
+          ))}
 
         <p className="text-slate-500 mb-6 text-sm flex-1 gap-2">
           <MarkdownTip />
@@ -602,9 +644,9 @@ function QuizQuestion({
 }) {
   const correctAnswerName = useId();
 
-// Answers shuffling disabled
-//   const chance = new Chance(`${batchNumber} ${questionNumber} example order`);
-//   const shuffledAnswers = chance.shuffle(question.answers);
+  // Answers shuffling disabled
+  //   const chance = new Chance(`${batchNumber} ${questionNumber} example order`);
+  //   const shuffledAnswers = chance.shuffle(question.answers);
 
   return (
     <div>
