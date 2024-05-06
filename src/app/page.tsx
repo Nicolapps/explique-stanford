@@ -140,7 +140,9 @@ export default function Home() {
       <div className="max-w-6xl flex-1">
         <Login />
 
-        <Title className="mt-12 sm:mt-0">Algorithms</Title>
+        <Title className="mt-12 sm:mt-0">
+          {process.env.NEXT_PUBLIC_APP_NAME ?? "Algorithms"}
+        </Title>
 
         {user && user.researchConsent ? (
           <ProjectGrid />
