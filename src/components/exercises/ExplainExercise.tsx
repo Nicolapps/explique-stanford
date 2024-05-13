@@ -12,10 +12,12 @@ import { ArrowRightIcon, SparklesIcon } from "@heroicons/react/16/solid";
 import Markdown from "../Markdown";
 
 export default function ExplainExercise({
+  hasQuiz,
   attemptId,
   writeDisabled,
   nextButton,
 }: {
+  hasQuiz: boolean;
   attemptId: Id<"attempts">;
   writeDisabled: boolean;
   nextButton: "show" | "hide" | "disable";
@@ -45,11 +47,13 @@ export default function ExplainExercise({
                     <strong className="font-medium text-purple-700">
                       Great!
                     </strong>{" "}
-                    Now, let’s go on to a quiz question.
+                    {hasQuiz
+                      ? "Now, let’s go on to a quiz question."
+                      : "You have completed this exercise."}
                   </span>
                 </p>
 
-                {nextButton !== "hide" && (
+                {nextButton !== "hide" && hasQuiz && (
                   <div className="flex flex-col gap-2 items-center">
                     <button
                       className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"

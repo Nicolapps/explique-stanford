@@ -491,16 +491,18 @@ export const markFinished = internalMutation({
     if (!attempt) {
       throw new Error("Can’t find the attempt");
     }
-    if (attempt.status === "exercise") {
-      await ctx.db.patch(attemptId, { status: "exerciseCompleted" });
-    }
-
     // Start feedback
     const exercise = await ctx.db.get(attempt.exerciseId);
     if (!exercise) {
       throw new Error(
         "Can’t find the exercise for the attempt that was just completed",
       );
+    }
+
+    if (attempt.status === "exercise") {
+      await ctx.db.patch(attemptId, {
+        status: exercise.quiz === null ? "quizCompleted" : "exerciseCompleted",
+      });
     }
 
     await ctx.db.patch(systemMessageId, {

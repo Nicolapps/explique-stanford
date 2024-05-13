@@ -59,15 +59,16 @@ export default function Page({ params }: { params: { id: string } }) {
                 />
               ) : metadata.text ? (
                 <ReadingExercise
-                  title={metadata.exerciseName}
+                  hasQuiz={metadata.hasQuiz}
                   text={metadata.text}
                   attemptId={attemptId}
                   nextButton={metadata.isDue ? "disable" : "show"}
                 />
               ) : (
                 <ExplainExercise
+                  hasQuiz={metadata.hasQuiz}
                   writeDisabled={
-                    metadata.status === "exerciseCompleted" || metadata.isDue
+                    metadata.status !== "exercise" || metadata.isDue
                   }
                   attemptId={attemptId}
                   nextButton={metadata.isDue ? "disable" : "show"}
@@ -78,29 +79,34 @@ export default function Page({ params }: { params: { id: string } }) {
               <>
                 {metadata.text ? (
                   <ReadingExercise
-                    title={metadata.exerciseName}
+                    hasQuiz={metadata.hasQuiz}
                     text={metadata.text}
                     attemptId={attemptId}
                     nextButton="hide"
                   />
                 ) : (
                   <ExplainExercise
+                    hasQuiz={metadata.hasQuiz}
                     writeDisabled
                     attemptId={attemptId}
                     nextButton="hide"
                   />
                 )}
 
-                <hr className="mx-8 my-12" />
+                {metadata.hasQuiz && (
+                  <>
+                    <hr className="mx-8 my-12" />
 
-                <QuizExercise
-                  attemptId={attemptId}
-                  title={metadata.exerciseName}
-                  questions={metadata.quiz!}
-                  lastSubmission={metadata.lastQuizSubmission}
-                  succeeded={metadata.status === "quizCompleted"}
-                  isDue={metadata.isDue}
-                />
+                    <QuizExercise
+                      attemptId={attemptId}
+                      title={metadata.exerciseName}
+                      questions={metadata.quiz!}
+                      lastSubmission={metadata.lastQuizSubmission}
+                      succeeded={metadata.status === "quizCompleted"}
+                      isDue={metadata.isDue}
+                    />
+                  </>
+                )}
               </>
             )}
           </>

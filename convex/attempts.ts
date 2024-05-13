@@ -52,9 +52,10 @@ export const get = queryWithAuth({
 
     let quiz = null;
     if (
-      attempt.status === "quiz" ||
-      attempt.status === "quizCompleted" ||
-      isSolutionShown
+      exercise.quiz !== null &&
+      (attempt.status === "quiz" ||
+        attempt.status === "quizCompleted" ||
+        isSolutionShown)
     ) {
       const { identifier } = session.user;
       const assignment =
@@ -102,6 +103,7 @@ export const get = queryWithAuth({
             timestamp: lastQuizSubmission._creationTime,
           }
         : null,
+      hasQuiz: exercise.quiz !== null,
     };
   },
 });

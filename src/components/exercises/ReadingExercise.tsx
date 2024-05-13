@@ -6,12 +6,12 @@ import { useMutation } from "@/usingSession";
 import Markdown from "../Markdown";
 
 export default function ReadingExercise({
-  title,
+  hasQuiz,
   text,
   attemptId,
   nextButton,
 }: {
-  title: string;
+  hasQuiz: boolean;
   text: string;
   attemptId: Id<"attempts">;
   nextButton: "show" | "hide" | "disable";

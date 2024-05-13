@@ -59,20 +59,23 @@ export function toConvexState(state: State) {
 
     feedback: state.feedback ?? undefined,
 
-    quiz: {
-      batches: state.quizBatches.map((batch) => ({
-        randomize: batch.randomize,
-        questions: batch.questions.map(
-          ({ question, answers, correctAnswerIndex }) => ({
-            question,
-            answers: answers.map((text, index) => ({
-              text,
-              correct: index === correctAnswerIndex,
+    quiz:
+      state.quizBatches === null
+        ? null
+        : {
+            batches: state.quizBatches.map((batch) => ({
+              randomize: batch.randomize,
+              questions: batch.questions.map(
+                ({ question, answers, correctAnswerIndex }) => ({
+                  question,
+                  answers: answers.map((text, index) => ({
+                    text,
+                    correct: index === correctAnswerIndex,
+                  })),
+                }),
+              ),
             })),
-          }),
-        ),
-      })),
-    },
+          },
 
     firstMessage: state.firstMessage,
     controlGroup: state.controlGroup,
