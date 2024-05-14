@@ -231,6 +231,7 @@ export default function ExerciseForm({
           value={model}
           onChange={setModel}
           values={[
+            "gpt-4o",
             "gpt-4",
             "gpt-4-turbo-preview",
             "gpt-4-0125-preview",
