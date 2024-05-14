@@ -8,10 +8,10 @@ import {
 import { ConvexError, v } from "convex/values";
 import OpenAI from "openai";
 import { internal } from "./_generated/api";
-import { MessageContentText } from "openai/resources/beta/threads/messages/messages";
 import { mutationWithAuth, queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
 import { Session } from "lucia";
+import { TextContentBlock } from "openai/resources/beta/threads/messages";
 
 export const COMPLETION_VALID_MODELS = [
   "gpt-4-1106-preview",
@@ -355,7 +355,7 @@ export const checkAnswerAssistantsApi = internalAction({
 
         const text = newMessages
           .flatMap(({ content }) => content)
-          .filter((item): item is MessageContentText => item.type === "text")
+          .filter((item): item is TextContentBlock => item.type === "text")
           .map(({ text }) => text.value)
           .join("\n\n");
         await runMutation(internal.chat.writeSystemResponse, {
