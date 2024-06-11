@@ -4,7 +4,7 @@ import { useMutation } from "@/usingSession";
 import React from "react";
 import { useRouter } from "next/navigation";
 import WeekForm from "@/components/WeekForm";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
 
 export default function NewWeek() {

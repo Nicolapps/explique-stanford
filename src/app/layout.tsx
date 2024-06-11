@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>CS-250</title>
+        <title>Explique</title>
       </head>
       <body className="bg-slate-100 antialiased">
         <SessionProvider>

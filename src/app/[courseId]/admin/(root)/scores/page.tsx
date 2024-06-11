@@ -1,8 +1,8 @@
 "use client";
 
 import Title from "@/components/typography";
-import { api } from "../../../../../convex/_generated/api";
-import { Id } from "../../../../../convex/_generated/dataModel";
+import { api } from "../../../../../../convex/_generated/api";
+import { Id } from "../../../../../../convex/_generated/dataModel";
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import { CheckIcon } from "@heroicons/react/16/solid";

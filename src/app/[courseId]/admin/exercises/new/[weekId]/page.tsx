@@ -4,8 +4,8 @@ import { useAction } from "@/usingSession";
 import { useParams, useRouter } from "next/navigation";
 
 import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
-import { Id } from "../../../../../../convex/_generated/dataModel";
-import { api } from "../../../../../../convex/_generated/api";
+import { Id } from "../../../../../../../convex/_generated/dataModel";
+import { api } from "../../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
 import { toast } from "sonner";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "../../convex/_generated/api";
+import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
 import { ResearchConsent } from "@/components/ResearchConsent";
 import {
@@ -15,11 +15,13 @@ import {
 import clsx from "clsx";
 import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
 import Title from "@/components/typography";
 import { useIdentity } from "@/components/SessionProvider";
+import { useCourseId } from "@/hooks/useCourseId";
+
 function ExerciseLink({
   exercise,
 }: {
@@ -101,6 +103,8 @@ function Login() {
   const user = useQuery(api.auth.get, {});
   const identity = useIdentity();
 
+  const courseId = useCourseId();
+
   useEffect(() => {
     if (user === null) {
       router.push("/login");
@@ -120,7 +124,7 @@ function Login() {
       </div>
       {user.isAdmin && (
         <Link
-          href="/admin"
+          href={`/${courseId}/admin`}
           className="font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200"
         >
           Admin

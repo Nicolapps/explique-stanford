@@ -4,7 +4,7 @@ import { Textarea } from "@/components/Input";
 import Title from "@/components/typography";
 import { useMutation, useQuery } from "@/usingSession";
 import { useState } from "react";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
 
 export default function ResearchConsentPage() {

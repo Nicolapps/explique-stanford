@@ -4,8 +4,8 @@ import { useMutation, useQuery } from "@/usingSession";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import WeekForm from "@/components/WeekForm";
-import { api } from "../../../../../convex/_generated/api";
-import { Id } from "../../../../../convex/_generated/dataModel";
+import { api } from "../../../../../../convex/_generated/api";
+import { Id } from "../../../../../../convex/_generated/dataModel";
 import { toDatetimeLocalString } from "@/util/date";
 import Title from "@/components/typography";
 

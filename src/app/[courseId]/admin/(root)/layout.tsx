@@ -1,5 +1,6 @@
 "use client";
 
+import { useCourseId } from "@/hooks/useCourseId";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import {
   DocumentCheckIcon,
@@ -10,7 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 function NavLink({ href, children }: { href: string; children: ReactNode }) {
@@ -33,6 +34,8 @@ function NavLink({ href, children }: { href: string; children: ReactNode }) {
 }
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
+  const courseId = useCourseId();
+
   return (
     <div className="bg-slate-100 h-full flex flex-col md:flex-row md:justify-center p-6 sm:p-10 gap-10">
       <nav className="md:w-48 flex flex-col gap-2">
@@ -43,23 +46,23 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
           <ChevronLeftIcon className="w-5 h-5" /> Back to the app
         </Link>
 
-        <NavLink href="/admin">
+        <NavLink href={`/${courseId}/admin`}>
           <PuzzlePieceIcon />
           Exercises
         </NavLink>
-        <NavLink href="/admin/scores">
+        <NavLink href={`/${courseId}/admin/scores`}>
           <TableCellsIcon />
           Scores
         </NavLink>
-        <NavLink href="/admin/researchConsent">
+        <NavLink href={`/${courseId}/admin/researchConsent`}>
           <DocumentCheckIcon />
           Consent
         </NavLink>
-        <NavLink href="/admin/groups">
+        <NavLink href={`/${courseId}/admin/groups`}>
           <TagIcon />
           Groups
         </NavLink>
-        <NavLink href="/admin/users">
+        <NavLink href={`/${courseId}/admin/users`}>
           <UserIcon />
           Users
         </NavLink>

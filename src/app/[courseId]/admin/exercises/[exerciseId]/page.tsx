@@ -3,16 +3,18 @@
 import { useAction, useQuery } from "@/usingSession";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { api } from "../../../../../convex/_generated/api";
-import { Id } from "../../../../../convex/_generated/dataModel";
+import { api } from "../../../../../../convex/_generated/api";
+import { Id } from "../../../../../../convex/_generated/dataModel";
 import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
 import Title from "@/components/typography";
 import { toast } from "sonner";
+import { useCourseId } from "@/hooks/useCourseId";
 
 export default function EditExercise() {
   const router = useRouter();
   const params = useParams();
   const update = useAction(api.admin.exercises.update);
+  const courseId = useCourseId();
 
   const exercise = useQuery(api.admin.exercises.get, {
     id: params.exerciseId as Id<"exercises">,
@@ -68,6 +70,7 @@ export default function EditExercise() {
             onSubmit={async (state) => {
               await update({
                 id: exercise._id,
+                courseId,
                 ...toConvexState(state),
               });
               toast.success("Exercise updated successfully.");

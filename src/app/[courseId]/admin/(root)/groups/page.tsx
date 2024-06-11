@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@/usingSession";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
 import { Identities, useIdentities } from "@/hooks/useIdentities";
 
