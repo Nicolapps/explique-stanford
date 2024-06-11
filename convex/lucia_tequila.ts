@@ -85,16 +85,7 @@ export async function getOrCreateUser(
   const existingUser = await getExistingUser(identifier, db);
   if (existingUser) return existingUser;
 
-  const existingAssignment = await db
-    .query("groupAssignments")
-    .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
-    .first();
-  const group = existingAssignment
-    ? existingAssignment.group
-    : Math.random() > 0.5
-      ? "A"
-      : "B";
-  const researchConsent = existingAssignment?.researchConsent ?? false;
+  const group = "A"; // @TODO Remove
 
   const user = await createUser(identifier, db, {
     identifier,
@@ -102,7 +93,6 @@ export async function getOrCreateUser(
     email: null,
     group,
     isAdmin: false,
-    researchConsent: researchConsent ? true : undefined,
     completedExercises: [],
 
     // These will be filled out by Convex

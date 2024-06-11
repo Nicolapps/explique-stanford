@@ -20,19 +20,18 @@ function indexes(count: number) {
 function batchIndex(
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
-  assignment: Doc<"groupAssignments"> | null,
+  registration: Doc<"registrations">,
   batchesCount: number,
 ) {
-  // Not an imported student? Assign a random batch based on the user ID
-  if (assignment === null) {
+  // Not group assignment? Assign a random batch based on the user ID
+  if (!registration.researchGroup) {
     const chanceBatch = new Chance(`${userId} ${exerciseId} batch`);
     return chanceBatch.integer({ min: 0, max: batchesCount - 1 });
   }
 
-  if (
-    assignment.positionInGroup === undefined ||
-    assignment.groupLength === undefined
-  ) {
+  const assignment = registration.researchGroup;
+
+  if (assignment.position === undefined || assignment.length === undefined) {
     console.warn("Invalid group assignment, please run assignNumbers");
 
     const chanceBatch = new Chance(`${userId} ${exerciseId} batch`);
@@ -40,17 +39,17 @@ function batchIndex(
   }
 
   // Split the group evenly between the batches
-  const chanceBatch = new Chance(`${exerciseId} ${assignment.group} batch`);
-  const numbers = chanceBatch.shuffle(indexes(assignment.groupLength));
+  const chanceBatch = new Chance(`${exerciseId} ${assignment.id} batch`);
+  const numbers = chanceBatch.shuffle(indexes(assignment.length));
 
-  return numbers.indexOf(assignment.positionInGroup) % batchesCount;
+  return numbers.indexOf(assignment.position) % batchesCount;
 }
 
 export function shownQuestions(
   quiz: { batches: { randomize?: boolean; questions: Question[] }[] } | null,
   userId: Id<"users">,
   exerciseId: Id<"exercises">,
-  assignment: Doc<"groupAssignments"> | null,
+  registration: Doc<"registrations">,
 ): Question[] {
   if (quiz === null) return [];
 
@@ -58,7 +57,7 @@ export function shownQuestions(
 
   const batch =
     quiz.batches[
-      batchIndex(userId, exerciseId, assignment, quiz.batches.length)
+      batchIndex(userId, exerciseId, registration, quiz.batches.length)
     ];
 
   if (batch.randomize === false) return batch.questions;
@@ -81,31 +80,35 @@ export const submit = mutationWithAuth({
     const attempt = await db.get(attemptId);
     if (attempt === null) throw new ConvexError("Unknown attempt");
 
-    if (attempt.userId !== session.user._id && !session.user.isAdmin) {
+    const exercise = await db.get(attempt.exerciseId);
+    if (exercise === null) throw new Error("No exercise");
+
+    const week = await db.get(exercise.weekId);
+    if (week === null) throw new Error("No week");
+
+    const registration = await db
+      .query("registrations")
+      .withIndex("by_user_and_course", (q) =>
+        q.eq("userId", session.user._id).eq("courseId", week.courseId),
+      )
+      .first();
+    if (!registration) throw new Error("User not enrolled in the course.");
+
+    if (attempt.userId !== session.user._id && registration.role !== "admin") {
       throw new Error("Attempt from someone else");
     }
 
-    const exercise = await db.get(attempt.exerciseId);
-    if (exercise === null) throw new Error("No exercise");
     await validateDueDate(db, exercise, session.user);
 
     if (attempt.status !== "quiz") {
       throw new ConvexError("Incorrect status " + attempt.status);
     }
 
-    const { identifier } = session.user;
-    const assignment = identifier
-      ? await db
-          .query("groupAssignments")
-          .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
-          .first()
-      : null;
-
     const questions = shownQuestions(
       exercise.quiz,
       attempt.userId,
       attempt.exerciseId,
-      assignment,
+      registration,
     );
     const correctAnswers = questions.map((q, questionIndex) => {
       const chanceAnswersOrder = new Chance(

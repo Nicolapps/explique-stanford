@@ -30,6 +30,17 @@ export const get = queryWithAuth({
     const week = await db.get(exercise.weekId);
     if (week === null) throw new Error("No week");
 
+    const course = await db.get(week.courseId);
+    if (course === null) throw new Error("No course");
+
+    const registration = await db
+      .query("registrations")
+      .withIndex("by_user_and_course", (q) =>
+        q.eq("userId", session.user._id).eq("courseId", course._id),
+      )
+      .first();
+    if (!registration) throw new Error("User not enrolled in the course.");
+
     const now = Date.now();
     if (
       week.startDate > now &&
@@ -58,19 +69,12 @@ export const get = queryWithAuth({
         isSolutionShown)
     ) {
       const { identifier } = session.user;
-      const assignment =
-        identifier !== undefined
-          ? await db
-              .query("groupAssignments")
-              .withIndex("byIdentifier", (q) => q.eq("identifier", identifier))
-              .first()
-          : null;
 
       quiz = shownQuestions(
         exercise.quiz,
         attempt.userId,
         attempt.exerciseId,
-        assignment,
+        registration,
       ).map((question, questionIndex) =>
         toUserVisibleQuestion(
           question,
