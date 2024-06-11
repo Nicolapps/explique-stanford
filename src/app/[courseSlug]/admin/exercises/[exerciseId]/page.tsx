@@ -70,7 +70,6 @@ export default function EditExercise() {
             onSubmit={async (state) => {
               await update({
                 id: exercise._id,
-                courseId,
                 ...toConvexState(state),
               });
               toast.success("Exercise updated successfully.");

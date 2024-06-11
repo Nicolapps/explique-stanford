@@ -2,7 +2,6 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export const exerciseAdminSchema = {
-  courseId: v.id("courses"),
   name: v.string(),
   instructions: v.string(), // instructions for the chatbot in the explanation part
   model: v.string(), // OpenAI model used for the chatbot

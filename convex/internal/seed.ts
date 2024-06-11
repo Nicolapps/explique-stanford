@@ -18,7 +18,6 @@ export default internalMutation(async ({ db, scheduler }) => {
   });
 
   scheduler.runAfter(0, internal.admin.exercises.createInternal, {
-    courseId,
     weekId,
     name: "Prototyping",
     instructions:

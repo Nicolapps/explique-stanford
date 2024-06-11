@@ -78,8 +78,11 @@ export const updateRow = internalMutation({
       throw new ConvexError("Exercise not found");
     }
 
-    if (existing.courseId !== row.courseId) {
-      throw new ConvexError("Course cannot be changed");
+    // Verify that the exercise stays in the same course
+    const oldWeek = await db.get(existing.weekId);
+    const newWeek = await db.get(row.weekId);
+    if (!oldWeek || !newWeek || newWeek.courseId !== oldWeek.courseId) {
+      throw new ConvexError("The course of an exercise cannot be changed");
     }
 
     return await db.replace(id, row);
