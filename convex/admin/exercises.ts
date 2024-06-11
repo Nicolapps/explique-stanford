@@ -59,6 +59,16 @@ export const updateRow = internalMutation({
     }),
   },
   handler: async ({ db }, { id, row }) => {
+    // Verify that the course isn’t changed
+    const existing = await db.get(id);
+    if (!existing) {
+      throw new ConvexError("Exercise not found");
+    }
+
+    if (existing.courseId !== row.courseId) {
+      throw new ConvexError("Course cannot be changed");
+    }
+
     return await db.replace(id, row);
   },
 });
