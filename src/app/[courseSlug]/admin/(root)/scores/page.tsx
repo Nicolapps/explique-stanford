@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { useConvex } from "convex/react";
 import { useSessionId } from "@/components/SessionProvider";
 import { useIdentities } from "@/hooks/useIdentities";
-import { useCourseId } from "@/hooks/useCourseId";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 type ScoresQueryResult = {
   weeks: {
@@ -36,7 +36,7 @@ export default function ScoresPage() {
   const convex = useConvex();
   const sessionId = useSessionId();
   const identites = useIdentities();
-  const courseId = useCourseId();
+  const courseSlug = useCourseSlug();
 
   const [data, setData] = useState<ScoresQueryResult | undefined>(undefined);
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function ScoresPage() {
     (async () => {
       const data = await convex.query(api.admin.scores.default, {
         sessionId,
-        courseId,
+        courseSlug,
       });
       setData({
         ...data,
@@ -63,7 +63,7 @@ export default function ScoresPage() {
           .sort((a, b) => a.shownEmail.localeCompare(b.shownEmail)),
       });
     })();
-  }, [data, convex, sessionId, identites, courseId]);
+  }, [data, convex, sessionId, identites, courseSlug]);
 
   return (
     <>

@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation";
 import WeekForm from "@/components/WeekForm";
 import { api } from "../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
-import { useCourseId } from "@/hooks/useCourseId";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function NewWeek() {
   const router = useRouter();
   const create = useMutation(api.admin.weeks.create);
-  const courseId = useCourseId();
+  const courseSlug = useCourseSlug();
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
@@ -20,7 +20,7 @@ export default function NewWeek() {
 
         <WeekForm
           onSubmit={async (state) => {
-            await create({ courseId, ...state });
+            await create({ courseSlug, ...state });
             router.push("/admin");
           }}
           initialState={{

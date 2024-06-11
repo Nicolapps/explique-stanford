@@ -20,7 +20,7 @@ import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
 import Title from "@/components/typography";
 import { useIdentity } from "@/components/SessionProvider";
-import { useCourseId } from "@/hooks/useCourseId";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 function ExerciseLink({
   exercise,
@@ -103,7 +103,7 @@ function Login() {
   const user = useQuery(api.auth.get, {});
   const identity = useIdentity();
 
-  const courseId = useCourseId();
+  const courseSlug = useCourseSlug();
 
   useEffect(() => {
     if (user === null) {
@@ -124,7 +124,7 @@ function Login() {
       </div>
       {user.isAdmin && (
         <Link
-          href={`/${courseId}/admin`}
+          href={`/${courseSlug}/admin`}
           className="font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200"
         >
           Admin
@@ -161,8 +161,8 @@ export default function Home() {
 }
 
 function ProjectGrid() {
-  const courseId = useCourseId();
-  const weeks = useQuery(api.exercises.list, { courseId });
+  const courseSlug = useCourseSlug();
+  const weeks = useQuery(api.exercises.list, { courseSlug });
 
   if (!weeks) {
     return <ProjectGridSkeleton />;

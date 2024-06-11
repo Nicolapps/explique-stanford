@@ -8,13 +8,13 @@ import { Id } from "../../../../../../../convex/_generated/dataModel";
 import { api } from "../../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
 import { toast } from "sonner";
-import { useCourseId } from "@/hooks/useCourseId";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function NewExercise() {
   const router = useRouter();
   const params = useParams();
   const initialWeekId = params.weekId as Id<"weeks">;
-  const courseId = useCourseId();
+  const courseSlug = useCourseSlug();
 
   const create = useAction(api.admin.exercises.create);
 
@@ -56,7 +56,7 @@ export default function NewExercise() {
               "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
           }}
           onSubmit={async (state) => {
-            await create({ courseId, ...toConvexState(state) });
+            await create({ courseSlug, ...toConvexState(state) });
             toast.success("Exercise created successfully.");
             router.push("/admin");
           }}

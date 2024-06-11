@@ -1,6 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "./withAuth";
 import { internalQuery } from "./_generated/server";
+import { getCourseRegistration } from "./courses";
 
 export const getRow = internalQuery({
   args: {
@@ -34,10 +35,11 @@ export const getLastAttempt = queryWithAuth({
 
 export const list = queryWithAuth({
   args: {
-    courseId: v.id("courses"),
+    courseSlug: v.string(),
   },
-  handler: async ({ db, session, storage }, { courseId }) => {
+  handler: async ({ db, session, storage }, { courseSlug }) => {
     if (!session) throw new ConvexError("Not logged in");
+    const { course } = await getCourseRegistration(db, session, courseSlug);
 
     const { user } = session;
 
@@ -46,7 +48,7 @@ export const list = queryWithAuth({
       .query("weeks")
       .withIndex("by_course_and_start_date", (q) =>
         q
-          .eq("courseId", courseId)
+          .eq("courseId", course._id)
           .lte(
             "startDate",
             user.earlyAccess || user.isAdmin ? Number.MAX_VALUE : now,

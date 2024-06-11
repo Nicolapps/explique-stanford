@@ -1,20 +1,26 @@
 import { v } from "convex/values";
 import { queryWithAuth } from "../withAuth";
 import { validateAdminSession } from "./exercises";
+import { getCourseRegistration } from "../courses";
 
 export default queryWithAuth({
   args: {
-    courseId: v.id("courses"),
+    courseSlug: v.string(),
   },
-  handler: async ({ db, session }, { courseId }) => {
-    validateAdminSession(session);
+  handler: async ({ db, session }, { courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
 
     const exercises = await db.query("exercises").collect();
     const weeks = (
       await db
         .query("weeks")
         .withIndex("by_course_and_start_date", (q) =>
-          q.eq("courseId", courseId),
+          q.eq("courseId", course._id),
         )
         .collect()
     ).map((week) => ({

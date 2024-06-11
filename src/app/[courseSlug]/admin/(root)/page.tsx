@@ -5,12 +5,12 @@ import Link from "next/link";
 import { formatTimestampHumanFormat } from "@/util/date";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { api } from "../../../../../convex/_generated/api";
-import { useCourseId } from "@/hooks/useCourseId";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function Admin() {
-  const courseId = useCourseId();
+  const courseSlug = useCourseSlug();
   const weeks = useQuery(api.admin.exercises.list, {
-    courseId,
+    courseSlug,
   });
 
   return (

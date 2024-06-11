@@ -6,6 +6,7 @@ import { exerciseAdminSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
 import { COMPLETION_VALID_MODELS } from "../chat";
+import { getCourseRegistration } from "../courses";
 
 export function validateAdminSession(session: Session | null) {
   if (!session) throw new ConvexError("Not logged in");
@@ -30,14 +31,21 @@ export const get = queryWithAuth({
 
 export const list = queryWithAuth({
   args: {
-    courseId: v.id("courses"),
+    courseSlug: v.string(),
   },
-  handler: async ({ db, session }, { courseId }) => {
-    validateAdminSession(session);
+  handler: async ({ db, session }, { courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
 
     const weeks = await db
       .query("weeks")
-      .withIndex("by_course_and_start_date", (q) => q.eq("courseId", courseId))
+      .withIndex("by_course_and_start_date", (q) =>
+        q.eq("courseId", course._id),
+      )
       .collect();
     const exercises = await db.query("exercises").collect();
 

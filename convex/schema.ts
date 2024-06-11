@@ -145,6 +145,28 @@ export default defineSchema(
       .index("byIdentifier", ["identifier"])
       .index("byGroup", ["group"]),
 
+    registrations: defineTable({
+      userId: v.id("users"),
+      courseId: v.id("courses"),
+      role: v.union(
+        // Can manage the course
+        v.literal("admin"),
+        // Can see exercises before they are released
+        v.literal("ta"),
+        v.null(),
+      ),
+      completedExercises: v.array(v.id("exercises")),
+      researchGroup: v.optional(
+        v.object({
+          id: v.union(v.literal("A"), v.literal("B")), // ✅
+          position: v.optional(v.number()), // ✅
+          length: v.optional(v.number()), // ✅
+        }),
+      ),
+    })
+      .index("by_user", ["userId"])
+      .index("by_user_and_course", ["userId", "courseId"]),
+
     // Lucia
     users: defineTable({
       id: v.string(), // Lucia ID

@@ -4,6 +4,7 @@ import { validateAdminSession } from "./exercises";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx } from "../_generated/server";
 import { internal } from "../_generated/api";
+import { getCourseRegistration } from "../courses";
 
 export const list = queryWithAuth({
   args: {},
@@ -48,20 +49,25 @@ export const create = mutationWithAuth({
     startDate: v.number(),
     endDate: v.number(),
     endDateExtraTime: v.number(),
-    courseId: v.id("courses"),
+    courseSlug: v.string(),
   },
   handler: async (
     ctx,
-    { name, startDate, endDate, endDateExtraTime, courseId },
+    { name, startDate, endDate, endDateExtraTime, courseSlug },
   ) => {
-    validateAdminSession(ctx.session);
+    const { course } = await getCourseRegistration(
+      ctx.db,
+      ctx.session,
+      courseSlug,
+      "admin",
+    );
 
     const weekId = await ctx.db.insert("weeks", {
       name,
       startDate,
       endDate,
       endDateExtraTime,
-      courseId,
+      courseId: course._id,
     });
     await scheduleWeekChangesInvalidation(ctx, weekId);
   },

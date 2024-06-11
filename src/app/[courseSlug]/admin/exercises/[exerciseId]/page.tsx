@@ -8,13 +8,13 @@ import { Id } from "../../../../../../convex/_generated/dataModel";
 import ExerciseForm, { toConvexState } from "@/components/ExerciseForm";
 import Title from "@/components/typography";
 import { toast } from "sonner";
-import { useCourseId } from "@/hooks/useCourseId";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function EditExercise() {
   const router = useRouter();
   const params = useParams();
   const update = useAction(api.admin.exercises.update);
-  const courseId = useCourseId();
+  const courseId = useCourseSlug();
 
   const exercise = useQuery(api.admin.exercises.get, {
     id: params.exerciseId as Id<"exercises">,
