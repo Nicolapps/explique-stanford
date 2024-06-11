@@ -29,11 +29,16 @@ export const get = queryWithAuth({
 });
 
 export const list = queryWithAuth({
-  args: {},
-  handler: async ({ db, session }) => {
+  args: {
+    courseId: v.id("courses"),
+  },
+  handler: async ({ db, session }, { courseId }) => {
     validateAdminSession(session);
 
-    const weeks = await db.query("weeks").withIndex("startDate").collect();
+    const weeks = await db
+      .query("weeks")
+      .withIndex("by_course_and_start_date", (q) => q.eq("courseId", courseId))
+      .collect();
     const exercises = await db.query("exercises").collect();
 
     return weeks.map((week) => ({

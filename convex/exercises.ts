@@ -33,8 +33,10 @@ export const getLastAttempt = queryWithAuth({
 });
 
 export const list = queryWithAuth({
-  args: {},
-  handler: async ({ db, session, storage }, {}) => {
+  args: {
+    courseId: v.id("courses"),
+  },
+  handler: async ({ db, session, storage }, { courseId }) => {
     if (!session) throw new ConvexError("Not logged in");
 
     const { user } = session;
@@ -42,11 +44,13 @@ export const list = queryWithAuth({
     const now = +new Date();
     const weeks = await db
       .query("weeks")
-      .withIndex(
-        "startDate",
-        user.earlyAccess || user.isAdmin
-          ? undefined
-          : (x) => x.lte("startDate", now),
+      .withIndex("by_course_and_start_date", (q) =>
+        q
+          .eq("courseId", courseId)
+          .lte(
+            "startDate",
+            user.earlyAccess || user.isAdmin ? Number.MAX_VALUE : now,
+          ),
       )
       .order("desc")
       .collect();

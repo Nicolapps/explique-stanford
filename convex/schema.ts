@@ -82,9 +82,7 @@ export default defineSchema(
       // Overwrite this value to ensure that queries depending on start/end dates
       // are invalidated.
       cacheInvalidation: v.optional(v.number()),
-    })
-      .index("startDate", ["startDate"])
-      .index("by_course_and_start_date", ["courseId", "startDate"]),
+    }).index("by_course_and_start_date", ["courseId", "startDate"]),
     exercises: defineTable({
       ...exerciseAdminSchema,
       assistantId: v.string(),

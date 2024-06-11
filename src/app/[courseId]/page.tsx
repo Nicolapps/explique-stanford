@@ -161,7 +161,8 @@ export default function Home() {
 }
 
 function ProjectGrid() {
-  const weeks = useQuery(api.exercises.list, {});
+  const courseId = useCourseId();
+  const weeks = useQuery(api.exercises.list, { courseId });
 
   if (!weeks) {
     return <ProjectGridSkeleton />;
