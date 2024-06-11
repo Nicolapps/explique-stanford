@@ -4,17 +4,18 @@ import { v } from "convex/values";
 export const exerciseAdminSchema = {
   courseId: v.id("courses"),
   name: v.string(),
-  instructions: v.string(),
-  model: v.string(),
-  chatCompletionsApi: v.optional(v.literal(true)),
+  instructions: v.string(), // instructions for the chatbot in the explanation part
+  model: v.string(), // OpenAI model used for the chatbot
+  chatCompletionsApi: v.optional(v.literal(true)), // whether to use the chat completions API instead of the assistants API
   feedback: v.optional(
+    // whether to provide some feedback after the explanation
     v.object({
-      model: v.string(),
-      prompt: v.string(),
+      model: v.string(), // the OpenAI model used for the feedback
+      prompt: v.string(), // the system prompt of the feedback part
     }),
   ),
   weekId: v.id("weeks"),
-  text: v.string(),
+  text: v.string(), // the text the users need to read for the reading exercise
   quiz: v.union(
     v.object({
       batches: v.array(

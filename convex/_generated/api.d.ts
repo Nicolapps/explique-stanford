@@ -26,6 +26,7 @@ import type * as auth from "../auth.js";
 import type * as authDbWriter from "../authDbWriter.js";
 import type * as chat from "../chat.js";
 import type * as exercises from "../exercises.js";
+import type * as internal_seed from "../internal/seed.js";
 import type * as lucia from "../lucia.js";
 import type * as lucia_epfl from "../lucia_epfl.js";
 import type * as lucia_tequila from "../lucia_tequila.js";
@@ -55,6 +56,7 @@ declare const fullApi: ApiFromModules<{
   authDbWriter: typeof authDbWriter;
   chat: typeof chat;
   exercises: typeof exercises;
+  "internal/seed": typeof internal_seed;
   lucia: typeof lucia;
   lucia_epfl: typeof lucia_epfl;
   lucia_tequila: typeof lucia_tequila;

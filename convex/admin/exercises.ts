@@ -1,5 +1,5 @@
 import { ConvexError, v } from "convex/values";
-import { internalMutation } from "../_generated/server";
+import { internalAction, internalMutation } from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
 import { exerciseAdminSchema } from "../schema";
@@ -100,10 +100,9 @@ async function createAssistant(
   });
 }
 
-export const create = actionWithAuth({
+export const createInternal = internalAction({
   args: exerciseAdminSchema,
-  handler: async ({ runMutation, session }, row) => {
-    validateAdminSession(session);
+  handler: async ({ runMutation }, row) => {
     validateQuiz(row.quiz);
     if (
       row.chatCompletionsApi &&
@@ -127,6 +126,17 @@ export const create = actionWithAuth({
   },
 });
 
+export const create = actionWithAuth({
+  args: exerciseAdminSchema,
+  handler: async ({ runAction, session }, row) => {
+    validateAdminSession(session);
+
+    // @TODO Validate the week ID
+
+    runAction(internal.admin.exercises.createInternal, row);
+  },
+});
+
 export const update = actionWithAuth({
   args: {
     id: v.id("exercises"),
@@ -135,6 +145,9 @@ export const update = actionWithAuth({
   handler: async ({ runMutation, session }, { id, ...row }) => {
     validateAdminSession(session);
     validateQuiz(row.quiz);
+
+    // @TODO Validate the week ID
+
     if (
       row.chatCompletionsApi &&
       !COMPLETION_VALID_MODELS.includes(row.model as any)
