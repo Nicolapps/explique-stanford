@@ -9,15 +9,9 @@ import OpenAI from "openai";
 import { internal } from "../_generated/api";
 import { exerciseAdminSchema } from "../schema";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
-import { Session } from "lucia";
 import { COMPLETION_VALID_MODELS } from "../chat";
 import { getCourseRegistration } from "../courses";
 import { Id } from "../_generated/dataModel";
-
-export function validateAdminSession(session: Session | null) {
-  if (!session) throw new ConvexError("Not logged in");
-  if (!session.user.isAdmin) throw new ConvexError("Forbidden");
-}
 
 export const get = queryWithAuth({
   args: {
