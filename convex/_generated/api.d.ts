@@ -32,7 +32,6 @@ import type * as lucia from "../lucia.js";
 import type * as lucia_epfl from "../lucia_epfl.js";
 import type * as lucia_tequila from "../lucia_tequila.js";
 import type * as quiz from "../quiz.js";
-import type * as researchConsent from "../researchConsent.js";
 import type * as weeks from "../weeks.js";
 import type * as withAuth from "../withAuth.js";
 
@@ -63,7 +62,6 @@ declare const fullApi: ApiFromModules<{
   lucia_epfl: typeof lucia_epfl;
   lucia_tequila: typeof lucia_tequila;
   quiz: typeof quiz;
-  researchConsent: typeof researchConsent;
   weeks: typeof weeks;
   withAuth: typeof withAuth;
 }>;

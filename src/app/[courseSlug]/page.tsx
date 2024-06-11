@@ -139,8 +139,6 @@ export default function Home() {
 
   return (
     <div className="bg-slate-100 h-full p-6 sm:p-10 flex justify-center">
-      {user && <ResearchConsent />}
-
       <div className="max-w-6xl flex-1">
         <Login />
 
