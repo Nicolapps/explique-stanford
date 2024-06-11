@@ -4,9 +4,11 @@ import { useQuery } from "@/usingSession";
 import { api } from "../../../../../../convex/_generated/api";
 import Title from "@/components/typography";
 import { Identities, useIdentities } from "@/hooks/useIdentities";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function GroupsPage() {
-  const stats = useQuery(api.admin.groupAssignment.stats, {});
+  const courseSlug = useCourseSlug();
+  const stats = useQuery(api.admin.groupAssignment.stats, { courseSlug });
   const identities = useIdentities();
 
   return (

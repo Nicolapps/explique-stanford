@@ -1,22 +1,37 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { actionWithAuth, queryWithAuth } from "../withAuth";
-import { validateAdminSession } from "./exercises";
+import { validateExerciseInCourse } from "./exercises";
 import OpenAI from "openai";
-import {
-  internalAction,
-  internalMutation,
-  internalQuery,
-} from "../_generated/server";
+import { internalMutation } from "../_generated/server";
 import { StorageActionWriter } from "convex/server";
 import { Id } from "../_generated/dataModel";
 import { internal } from "../_generated/api";
+import { getCourseRegistration } from "../courses";
 
 export const list = queryWithAuth({
   args: {
+    courseSlug: v.string(),
     exerciseId: v.id("exercises"),
   },
   handler: async (ctx, args) => {
-    validateAdminSession(ctx.session);
+    await getCourseRegistration(ctx.db, ctx.session, args.courseSlug, "admin");
+
+    // Verify that the exercise is in this course
+    const exercise = await ctx.db.get(args.exerciseId);
+    if (!exercise) {
+      throw new ConvexError("Exercise not found");
+    }
+    const week = await ctx.db.get(exercise.weekId);
+    if (!week) {
+      throw new Error("Week not found");
+    }
+    const course = await ctx.db.get(week.courseId);
+    if (!course) {
+      throw new Error("Course not found");
+    }
+    if (course.slug !== args.courseSlug) {
+      throw new ConvexError("Exercise not found");
+    }
 
     const images = await ctx.db
       .query("images")
@@ -55,12 +70,11 @@ export const generate = actionWithAuth({
   args: {
     prompt: v.string(),
     exerciseId: v.id("exercises"),
+    courseSlug: v.string(),
   },
-  handler: async (
-    { storage, session, runMutation },
-    { prompt, exerciseId },
-  ) => {
-    validateAdminSession(session);
+  handler: async (ctx, { prompt, exerciseId, courseSlug }) => {
+    await getCourseRegistration(ctx, ctx.session, courseSlug, "admin");
+    await validateExerciseInCourse(ctx, courseSlug, exerciseId);
 
     const model = "dall-e-3";
     const size = "1792x1024";
@@ -77,16 +91,16 @@ export const generate = actionWithAuth({
     const imageUrl = opanaiResponse.data[0].url!;
 
     const blob = await (await fetch(imageUrl)).blob();
-    const storageId = await storage.store(blob);
+    const storageId = await ctx.storage.store(blob);
 
-    const imageId: Id<"images"> = await runMutation(
+    const imageId: Id<"images"> = await ctx.runMutation(
       internal.admin.image.store,
       {
         storageId,
         thumbnails: [
-          await generateThumbnail(imageUrl, storage, "image/avif"),
-          await generateThumbnail(imageUrl, storage, "image/webp"),
-          await generateThumbnail(imageUrl, storage, "image/jpeg"),
+          await generateThumbnail(imageUrl, ctx.storage, "image/avif"),
+          await generateThumbnail(imageUrl, ctx.storage, "image/webp"),
+          await generateThumbnail(imageUrl, ctx.storage, "image/jpeg"),
         ],
         model,
         size,

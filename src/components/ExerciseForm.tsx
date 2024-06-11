@@ -15,6 +15,7 @@ import { useAction, useQuery } from "@/usingSession";
 import Chance from "chance";
 import clsx from "clsx";
 import { toast } from "sonner";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 type Question = {
   question: string;
@@ -128,7 +129,8 @@ export default function ExerciseForm({
   const [completionFunctionDescription, setCompletionFunctionDescription] =
     useState(initialState.completionFunctionDescription);
 
-  const weeks = useQuery(convexApi.admin.weeks.list, {});
+  const courseSlug = useCourseSlug();
+  const weeks = useQuery(convexApi.admin.weeks.list, { courseSlug });
 
   const [feedback, setFeedback] = useState(initialState.feedback);
 
@@ -784,7 +786,9 @@ function ThumbnailPicker({
   exerciseId: Id<"exercises">;
   name: string;
 }) {
+  const courseSlug = useCourseSlug();
   const images = useQuery(convexApi.admin.image.list, {
+    courseSlug,
     exerciseId,
   });
   const generateImage = useAction(convexApi.admin.image.generate);
@@ -856,6 +860,7 @@ function ThumbnailPicker({
               const imageId = await generateImage({
                 prompt,
                 exerciseId,
+                courseSlug,
               });
 
               setImage(imageId);

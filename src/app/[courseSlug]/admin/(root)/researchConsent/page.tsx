@@ -6,9 +6,11 @@ import { useMutation, useQuery } from "@/usingSession";
 import { useState } from "react";
 import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function ResearchConsentPage() {
-  const jwt = useQuery(api.admin.identitiesJwt.default, {});
+  const courseSlug = useCourseSlug();
+  const jwt = useQuery(api.admin.identitiesJwt.default, { courseSlug });
 
   const [emails, setEmails] = useState("");
   const submit = useMutation(api.admin.researchConsent.default);

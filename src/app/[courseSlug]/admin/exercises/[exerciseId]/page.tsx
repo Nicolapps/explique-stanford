@@ -18,6 +18,7 @@ export default function EditExercise() {
 
   const exercise = useQuery(api.admin.exercises.get, {
     id: params.exerciseId as Id<"exercises">,
+    courseSlug,
   });
 
   return (

@@ -1,12 +1,15 @@
-import { ConvexError } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "../withAuth";
-import { validateAdminSession } from "./exercises";
 import * as jsrsasign from "jsrsasign";
+import { getCourseRegistration } from "../courses";
 
 export default queryWithAuth({
-  args: {},
-  handler: async ({ session }, {}) => {
-    validateAdminSession(session);
+  args: {
+    courseSlug: v.string(),
+  },
+  handler: async ({ db, session }, { courseSlug }) => {
+    await getCourseRegistration(db, session, courseSlug, "admin");
+
     if (!session) {
       throw new ConvexError("Invariant broken");
     }

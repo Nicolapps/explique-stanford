@@ -1,17 +1,30 @@
 import { ConvexError, v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "../withAuth";
-import { validateAdminSession } from "./exercises";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, internalQuery } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { getCourseRegistration } from "../courses";
 
 export const list = queryWithAuth({
-  args: {},
-  handler: async ({ db, session }) => {
-    validateAdminSession(session);
+  args: {
+    courseSlug: v.string(),
+  },
+  handler: async ({ db, session }, { courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
 
-    return (await db.query("weeks").collect()).map((week) => ({
+    return (
+      await db
+        .query("weeks")
+        .withIndex("by_course_and_start_date", (q) =>
+          q.eq("courseId", course._id),
+        )
+        .collect()
+    ).map((week) => ({
       id: week._id,
       name: week.name,
     }));
@@ -30,11 +43,26 @@ export const getInternal = internalQuery({
 export const get = queryWithAuth({
   args: {
     id: v.id("weeks"),
+    courseSlug: v.string(),
   },
-  handler: async ({ db, session }, { id }) => {
-    validateAdminSession(session);
+  handler: async ({ db, session }, { id, courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
 
-    return await db.get(id);
+    const week = await db.get(id);
+    if (!week) {
+      return null;
+    }
+
+    if (week.courseId !== course._id) {
+      return null;
+    }
+
+    return week;
   },
 });
 
@@ -89,12 +117,21 @@ export const update = mutationWithAuth({
     startDate: v.number(),
     endDate: v.number(),
     endDateExtraTime: v.number(),
+    courseSlug: v.string(),
   },
-  handler: async (ctx, { id, name, startDate, endDate, endDateExtraTime }) => {
-    validateAdminSession(ctx.session);
+  handler: async (
+    ctx,
+    { id, name, startDate, endDate, endDateExtraTime, courseSlug },
+  ) => {
+    const { course } = await getCourseRegistration(
+      ctx.db,
+      ctx.session,
+      courseSlug,
+      "admin",
+    );
 
     const week = await ctx.db.get(id);
-    if (!week) {
+    if (!week || week.courseId !== course._id) {
       throw new ConvexError("Week not found");
     }
 

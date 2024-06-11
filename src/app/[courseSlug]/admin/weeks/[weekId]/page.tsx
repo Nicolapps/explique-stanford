@@ -8,14 +8,17 @@ import { api } from "../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import { toDatetimeLocalString } from "@/util/date";
 import Title from "@/components/typography";
+import { useCourseSlug } from "@/hooks/useCourseSlug";
 
 export default function EditWeek() {
   const router = useRouter();
   const params = useParams();
   const update = useMutation(api.admin.weeks.update);
+  const courseSlug = useCourseSlug();
 
   const week = useQuery(api.admin.weeks.get, {
     id: params.weekId as Id<"weeks">,
+    courseSlug,
   });
 
   return (
@@ -29,6 +32,7 @@ export default function EditWeek() {
             onSubmit={async (state) => {
               await update({
                 ...state,
+                courseSlug,
                 id: week._id,
               });
               router.push("/admin");

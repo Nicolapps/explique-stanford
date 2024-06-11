@@ -2,12 +2,14 @@ import { useSessionId } from "@/components/SessionProvider";
 import { useConvex } from "convex/react";
 import { useEffect, useState } from "react";
 import { api } from "../../convex/_generated/api";
+import { useCourseSlug } from "./useCourseSlug";
 
 export type Identities = Record<string, { email: string }>;
 
 export function useIdentities(): Identities | undefined {
   const convex = useConvex();
   const sessionId = useSessionId();
+  const courseSlug = useCourseSlug();
 
   const [identities, setIdentities] = useState<Identities | undefined>(
     undefined,
@@ -18,6 +20,7 @@ export function useIdentities(): Identities | undefined {
     (async () => {
       const jwt = await convex.query(api.admin.identitiesJwt.default, {
         sessionId,
+        courseSlug,
       });
 
       const req = await fetch("/api/admin/identities", {
@@ -30,7 +33,7 @@ export function useIdentities(): Identities | undefined {
 
       setIdentities(data as Identities);
     })();
-  }, [identities, convex, sessionId]);
+  }, [identities, convex, sessionId, courseSlug]);
 
   return identities;
 }

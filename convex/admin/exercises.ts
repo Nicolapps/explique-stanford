@@ -1,5 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import {
+  ActionCtx,
   internalAction,
   internalMutation,
   internalQuery,
@@ -11,6 +12,7 @@ import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { Session } from "lucia";
 import { COMPLETION_VALID_MODELS } from "../chat";
 import { getCourseRegistration } from "../courses";
+import { Id } from "../_generated/dataModel";
 
 export function validateAdminSession(session: Session | null) {
   if (!session) throw new ConvexError("Not logged in");
@@ -20,9 +22,10 @@ export function validateAdminSession(session: Session | null) {
 export const get = queryWithAuth({
   args: {
     id: v.id("exercises"),
+    courseSlug: v.string(),
   },
-  handler: async ({ db, session }, { id }) => {
-    validateAdminSession(session);
+  handler: async ({ db, session }, { id, courseSlug }) => {
+    await getCourseRegistration(db, session, courseSlug, "admin");
 
     const exercise = await db.get(id);
     if (!exercise) {
@@ -190,6 +193,20 @@ export const courseSlugOfExercise = internalQuery({
   },
 });
 
+export async function validateExerciseInCourse(
+  ctx: Omit<ActionCtx, "auth">,
+  courseSlug: string,
+  id: Id<"exercises">,
+) {
+  const exerciseCourseSlug = await ctx.runQuery(
+    internal.admin.exercises.courseSlugOfExercise,
+    { id },
+  );
+  if (exerciseCourseSlug !== courseSlug) {
+    throw new ConvexError("Exercise not found");
+  }
+}
+
 export const update = actionWithAuth({
   args: {
     id: v.id("exercises"),
@@ -198,17 +215,11 @@ export const update = actionWithAuth({
   },
   handler: async (ctx, { id, exercise, courseSlug }) => {
     await getCourseRegistration(ctx, ctx.session, courseSlug, "admin");
+    await validateExerciseInCourse(ctx, courseSlug, id);
 
     validateQuiz(exercise.quiz);
 
     // Verify that this exercise can be edited by the user
-    const exerciseCourseSlug = await ctx.runQuery(
-      internal.admin.exercises.courseSlugOfExercise,
-      { id },
-    );
-    if (exerciseCourseSlug !== courseSlug) {
-      throw new ConvexError("Exercise not found");
-    }
 
     if (
       exercise.chatCompletionsApi &&

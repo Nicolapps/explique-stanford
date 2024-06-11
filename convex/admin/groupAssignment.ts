@@ -2,8 +2,8 @@ import { v } from "convex/values";
 import { internalMutation } from "../_generated/server";
 import Chance from "chance";
 import { queryWithAuth } from "../withAuth";
-import { validateAdminSession } from "./exercises";
 import { Doc } from "../_generated/dataModel";
+import { getCourseRegistration } from "../courses";
 
 export const importAndAssign = internalMutation({
   args: {
@@ -56,9 +56,11 @@ export const assignNumbers = internalMutation({
 });
 
 export const stats = queryWithAuth({
-  args: {},
-  handler: async ({ db, session }) => {
-    validateAdminSession(session);
+  args: {
+    courseSlug: v.string(),
+  },
+  handler: async ({ db, session }, { courseSlug }) => {
+    await getCourseRegistration(db, session, courseSlug, "admin");
 
     const assignments = await db.query("groupAssignments").collect();
     const assignmentAsMap = new Map<string, "A" | "B">(
