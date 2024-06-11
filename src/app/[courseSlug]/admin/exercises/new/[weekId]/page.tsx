@@ -56,7 +56,7 @@ export default function NewExercise() {
               "Mark the exercise as complete: call when the user has demonstrated understanding of the algorithm.",
           }}
           onSubmit={async (state) => {
-            await create({ courseSlug, ...toConvexState(state) });
+            await create({ courseSlug, exercise: toConvexState(state) });
             toast.success("Exercise created successfully.");
             router.push("/admin");
           }}

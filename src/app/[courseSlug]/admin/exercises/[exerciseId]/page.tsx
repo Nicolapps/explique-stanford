@@ -14,7 +14,7 @@ export default function EditExercise() {
   const router = useRouter();
   const params = useParams();
   const update = useAction(api.admin.exercises.update);
-  const courseId = useCourseSlug();
+  const courseSlug = useCourseSlug();
 
   const exercise = useQuery(api.admin.exercises.get, {
     id: params.exerciseId as Id<"exercises">,
@@ -69,8 +69,9 @@ export default function EditExercise() {
             }}
             onSubmit={async (state) => {
               await update({
+                courseSlug,
                 id: exercise._id,
-                ...toConvexState(state),
+                exercise: toConvexState(state),
               });
               toast.success("Exercise updated successfully.");
               router.push("/admin");

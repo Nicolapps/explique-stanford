@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "../withAuth";
 import { validateAdminSession } from "./exercises";
 import { Id } from "../_generated/dataModel";
-import { MutationCtx } from "../_generated/server";
+import { MutationCtx, internalQuery } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { getCourseRegistration } from "../courses";
 
@@ -15,6 +15,15 @@ export const list = queryWithAuth({
       id: week._id,
       name: week.name,
     }));
+  },
+});
+
+export const getInternal = internalQuery({
+  args: {
+    id: v.id("weeks"),
+  },
+  handler: async ({ db }, { id }) => {
+    return await db.get(id);
   },
 });
 

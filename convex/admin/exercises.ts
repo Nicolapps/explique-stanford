@@ -1,5 +1,9 @@
 import { ConvexError, v } from "convex/values";
-import { internalAction, internalMutation } from "../_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  internalQuery,
+} from "../_generated/server";
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
 import { exerciseAdminSchema } from "../schema";
@@ -138,49 +142,93 @@ export const createInternal = internalAction({
 });
 
 export const create = actionWithAuth({
-  args: exerciseAdminSchema,
-  handler: async ({ runAction, session }, row) => {
-    validateAdminSession(session);
+  args: {
+    courseSlug: v.string(),
+    exercise: v.object(exerciseAdminSchema),
+  },
+  handler: async (ctx, { courseSlug, exercise }) => {
+    const { course } = await getCourseRegistration(
+      ctx,
+      ctx.session,
+      courseSlug,
+      "admin",
+    );
 
-    // @TODO Validate the week ID
+    // Validate the week ID
+    const week = await ctx.runQuery(internal.admin.weeks.getInternal, {
+      id: exercise.weekId,
+    });
+    if (!week || week.courseId !== course._id) {
+      throw new ConvexError("Invalid week");
+    }
 
-    runAction(internal.admin.exercises.createInternal, row);
+    ctx.runAction(internal.admin.exercises.createInternal, exercise);
+  },
+});
+
+export const courseSlugOfExercise = internalQuery({
+  args: {
+    id: v.id("exercises"),
+  },
+  handler: async (ctx, args) => {
+    const exercise = await ctx.db.get(args.id);
+    if (!exercise) {
+      throw new ConvexError("Exercise not found");
+    }
+
+    const week = await ctx.db.get(exercise.weekId);
+    if (!week) {
+      throw new ConvexError("Week not found");
+    }
+
+    const course = await ctx.db.get(week.courseId);
+    if (!course) {
+      throw new ConvexError("Course not found");
+    }
+
+    return course.slug;
   },
 });
 
 export const update = actionWithAuth({
   args: {
     id: v.id("exercises"),
-    ...exerciseAdminSchema,
+    exercise: v.object(exerciseAdminSchema),
+    courseSlug: v.string(),
   },
-  handler: async ({ runMutation, session }, { id, ...row }) => {
-    validateAdminSession(session);
-    validateQuiz(row.quiz);
+  handler: async (ctx, { id, exercise, courseSlug }) => {
+    await getCourseRegistration(ctx, ctx.session, courseSlug, "admin");
 
-    // @TODO Validate the week ID
+    validateQuiz(exercise.quiz);
+
+    // Verify that this exercise can be edited by the user
+    const exerciseCourseSlug = await ctx.runQuery(
+      internal.admin.exercises.courseSlugOfExercise,
+      { id },
+    );
+    if (exerciseCourseSlug !== courseSlug) {
+      throw new ConvexError("Exercise not found");
+    }
 
     if (
-      row.chatCompletionsApi &&
-      !COMPLETION_VALID_MODELS.includes(row.model as any)
+      exercise.chatCompletionsApi &&
+      !COMPLETION_VALID_MODELS.includes(exercise.model as any)
     ) {
       throw new ConvexError(
-        `The model ${row.model} is not supported by the Chat Completions API.`,
+        `The model ${exercise.model} is not supported by the Chat Completions API.`,
       );
     }
 
     const assistant = await createAssistant(
-      row.instructions,
-      row.model,
-      row.completionFunctionDescription,
+      exercise.instructions,
+      exercise.model,
+      exercise.completionFunctionDescription,
     );
 
-    await runMutation(internal.admin.exercises.updateRow, {
+    await ctx.runMutation(internal.admin.exercises.updateRow, {
       id,
       row: {
-        ...{
-          ...row,
-          sessionId: undefined,
-        },
+        ...exercise,
         assistantId: assistant.id,
       },
     });
