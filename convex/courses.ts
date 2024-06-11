@@ -1,9 +1,26 @@
-import { ConvexError } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
-import { DatabaseReader } from "./_generated/server";
+import { ActionCtx, DatabaseReader, internalQuery } from "./_generated/server";
+import { internal } from "./_generated/api";
+
+export const getCourseRegistrationQuery = internalQuery({
+  args: {
+    userId: v.id("users"),
+    courseSlug: v.string(),
+    role: v.optional(v.literal("admin")),
+  },
+  handler: async (ctx, { userId, courseSlug, role }) => {
+    return await getCourseRegistration(
+      ctx.db,
+      { user: { _id: userId } },
+      courseSlug,
+      role,
+    );
+  },
+});
 
 export async function getCourseRegistration(
-  db: DatabaseReader,
+  ctx: DatabaseReader | Omit<ActionCtx, "auth">,
   session: { user: { _id: Id<"users"> } } | null,
   courseSlug: string,
   role?: "admin",
@@ -12,6 +29,15 @@ export async function getCourseRegistration(
     throw new ConvexError("Not logged in");
   }
 
+  if ("runQuery" in ctx) {
+    return await ctx.runQuery(internal.courses.getCourseRegistrationQuery, {
+      userId: session.user._id,
+      role,
+      courseSlug,
+    });
+  }
+
+  const db = ctx;
   const course = await db
     .query("courses")
     .withIndex("by_slug", (q) => q.eq("slug", courseSlug))
