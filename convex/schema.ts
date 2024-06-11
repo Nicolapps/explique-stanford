@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export const exerciseAdminSchema = {
+  courseId: v.id("courses"),
   name: v.string(),
   instructions: v.string(),
   model: v.string(),
@@ -49,6 +50,10 @@ export const exerciseAdminSchema = {
 
 export default defineSchema(
   {
+    courses: defineTable({
+      name: v.string(),
+      slug: v.string(),
+    }).index("by_slug", ["slug"]),
     attempts: defineTable({
       status: v.union(
         v.literal("exercise"),
@@ -67,6 +72,8 @@ export default defineSchema(
       answers: v.array(v.number()),
     }).index("attemptId", ["attemptId"]),
     weeks: defineTable({
+      courseId: v.id("courses"),
+
       name: v.string(),
       startDate: v.number(),
       endDate: v.number(),
@@ -75,8 +82,13 @@ export default defineSchema(
       // Overwrite this value to ensure that queries depending on start/end dates
       // are invalidated.
       cacheInvalidation: v.optional(v.number()),
-    }).index("startDate", ["startDate"]),
-    exercises: defineTable({ ...exerciseAdminSchema, assistantId: v.string() }),
+    })
+      .index("startDate", ["startDate"])
+      .index("by_course_and_start_date", ["courseId", "startDate"]),
+    exercises: defineTable({
+      ...exerciseAdminSchema,
+      assistantId: v.string(),
+    }),
     images: defineTable({
       storageId: v.id("_storage"),
       thumbnails: v.array(

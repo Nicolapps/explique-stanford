@@ -48,8 +48,12 @@ export const create = mutationWithAuth({
     startDate: v.number(),
     endDate: v.number(),
     endDateExtraTime: v.number(),
+    courseId: v.id("courses"),
   },
-  handler: async (ctx, { name, startDate, endDate, endDateExtraTime }) => {
+  handler: async (
+    ctx,
+    { name, startDate, endDate, endDateExtraTime, courseId },
+  ) => {
     validateAdminSession(ctx.session);
 
     const weekId = await ctx.db.insert("weeks", {
@@ -57,6 +61,7 @@ export const create = mutationWithAuth({
       startDate,
       endDate,
       endDateExtraTime,
+      courseId,
     });
     await scheduleWeekChangesInvalidation(ctx, weekId);
   },
