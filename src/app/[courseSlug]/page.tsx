@@ -2,7 +2,6 @@
 
 import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
-import { ResearchConsent } from "@/components/ResearchConsent";
 import {
   CheckIcon,
   QuestionMarkCircleIcon,
