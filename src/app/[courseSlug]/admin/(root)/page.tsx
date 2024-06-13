@@ -20,7 +20,7 @@ export default function Admin() {
         <span className="flex-1">Weeks</span>
 
         <Link
-          href="/admin/weeks/new"
+          href={`/${courseSlug}/admin/weeks/new`}
           className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 text-base flex items-center gap-2 tracking-normal"
         >
           Add Week
@@ -32,7 +32,7 @@ export default function Admin() {
           <h2 className="text-3xl font-medium mt-8 mb-4 flex gap-3 flex-wrap items-baseline">
             <span>{week.name}</span>
             <Link
-              href={`/admin/weeks/${week._id}`}
+              href={`/${courseSlug}/admin/weeks/${week._id}`}
               className="font-medium text-blue-800 flex items-center text-base gap-1"
             >
               Edit
@@ -57,7 +57,7 @@ export default function Admin() {
             {week.exercises.map((exercise) => (
               <Link
                 key={exercise._id}
-                href={`/admin/exercises/${exercise._id}`}
+                href={`/${courseSlug}/admin/exercises/${exercise._id}`}
                 className="text-blue-800 flex items-center py-3 px-8 hover:bg-blue-100 rounded-lg"
               >
                 {exercise.name}
@@ -65,7 +65,7 @@ export default function Admin() {
             ))}
 
             <Link
-              href={`/admin/exercises/new/${week._id}`}
+              href={`/${courseSlug}/admin/exercises/new/${week._id}`}
               className="font-medium text-blue-800 flex items-center py-3 hover:bg-blue-100 rounded-lg"
             >
               <span className="w-8 flex items-center justify-center">

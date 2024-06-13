@@ -24,7 +24,7 @@ export default function EditExercise() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <Title backHref="/admin">Edit Exercise</Title>
+        <Title backHref={`/${courseSlug}/admin`}>Edit Exercise</Title>
 
         {exercise === null && <p>Not found</p>}
         {exercise && (
@@ -75,7 +75,7 @@ export default function EditExercise() {
                 exercise: toConvexState(state),
               });
               toast.success("Exercise updated successfully.");
-              router.push("/admin");
+              router.push(`/${courseSlug}/admin`);
             }}
           />
         )}

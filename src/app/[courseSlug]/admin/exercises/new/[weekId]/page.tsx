@@ -21,7 +21,7 @@ export default function NewExercise() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <Title backHref="/admin">New Exercise</Title>
+        <Title backHref={`/${courseSlug}/admin`}>New Exercise</Title>
 
         <ExerciseForm
           submitLabel="Create"
@@ -58,7 +58,7 @@ export default function NewExercise() {
           onSubmit={async (state) => {
             await create({ courseSlug, exercise: toConvexState(state) });
             toast.success("Exercise created successfully.");
-            router.push("/admin");
+            router.push(`/${courseSlug}/admin`);
           }}
         />
       </div>

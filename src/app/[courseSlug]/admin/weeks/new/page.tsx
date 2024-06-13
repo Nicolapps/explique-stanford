@@ -21,7 +21,7 @@ export default function NewWeek() {
         <WeekForm
           onSubmit={async (state) => {
             await create({ courseSlug, ...state });
-            router.push("/admin");
+            router.push(`/${courseSlug}/admin`);
           }}
           initialState={{
             name: "",
