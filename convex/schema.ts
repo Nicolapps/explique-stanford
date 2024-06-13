@@ -52,6 +52,7 @@ export default defineSchema(
   {
     courses: defineTable({
       name: v.string(),
+      code: v.string(),
       slug: v.string(),
     }).index("by_slug", ["slug"]),
     attempts: defineTable({

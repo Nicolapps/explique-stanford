@@ -5,6 +5,7 @@ import { internal } from "../_generated/api";
 export default internalMutation(async ({ db, scheduler }) => {
   const courseId = await db.insert("courses", {
     name: "Introduction to Video Game Development",
+    code: "GDE-101",
     slug: "gde101",
   });
 
