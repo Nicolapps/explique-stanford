@@ -93,6 +93,35 @@ export const getRegistration = queryWithAuth({
   },
 });
 
+export const getMyRegistrations = queryWithAuth({
+  args: {},
+  handler: async ({ db, session }) => {
+    if (!session) return null;
+
+    const registrations = await db
+      .query("registrations")
+      .withIndex("by_user", (q) => q.eq("userId", session.user._id))
+      .collect();
+
+    const results = [];
+    for (const registration of registrations) {
+      const course = await db.get(registration.courseId);
+      if (!course) {
+        console.error("Course not found");
+        continue;
+      }
+      results.push({
+        code: course.code,
+        slug: course.slug,
+        name: course.name,
+      });
+    }
+
+    results.sort((a, b) => a.code.localeCompare(b.code));
+    return results;
+  },
+});
+
 export const getMostRecentRegistration = queryWithAuth({
   args: {},
   handler: async ({ db, session }) => {

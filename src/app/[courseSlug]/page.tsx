@@ -4,6 +4,7 @@ import { api } from "../../../convex/_generated/api";
 import Link from "next/link";
 import {
   CheckIcon,
+  ChevronUpDownIcon,
   QuestionMarkCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -17,9 +18,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
-import Title from "@/components/typography";
 import { useIdentity } from "@/components/SessionProvider";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+  Transition,
+} from "@headlessui/react";
 
 function ExerciseLink({
   exercise,
@@ -124,13 +131,121 @@ function Login() {
   );
 }
 
+function CourseSelector() {
+  const router = useRouter();
+
+  const courseSlug = useCourseSlug();
+  const user = useQuery(api.courses.getRegistration, { courseSlug });
+  const courses = useQuery(api.courses.getMyRegistrations, {});
+
+  if (!user || !courses) {
+    return (
+      <div className="w-2/3 mx-auto h-24 sm:h-32 rounded-xl bg-slate-200 animate-pulse"></div>
+    );
+  }
+
+  return (
+    <>
+      <Listbox
+        value={courseSlug}
+        onChange={(selectedCourseSlug) => {
+          router.push(`/${selectedCourseSlug}`);
+        }}
+      >
+        {({ open }) => (
+          <>
+            <div className="relative">
+              <ListboxButton className="w-full cursor-default rounded-2xl bg-white py-1.5 px-10 text-left text-gray-900 ring-1 ring-inset ring-white focus:outline-none focus:ring-2 focus:ring-purple-500 sm:text-sm sm:leading-6 h-24 sm:h-32">
+                <h1 className="flex flex-col justify-center text-center items-center">
+                  <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
+                    {user.course.code}
+                  </span>
+                  <span className="block text-balance text-3xl sm:text-4xl font-semibold tracking-tight text-gray-800">
+                    {user.course.name}
+                  </span>
+                </h1>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon
+                    className="h-6 w-6 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </span>
+              </ListboxButton>
+
+              <Transition
+                show={open}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <ListboxOptions className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  {courses.map((course) => (
+                    <ListboxOption
+                      key={course.slug}
+                      className={({ focus }) =>
+                        clsx(
+                          focus ? "bg-purple-600 text-white" : "",
+                          !focus ? "text-gray-900" : "",
+                          "relative cursor-default select-none py-2 pl-3 pr-9",
+                        )
+                      }
+                      value={course.slug}
+                    >
+                      {({ selected, focus }) => (
+                        <>
+                          <div className="flex gap-2">
+                            <span
+                              className={clsx(
+                                focus ? "text-purple-200" : "text-gray-500",
+                                "ml-2 truncate tabular-nums",
+                              )}
+                            >
+                              {course.code}
+                            </span>
+                            <span
+                              className={clsx(
+                                selected ? "font-semibold" : "font-normal",
+                                "truncate",
+                              )}
+                            >
+                              {course.name}
+                            </span>
+                          </div>
+
+                          {selected ? (
+                            <span
+                              className={clsx(
+                                focus ? "text-white" : "text-indigo-600",
+                                "absolute inset-y-0 right-0 flex items-center pr-4",
+                              )}
+                            >
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </ListboxOption>
+                  ))}
+                </ListboxOptions>
+              </Transition>
+            </div>
+          </>
+        )}
+      </Listbox>
+    </>
+  );
+}
+
 export default function CoursePage() {
   const courseSlug = useCourseSlug();
   const user = useQuery(api.courses.getRegistration, { courseSlug });
 
   return (
     <>
-      <div className="bg-gradient-to-b from-purple-200 via-indigo-200 to-blue-200 overflow-hidden">
+      <div className="bg-gradient-to-b from-purple-200 via-indigo-200 to-blue-200">
         <div className="p-6 sm:p-10 pb-0 sm:pb-0 flex justify-center">
           <div className="max-w-6xl flex-1">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -140,45 +255,21 @@ export default function CoursePage() {
               <Login />
             </div>
 
-            <div className="bg-white shadow-2xl rounded-t-2xl px-8 py-8 sm:py-14 w-full max-w-2xl mx-auto mt-8">
-              {user ? (
-                <>
-                  <h1 className="flex flex-col justify-center text-center h-16 sm:h-24">
-                    <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
-                      {user.course.code}
-                    </span>
-                    <span className="block text-balance text-3xl sm:text-5xl font-semibold tracking-tight text-gray-800">
-                      {user.course.name}
-                    </span>
-                  </h1>
-
-                  {user.isAdmin && (
-                    <div className="mt-4 sm:mt-6 text-center">
-                      <Link
-                        href={`/${courseSlug}/admin`}
-                        className="text-base font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200 inline-flex"
-                      >
-                        Admin
-                      </Link>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="w-2/3 mx-auto h-16 sm:h-24 rounded-xl bg-slate-200 animate-pulse"></div>
+            <div className="bg-white shadow-[0_-20px_40px_-12px_rgb(0_0_0_/_0.1)] rounded-t-2xl px-8 py-8 sm:py-8 w-full max-w-2xl mx-auto mt-8">
+              <CourseSelector />
+              {user && user.isAdmin && (
+                <div className="mt-2 mb-8 text-center">
+                  <Link
+                    href={`/${courseSlug}/admin`}
+                    className="text-base font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200 inline-flex"
+                  >
+                    Admin
+                  </Link>
+                </div>
               )}
             </div>
           </div>
         </div>
-        {/* <div className="h-72"></div> */}
-        {/* <Login />
-
-        <div className="mt-12 sm:mt-0 sm:w-3/4">
-          {user ? (
-            <Title>{user?.course.name}</Title>
-          ) : (
-            <div className="bg-slate-200 rounded flex-1 animate-pulse h-10"></div>
-          )}
-        </div> */}
       </div>
       <div className="relative p-6 sm:p-10 flex justify-center shadow-[0_-10px_10px_-3px_rgba(0_0_0_/_0.08)]">
         <div className="max-w-6xl flex-1">

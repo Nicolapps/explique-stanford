@@ -12,7 +12,7 @@
     "generate-migration-files": "drizzle-kit generate:sqlite"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.17",
+    "@headlessui/react": "^2.0.4",
     "@heroicons/react": "^2.1.1",
     "@lucia-auth/oauth": "^3.5.2",
     "@radix-ui/react-tooltip": "^1.0.7",
