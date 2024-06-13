@@ -6,6 +6,7 @@ import { formatTimestampHumanFormat } from "@/util/date";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { api } from "../../../../../convex/_generated/api";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
+import Title from "@/components/typography";
 
 export default function Admin() {
   const courseSlug = useCourseSlug();
@@ -16,7 +17,7 @@ export default function Admin() {
   return (
     <>
       <div className="flex mb-8 gap-4 flex-wrap items-center justify-between">
-        <h1 className="font-semibold text-4xl tracking-tight">Weeks</h1>
+        <Title>Weeks</Title>
 
         <Link
           href="/admin/weeks/new"
