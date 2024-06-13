@@ -17,7 +17,7 @@ export default function ErrorPage({
 
   return (
     <div className="bg-red-50 h-full items-center justify-center flex p-4">
-      <div className="bg-white border-t-red-500 rounded-xl shadow-2xl overflow-hidden w-80">
+      <div className="bg-white border-t-red-500 rounded-xl shadow-xl overflow-hidden w-80">
         <div className="h-3 bg-gradient-to-b from-red-500 to-red-600"></div>
         <div className="flex gap-2 items-center p-6">
           <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
