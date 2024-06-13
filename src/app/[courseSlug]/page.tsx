@@ -296,83 +296,95 @@ function ProjectGrid() {
     return <ProjectGridSkeleton />;
   }
 
-  return weeks.map((week) => {
-    const isCompleted = week.exercises.every((exercise) => exercise.completed);
+  return (
+    <div className="grid gap-12">
+      {weeks.map((week) => {
+        const isCompleted = week.exercises.every(
+          (exercise) => exercise.completed,
+        );
 
-    return (
-      <div key={week.id}>
-        <header className="flex gap-4 flex-wrap mt-12 mb-4 items-center justify-between">
-          <h2 className="font-medium text-3xl tracking-tight">{week.name}</h2>
+        return (
+          <div key={week.id}>
+            <header className="flex gap-4 flex-wrap items-center justify-between">
+              <h2 className="font-medium text-3xl tracking-tight">
+                {week.name}
+              </h2>
 
-          {isCompleted ? (
-            <p className="bg-gradient-to-b from-green-500 to-green-600 py-2 px-3 text-xs rounded-full font-semibold text-white tracking-wide inline-flex items-center gap-1">
-              <CheckIconSmall className="w-5 h-5" />
-              Completed
-            </p>
-          ) : (
-            <p className="bg-gray-500 py-2 px-3 text-xs rounded-full font-semibold text-white tracking-wide inline-flex items-center gap-1">
-              <XMarkIconSmall className="w-5 h-5" />
-              Not Completed
-            </p>
-          )}
-        </header>
-        {week.preview && (
-          <p className="text-gray-700 my-4">
-            <span className="inline-block bg-amber-200 px-2 py-1 rounded-lg mr-2 text-amber-900 uppercase tracking-wider font-semibold">
-              Preview
-            </span>
-            Will be released on{" "}
-            <strong className="font-medium text-gray-800">
-              {formatTimestampHumanFormat(week.startDate)}
-            </strong>
-          </p>
-        )}
-        <div className="text-gray-700 my-4">
-          <span>Due on</span>{" "}
-          {week.endDateExtraTime === null ? (
-            <Deadline timestamp={week.endDate} />
-          ) : (
-            <>
-              <span className="inline-flex flex-wrap items-center gap-1">
-                <s className="opacity-60">
-                  <Deadline timestamp={week.endDate} />
-                </s>
+              {isCompleted ? (
+                <p className="bg-gradient-to-b from-green-500 to-green-600 py-2 px-3 text-xs rounded-full font-semibold text-white tracking-wide inline-flex items-center gap-1">
+                  <CheckIconSmall className="w-5 h-5" />
+                  Completed
+                </p>
+              ) : (
+                <p className="bg-gray-500 py-2 px-3 text-xs rounded-full font-semibold text-white tracking-wide inline-flex items-center gap-1">
+                  <XMarkIconSmall className="w-5 h-5" />
+                  Not Completed
+                </p>
+              )}
+            </header>
+            {week.preview && (
+              <p className="text-gray-700 my-4">
+                <span className="inline-block bg-amber-200 px-2 py-1 rounded-lg mr-2 text-amber-900 uppercase tracking-wider font-semibold">
+                  Preview
+                </span>
+                Will be released on{" "}
+                <strong className="font-medium text-gray-800">
+                  {formatTimestampHumanFormat(week.startDate)}
+                </strong>
+              </p>
+            )}
+            <div className="text-gray-700 my-4">
+              <span>Due on</span>{" "}
+              {week.endDateExtraTime === null ? (
+                <Deadline timestamp={week.endDate} />
+              ) : (
+                <>
+                  <span className="inline-flex flex-wrap items-center gap-1">
+                    <s className="opacity-60">
+                      <Deadline timestamp={week.endDate} />
+                    </s>
 
-                <Tooltip tip="Extra time applied">
-                  <QuestionMarkCircleIcon className="w-5 h-5 text-gray-500 inline-block mr-1" />
-                </Tooltip>
-              </span>{" "}
-              <Deadline timestamp={week.endDateExtraTime} />
-            </>
-          )}
-        </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          {week.exercises.map((exercise) => (
-            <ExerciseLink exercise={exercise} key={exercise.id} />
-          ))}
-        </div>
-      </div>
-    );
-  });
+                    <Tooltip tip="Extra time applied">
+                      <QuestionMarkCircleIcon className="w-5 h-5 text-gray-500 inline-block mr-1" />
+                    </Tooltip>
+                  </span>{" "}
+                  <Deadline timestamp={week.endDateExtraTime} />
+                </>
+              )}
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {week.exercises.map((exercise) => (
+                <ExerciseLink exercise={exercise} key={exercise.id} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function ProjectGridSkeleton() {
-  return Array.from({ length: 3 }).map((_, i) => (
-    <div className="animate-pulse" key={i}>
-      <div className="mt-12 mb-4 flex flex-wrap h-9">
-        <div className="bg-slate-200 rounded flex-1 mr-[20%]" />
-        <div className="bg-slate-200 rounded-full w-36" />
-      </div>
+  return (
+    <div className="grid gap-12">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div className="animate-pulse" key={i}>
+          <div className="flex flex-wrap h-9">
+            <div className="bg-slate-200 rounded flex-1 mr-[20%]" />
+            <div className="bg-slate-200 rounded-full w-36" />
+          </div>
 
-      <div className="h-6 my-4 bg-slate-200 rounded w-72" />
+          <div className="h-6 my-4 bg-slate-200 rounded w-72" />
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="pb-[57.14%] bg-slate-200 rounded-3xl" />
-        ))}
-      </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="pb-[57.14%] bg-slate-200 rounded-3xl" />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
-  ));
+  );
 }
 
 function Deadline({ timestamp }: { timestamp: number }) {
