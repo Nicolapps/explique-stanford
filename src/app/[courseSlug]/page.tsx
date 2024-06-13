@@ -256,10 +256,7 @@ export default function CoursePage() {
           <div className="max-w-6xl flex-1">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
               <div className="flex-1 text-3xl tracking-tight font-medium select-none cursor-default my-2">
-                <span className="bg-gradient-to-b from-indigo-400 to-purple-800 inline-block text-transparent bg-clip-text font-semibold">
-                  explique
-                </span>
-                .ai
+                explique.ai
               </div>
               <Login />
             </div>
