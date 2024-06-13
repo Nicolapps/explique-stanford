@@ -10,7 +10,6 @@ import {
 import { getAuth, getEpflAuth, getGoogleAuth } from "./lucia";
 import { actionAuthDbWriter, mutationAuthDbWriter } from "./authDbWriter";
 import { OAuthRequestError } from "@lucia-auth/oauth";
-import { internal } from "./_generated/api";
 import * as TequilaLucia from "./lucia_tequila";
 
 export const get = queryWithAuth({

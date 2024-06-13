@@ -14,7 +14,7 @@ import {
 import clsx from "clsx";
 import { useQuery } from "@/usingSession";
 import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
 import Title from "@/components/typography";
