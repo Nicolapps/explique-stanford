@@ -140,7 +140,7 @@ function CourseSelector() {
 
   if (!user || !courses) {
     return (
-      <div className="w-2/3 mx-auto h-24 sm:h-32 rounded-xl bg-slate-200 animate-pulse"></div>
+      <div className="w-full mx-auto h-24 sm:h-32 rounded-xl bg-slate-200 animate-pulse"></div>
     );
   }
 
@@ -229,6 +229,12 @@ function CourseSelector() {
                       )}
                     </ListboxOption>
                   ))}
+
+                  <hr />
+                  <p className="py-2 px-5 text-gray-500">
+                    If there is a course missing, please contact your
+                    instructor.
+                  </p>
                 </ListboxOptions>
               </Transition>
             </div>
@@ -255,7 +261,7 @@ export default function CoursePage() {
               <Login />
             </div>
 
-            <div className="bg-white shadow-[0_-20px_40px_-12px_rgb(0_0_0_/_0.1)] rounded-t-2xl px-8 py-8 sm:py-8 w-full max-w-2xl mx-auto mt-8">
+            <div className="bg-white shadow-[0_-20px_40px_-12px_rgb(0_0_0_/_0.1)] rounded-t-2xl p-8 md:p-14 w-full max-w-2xl mx-auto mt-8">
               <CourseSelector />
               {user && user.isAdmin && (
                 <div className="mt-2 mb-8 text-center">
