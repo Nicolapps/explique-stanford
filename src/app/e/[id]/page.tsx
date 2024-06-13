@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import { useRouter } from "next/navigation";
-import { useAction, useQuery } from "@/usingSession";
+import { useQuery } from "@/usingSession";
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const executed = useRef(false);
   useEffect(() => {
-    if (attemptId === undefined) {
+    if (attemptId === undefined || executed.current) {
       return;
     }
 
