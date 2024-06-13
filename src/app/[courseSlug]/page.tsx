@@ -99,10 +99,9 @@ function ExerciseLink({
 
 function Login() {
   const router = useRouter();
-  const user = useQuery(api.auth.get, {});
-  const identity = useIdentity();
-
   const courseSlug = useCourseSlug();
+  const user = useQuery(api.courses.getRegistration, { courseSlug });
+  const identity = useIdentity();
 
   useEffect(() => {
     if (user === null) {
@@ -133,23 +132,24 @@ function Login() {
   );
 }
 
-export default function Home() {
-  const user = useQuery(api.auth.get, {});
+export default function CoursePage() {
+  const courseSlug = useCourseSlug();
+  const user = useQuery(api.courses.getRegistration, { courseSlug });
 
   return (
     <div className="bg-slate-100 h-full p-6 sm:p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
         <Login />
 
-        <Title className="mt-12 sm:mt-0">
-          {process.env.NEXT_PUBLIC_APP_NAME ?? "Algorithms"}
-        </Title>
+        <div className="mt-12 sm:mt-0 sm:w-3/4">
+          {user ? (
+            <Title>{user?.course.name}</Title>
+          ) : (
+            <div className="bg-slate-200 rounded flex-1 animate-pulse h-10"></div>
+          )}
+        </div>
 
-        {user && user.researchConsent ? (
-          <ProjectGrid />
-        ) : (
-          <ProjectGridSkeleton />
-        )}
+        {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
 
         <div className="h-10" />
       </div>

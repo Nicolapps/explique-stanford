@@ -1,32 +1,10 @@
 import { ConvexError, v } from "convex/values";
-import { queryWithAuth } from "./withAuth";
 import { Id } from "./_generated/dataModel";
-import {
-  DatabaseReader,
-  action,
-  internalQuery,
-  mutation,
-} from "./_generated/server";
+import { action, mutation } from "./_generated/server";
 import { getAuth, getEpflAuth, getGoogleAuth } from "./lucia";
 import { actionAuthDbWriter, mutationAuthDbWriter } from "./authDbWriter";
 import { OAuthRequestError } from "@lucia-auth/oauth";
 import * as TequilaLucia from "./lucia_tequila";
-
-export const get = queryWithAuth({
-  args: {},
-  handler: async (ctx) => {
-    if (!ctx.session) return null;
-
-    const { name, email, isAdmin, group, researchConsent } = ctx.session.user;
-    return {
-      name,
-      email,
-      isAdmin,
-      group: isAdmin ? group : undefined,
-      researchConsent,
-    };
-  },
-});
 
 export const getLoginUrl = action({
   args: {

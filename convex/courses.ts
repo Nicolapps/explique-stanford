@@ -2,6 +2,7 @@ import { ConvexError, v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 import { ActionCtx, DatabaseReader, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { queryWithAuth } from "./withAuth";
 
 export const getCourseRegistrationQuery = internalQuery({
   args: {
@@ -61,3 +62,33 @@ export async function getCourseRegistration(
 
   return { course, registration };
 }
+
+export const getRegistration = queryWithAuth({
+  args: {
+    courseSlug: v.string(),
+  },
+  handler: async (ctx, { courseSlug }) => {
+    if (!ctx.session) return null;
+
+    const { course, registration } = await getCourseRegistration(
+      ctx.db,
+      ctx.session,
+      courseSlug,
+    );
+
+    const { name, email } = ctx.session.user;
+    return {
+      course: {
+        name: course.name,
+        code: course.code,
+      },
+      name,
+      email,
+      isAdmin: registration.role === "admin",
+      group:
+        registration.role === "admin" && registration.researchGroup
+          ? registration.researchGroup.id
+          : undefined,
+    };
+  },
+});
