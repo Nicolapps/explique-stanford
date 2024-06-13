@@ -16,7 +16,7 @@ export default function NewWeek() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <Title backHref="/admin">New Week</Title>
+        <Title backHref={`/${courseSlug}/admin`}>New Week</Title>
 
         <WeekForm
           onSubmit={async (state) => {
