@@ -159,7 +159,7 @@ export const create = actionWithAuth({
       throw new ConvexError("Invalid week");
     }
 
-    ctx.runAction(internal.admin.exercises.createInternal, exercise);
+    await ctx.runAction(internal.admin.exercises.createInternal, exercise);
   },
 });
 
