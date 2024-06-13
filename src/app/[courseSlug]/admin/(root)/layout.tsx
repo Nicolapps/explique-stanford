@@ -41,9 +41,9 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
       <nav className="md:w-48 flex flex-col gap-2">
         <Link
           className="flex items-center gap-1 h-10 text-slate-600 hover:text-slate-900 transition-colors"
-          href="/"
+          href={`/${courseSlug}`}
         >
-          <ChevronLeftIcon className="w-5 h-5" /> Back to the app
+          <ChevronLeftIcon className="w-5 h-5" /> Back to course
         </Link>
 
         <NavLink href={`/${courseSlug}/admin`}>
