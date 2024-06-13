@@ -16,16 +16,16 @@ export default function Admin() {
 
   return (
     <>
-      <div className="flex mb-8 gap-4 flex-wrap items-center justify-between">
-        <Title>Weeks</Title>
+      <Title>
+        <span className="flex-1">Weeks</span>
 
         <Link
           href="/admin/weeks/new"
-          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200"
+          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 text-base flex items-center gap-2 tracking-normal"
         >
           Add Week
         </Link>
-      </div>
+      </Title>
 
       {weeks?.map((week) => (
         <div key={week._id}>

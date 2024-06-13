@@ -1,6 +1,7 @@
 "use client";
 
 import { useCourseSlug } from "@/hooks/useCourseSlug";
+import { useQuery } from "@/usingSession";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import {
   DocumentCheckIcon,
@@ -13,6 +14,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { ReactNode } from "react";
+import { api } from "../../../../../convex/_generated/api";
 
 function NavLink({ href, children }: { href: string; children: ReactNode }) {
   const pathname = usePathname();
@@ -35,6 +37,7 @@ function NavLink({ href, children }: { href: string; children: ReactNode }) {
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
   const courseSlug = useCourseSlug();
+  const registration = useQuery(api.courses.getRegistration, { courseSlug });
 
   return (
     <div className="bg-slate-100 h-full flex flex-col md:flex-row md:justify-center p-6 sm:p-10 gap-10">
@@ -43,7 +46,12 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
           className="flex items-center gap-1 h-10 text-slate-600 hover:text-slate-900 transition-colors"
           href={`/${courseSlug}`}
         >
-          <ChevronLeftIcon className="w-5 h-5" /> Back to course
+          <ChevronLeftIcon className="w-5 h-5" />
+          {registration ? (
+            <span>{registration.course.code}</span>
+          ) : (
+            <div className="h-6 bg-slate-200 rounded w-1/3 animate-pulse" />
+          )}
         </Link>
 
         <NavLink href={`/${courseSlug}/admin`}>
