@@ -87,6 +87,7 @@ export const get = queryWithAuth({
     }
 
     return {
+      courseSlug: course.slug,
       exerciseId: exercise._id,
       exerciseName: exercise.name,
       status: attempt.status,
