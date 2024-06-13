@@ -92,3 +92,27 @@ export const getRegistration = queryWithAuth({
     };
   },
 });
+
+export const getMostRecentRegistration = queryWithAuth({
+  args: {},
+  handler: async ({ db, session }) => {
+    if (!session) return null;
+
+    const mostRecentRegistration = await db
+      .query("registrations")
+      .withIndex("by_user", (q) => q.eq("userId", session.user._id))
+      .order("desc")
+      .first();
+    if (!mostRecentRegistration) {
+      throw new ConvexError(
+        "You are not enrolled in any courses. Please contact your instructor.",
+      );
+    }
+
+    const course = await db.get(mostRecentRegistration.courseId);
+    if (!course) {
+      throw new Error("Course not found.");
+    }
+    return { slug: course.slug };
+  },
+});
