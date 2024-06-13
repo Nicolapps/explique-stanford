@@ -112,22 +112,14 @@ function Login() {
   if (!user) return null;
 
   return (
-    <div className="p-4 absolute right-0 top-0 flex items-center gap-2">
-      <div className="flex flex-col leading-snug text-gray-700 px-2">
+    <div className="flex items-center gap-2">
+      <div className="flex flex-col leading-snug text-gray-700">
         <p className="text-gray-800 font-semibold">
           {identity ? identity.name : user.name}
           {user.group && <span className="font-normal"> ({user.group})</span>}
         </p>
         <p>{identity ? identity.email : user.email}</p>
       </div>
-      {user.isAdmin && (
-        <Link
-          href={`/${courseSlug}/admin`}
-          className="font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200"
-        >
-          Admin
-        </Link>
-      )}
     </div>
   );
 }
@@ -137,9 +129,48 @@ export default function CoursePage() {
   const user = useQuery(api.courses.getRegistration, { courseSlug });
 
   return (
-    <div className="bg-slate-100 h-full p-6 sm:p-10 flex justify-center">
-      <div className="max-w-6xl flex-1">
-        <Login />
+    <>
+      <div className="bg-gradient-to-b from-purple-200 via-indigo-200 to-blue-200 overflow-hidden">
+        <div className="p-6 sm:p-10 pb-0 sm:pb-0 flex justify-center">
+          <div className="max-w-6xl flex-1">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+              <div className="flex-1 text-3xl tracking-tight font-medium select-none cursor-default my-2">
+                explique.ai
+              </div>
+              <Login />
+            </div>
+
+            <div className="bg-white shadow-2xl rounded-t-2xl px-8 py-8 sm:py-14 w-full max-w-2xl mx-auto mt-8">
+              {user ? (
+                <>
+                  <h1 className="flex flex-col justify-center text-center h-16 sm:h-24">
+                    <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
+                      {user.course.code}
+                    </span>
+                    <span className="block text-balance text-3xl sm:text-5xl font-semibold tracking-tight text-gray-800">
+                      {user.course.name}
+                    </span>
+                  </h1>
+
+                  {user.isAdmin && (
+                    <div className="mt-4 sm:mt-6 text-center">
+                      <Link
+                        href={`/${courseSlug}/admin`}
+                        className="text-base font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200 inline-flex"
+                      >
+                        Admin
+                      </Link>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="w-2/3 mx-auto h-16 sm:h-24 rounded-xl bg-slate-200 animate-pulse"></div>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* <div className="h-72"></div> */}
+        {/* <Login />
 
         <div className="mt-12 sm:mt-0 sm:w-3/4">
           {user ? (
@@ -147,13 +178,16 @@ export default function CoursePage() {
           ) : (
             <div className="bg-slate-200 rounded flex-1 animate-pulse h-10"></div>
           )}
-        </div>
-
-        {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
-
-        <div className="h-10" />
+        </div> */}
       </div>
-    </div>
+      <div className="relative p-6 sm:p-10 flex justify-center shadow-[0_-10px_10px_-3px_rgba(0_0_0_/_0.08)]">
+        <div className="max-w-6xl flex-1">
+          {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
+
+          <div className="h-10" />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -185,7 +219,6 @@ function ProjectGrid() {
             </p>
           )}
         </header>
-
         {week.preview && (
           <p className="text-gray-700 my-4">
             <span className="inline-block bg-amber-200 px-2 py-1 rounded-lg mr-2 text-amber-900 uppercase tracking-wider font-semibold">
@@ -216,7 +249,6 @@ function ProjectGrid() {
             </>
           )}
         </div>
-
         <div className="grid gap-6 md:grid-cols-2">
           {week.exercises.map((exercise) => (
             <ExerciseLink exercise={exercise} key={exercise.id} />
