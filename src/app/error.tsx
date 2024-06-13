@@ -22,7 +22,9 @@ export default function ErrorPage({
         <div className="flex gap-2 items-center p-6">
           <ExclamationCircleIcon className="h-6 w-6 text-red-500" />
           <div className="flex-1 text-gray-900">
-            {error instanceof ConvexError ? error.data : "nonconvex"}
+            {error instanceof ConvexError
+              ? error.data
+              : "An unexpected error happened."}
           </div>
         </div>
       </div>
