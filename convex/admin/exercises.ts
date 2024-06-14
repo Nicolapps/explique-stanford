@@ -12,6 +12,7 @@ import { actionWithAuth, queryWithAuth } from "../withAuth";
 import { COMPLETION_VALID_MODELS } from "../chat";
 import { getCourseRegistration } from "../courses";
 import { Id } from "../_generated/dataModel";
+import { getImageForExercise } from "../exercises";
 
 export const get = queryWithAuth({
   args: {
@@ -34,7 +35,7 @@ export const list = queryWithAuth({
   args: {
     courseSlug: v.string(),
   },
-  handler: async ({ db, session }, { courseSlug }) => {
+  handler: async ({ db, session, storage }, { courseSlug }) => {
     const { course } = await getCourseRegistration(
       db,
       session,
@@ -47,13 +48,30 @@ export const list = queryWithAuth({
       .withIndex("by_course_and_start_date", (q) =>
         q.eq("courseId", course._id),
       )
+      .order("desc")
       .collect();
     const exercises = await db.query("exercises").collect();
 
-    return weeks.map((week) => ({
-      ...week,
-      exercises: exercises.filter((exercise) => exercise.weekId === week._id),
-    }));
+    const result = [];
+    for (const week of weeks) {
+      const resultExercises = [];
+      for (const exercise of exercises) {
+        if (exercise.weekId === week._id) {
+          resultExercises.push({
+            id: exercise._id,
+            name: exercise.name,
+            image: await getImageForExercise(db, storage, exercise),
+          });
+        }
+      }
+
+      result.push({
+        ...week,
+        exercises: resultExercises,
+      });
+    }
+
+    return result;
   },
 });
 

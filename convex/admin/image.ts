@@ -140,7 +140,7 @@ async function generateThumbnail(
   storage: StorageActionWriter,
   type: "image/webp" | "image/avif" | "image/jpeg",
 ) {
-  const res = await fetch("https://cs250.epfl.ch/api/admin/compress", {
+  const res = await fetch("https://cs250.epfl.ch/admin/compress", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

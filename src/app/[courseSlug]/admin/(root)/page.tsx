@@ -7,6 +7,7 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import { api } from "../../../../../convex/_generated/api";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import Title from "@/components/typography";
+import { ExerciseLink } from "../../page";
 
 export default function Admin() {
   const courseSlug = useCourseSlug();
@@ -45,33 +46,29 @@ export default function Admin() {
             to{" "}
             <strong className="font-medium text-gray-800">
               {formatTimestampHumanFormat(week.endDate)}
-            </strong>{" "}
-            (extra time:{" "}
-            <strong className="font-medium text-gray-800">
-              {formatTimestampHumanFormat(week.endDateExtraTime)}
             </strong>
-            )
           </p>
 
-          <div className="mt-4 divide-y">
+          <div className="mt-4 grid gap-6 md:grid-cols-2">
             {week.exercises.map((exercise) => (
-              <Link
-                key={exercise._id}
-                href={`/${courseSlug}/admin/exercises/${exercise._id}`}
-                className="text-blue-800 flex items-center py-3 px-8 hover:bg-blue-100 rounded-lg"
-              >
-                {exercise.name}
-              </Link>
+              <ExerciseLink
+                href={`/${courseSlug}/admin/exercises/${exercise.id}`}
+                name={exercise.name}
+                image={exercise.image}
+                key={exercise.id}
+              />
             ))}
 
             <Link
               href={`/${courseSlug}/admin/exercises/new/${week._id}`}
-              className="font-medium text-blue-800 flex items-center py-3 hover:bg-blue-100 rounded-lg"
+              className="block rounded-3xl shadow-[inset_0_0_0_2px_#bfdbfe] transition-shadow hover:shadow-[inset_0_0_0_2px_#3b82f6]"
             >
-              <span className="w-8 flex items-center justify-center">
-                <PlusIcon className="w-5 h-5" />
-              </span>
-              Add Exercise
+              <div className="relative pb-[57.14%]">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-blue-900 text-xl font-light gap-2">
+                  <PlusIcon className="w-6 h-6" />
+                  <span>New Exercise</span>
+                </div>
+              </div>
             </Link>
           </div>
         </div>

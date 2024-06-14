@@ -1,7 +1,9 @@
 import { ConvexError, v } from "convex/values";
 import { queryWithAuth } from "./withAuth";
-import { internalQuery } from "./_generated/server";
+import { DatabaseReader, internalQuery } from "./_generated/server";
 import { getCourseRegistration } from "./courses";
+import { Doc, Id } from "./_generated/dataModel";
+import { StorageReader } from "convex/server";
 
 export const getRow = internalQuery({
   args: {
@@ -33,6 +35,40 @@ export const getLastAttempt = queryWithAuth({
   },
 });
 
+export async function getImageForExercise(
+  db: DatabaseReader,
+  storage: StorageReader,
+  exercise: Doc<"exercises">,
+) {
+  if (!exercise.image) {
+    return null;
+  }
+
+  const imageRow = await db.get(exercise.image);
+  if (!imageRow) {
+    console.warn("Image not found for exercise", exercise._id);
+    return null;
+  }
+
+  const thumbnails = [];
+  for (const thumbnail of imageRow.thumbnails) {
+    const thumbnailUrl = await storage.getUrl(thumbnail.storageId);
+    if (!thumbnailUrl) {
+      continue;
+    }
+
+    thumbnails.push({
+      type: thumbnail.type,
+      sizes: thumbnail.sizes,
+      src: thumbnailUrl,
+    });
+  }
+
+  return {
+    thumbnails,
+  };
+}
+
 export const list = queryWithAuth({
   args: {
     courseSlug: v.string(),
@@ -62,36 +98,10 @@ export const list = queryWithAuth({
     for (const week of weeks) {
       const exercisesResult = [];
       for (const exercise of exercises.filter((x) => x.weekId === week._id)) {
-        let image = null;
-        if (exercise.image) {
-          const imageRow = await db.get(exercise.image);
-          if (imageRow) {
-            const thumbnails = [];
-            for (const thumbnail of imageRow.thumbnails) {
-              const thumbnailUrl = await storage.getUrl(thumbnail.storageId);
-              if (!thumbnailUrl) {
-                continue;
-              }
-
-              thumbnails.push({
-                type: thumbnail.type,
-                sizes: thumbnail.sizes,
-                src: thumbnailUrl,
-              });
-            }
-
-            image = {
-              thumbnails,
-            };
-          } else {
-            console.warn("Image not found for exercise", exercise._id);
-          }
-        }
-
         exercisesResult.push({
           id: exercise._id,
           name: exercise.name,
-          image,
+          image: await getImageForExercise(db, storage, exercise),
           completed: user.completedExercises.includes(exercise._id),
         });
       }
