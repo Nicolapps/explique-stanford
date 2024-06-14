@@ -155,7 +155,13 @@ function CourseSelector() {
         {({ open }) => (
           <>
             <div className="relative">
-              <ListboxButton className="w-full cursor-default rounded-2xl bg-white py-1.5 px-10 text-left text-gray-900 ring-1 ring-inset ring-white focus:outline-none focus:ring-2 focus:ring-purple-500 sm:text-sm sm:leading-6 h-24 sm:h-32">
+              <ListboxButton
+                className={clsx(
+                  "w-full cursor-default rounded-2xl bg-white py-1.5 px-10 text-left text-gray-900 ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-purple-500 sm:text-sm sm:leading-6 h-24 sm:h-32",
+                  !open && "ring-white",
+                  open && "ring-2 ring-purple-500",
+                )}
+              >
                 <h1 className="flex flex-col justify-center text-center items-center">
                   <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
                     {user.course.code}
