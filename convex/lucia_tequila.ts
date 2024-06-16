@@ -92,7 +92,6 @@ export async function getOrCreateUser(
     name: null,
     email: null,
     group,
-    isAdmin: false,
     completedExercises: [],
 
     // These will be filled out by Convex

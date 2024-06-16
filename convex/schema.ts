@@ -174,8 +174,6 @@ export default defineSchema(
       email: v.union(v.string(), v.null()),
       name: v.union(v.string(), v.null()),
       identifier: v.optional(v.string()),
-      isAdmin: v.boolean(),
-      earlyAccess: v.optional(v.literal(true)),
       researchConsent: v.optional(v.literal(true)),
       group: v.union(v.literal("A"), v.literal("B")),
       extraTime: v.optional(v.literal(true)),

@@ -43,7 +43,6 @@ export const redirect = action({
           attributes: {
             name: googleUser.name,
             email,
-            isAdmin: false,
             group: Math.random() > 0.5 ? "A" : "B",
             researchConsent: undefined,
             completedExercises: [],

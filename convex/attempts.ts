@@ -20,10 +20,6 @@ export const get = queryWithAuth({
     const attempt = await db.get(id);
     if (attempt === null) throw new ConvexError("Unknown attempt");
 
-    if (attempt.userId !== session.user._id && !session.user.isAdmin) {
-      throw new Error("Attempt from someone else");
-    }
-
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
 
@@ -40,6 +36,10 @@ export const get = queryWithAuth({
       )
       .first();
     if (!registration) throw new Error("User not enrolled in the course.");
+
+    if (attempt.userId !== session.user._id && registration.role !== "admin") {
+      throw new Error("Attempt from someone else");
+    }
 
     const now = Date.now();
     if (
@@ -93,7 +93,7 @@ export const get = queryWithAuth({
       status: attempt.status,
       isDue,
       isSolutionShown,
-      isAdmin: session.user.isAdmin,
+      isAdmin: registration.role === "admin",
       text:
         attempt.threadId !== null
           ? null
@@ -246,7 +246,7 @@ export const goToQuiz = mutationWithAuth({
     const attempt = await db.get(attemptId);
     if (attempt === null) throw new ConvexError("Unknown attempt");
 
-    if (attempt.userId !== session.user._id && !session.user.isAdmin) {
+    if (attempt.userId !== session.user._id) {
       throw new Error("Attempt from someone else");
     }
 

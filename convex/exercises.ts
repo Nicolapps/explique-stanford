@@ -91,7 +91,7 @@ export const list = queryWithAuth({
           .eq("courseId", course._id)
           .lte(
             "startDate",
-            user.earlyAccess || registration.role === "admin"
+            registration.role === "admin" || registration.role === "ta"
               ? Number.MAX_VALUE
               : now,
           ),

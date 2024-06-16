@@ -42,7 +42,22 @@ async function getAttemptIfAuthorized(
 
   const attempt = await db.get(attemptId);
   if (attempt === null) throw new ConvexError("Unknown attempt");
-  if (attempt.userId !== session.user._id && !session.user.isAdmin) {
+
+  const exercise = await db.get(attempt.exerciseId);
+  if (exercise === null) throw new Error("No exercise");
+
+  const week = await db.get(exercise.weekId);
+  if (week === null) throw new Error("No week");
+
+  const registration = await db
+    .query("registrations")
+    .withIndex("by_user_and_course", (q) =>
+      q.eq("userId", session.user._id).eq("courseId", week.courseId),
+    )
+    .first();
+  if (!registration) throw new Error("User not enrolled in the course.");
+
+  if (attempt.userId !== session.user._id && registration.role !== "admin") {
     throw new ConvexError("Forbidden");
   }
 

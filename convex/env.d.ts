@@ -5,8 +5,6 @@ declare namespace Lucia {
     _creationTime: number;
     email: string | null;
     name: string | null;
-    isAdmin: boolean;
-    earlyAccess?: true;
     extraTime?: true;
     group: "A" | "B";
     researchConsent?: true;

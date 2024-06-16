@@ -29,8 +29,6 @@ export function getAuth(db: AuthDbWriter) {
         _creationTime: user._creationTime,
         email: user.email,
         name: user.name,
-        isAdmin: user.isAdmin,
-        earlyAccess: user.earlyAccess,
         extraTime: user.extraTime,
         group: user.group,
         researchConsent: user.researchConsent,
