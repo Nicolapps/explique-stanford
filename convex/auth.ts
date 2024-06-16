@@ -45,7 +45,6 @@ export const redirect = action({
             email,
             group: Math.random() > 0.5 ? "A" : "B",
             researchConsent: undefined,
-            completedExercises: [],
 
             // These will be filled out by Convex
             _id: "" as Id<"users">,

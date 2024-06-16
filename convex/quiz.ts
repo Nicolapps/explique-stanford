@@ -135,9 +135,12 @@ export const submit = mutationWithAuth({
     if (isCorrect) {
       const user = await db.get(session.user._id);
       if (!user) throw new Error("No user");
-      if (!user.completedExercises.includes(attempt.exerciseId)) {
-        await db.patch(user._id, {
-          completedExercises: [...user.completedExercises, attempt.exerciseId],
+      if (!registration.completedExercises.includes(attempt.exerciseId)) {
+        await db.patch(registration._id, {
+          completedExercises: [
+            ...registration.completedExercises,
+            attempt.exerciseId,
+          ],
         });
       }
 
