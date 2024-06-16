@@ -7,7 +7,7 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import { api } from "../../../../../convex/_generated/api";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import Title from "@/components/typography";
-import { ExerciseLink } from "../../page";
+import { ExerciseLink } from "@/components/ExerciseLink";
 
 export default function Admin() {
   const courseSlug = useCourseSlug();
