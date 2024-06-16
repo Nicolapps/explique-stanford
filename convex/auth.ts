@@ -43,8 +43,6 @@ export const redirect = action({
           attributes: {
             name: googleUser.name,
             email,
-            group: Math.random() > 0.5 ? "A" : "B",
-            researchConsent: undefined,
 
             // These will be filled out by Convex
             _id: "" as Id<"users">,
