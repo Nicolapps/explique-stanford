@@ -42,7 +42,7 @@ export function useMutation<
         const errorMessage =
           error instanceof ConvexError
             ? error.data
-            : "Unexpected error occurred";
+            : "An unexpected error occurred.";
         toast.error(errorMessage);
         throw error;
       }
@@ -69,7 +69,7 @@ export function useAction<
         const errorMessage =
           error instanceof ConvexError
             ? error.data
-            : "Unexpected error occurred";
+            : "An unexpected error occurred.";
         toast.error(errorMessage);
         throw error;
       }
