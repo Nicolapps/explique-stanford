@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { useQuery } from "../usingSession";
 import { api } from "../../convex/_generated/api";
 import { ArrowRightIcon } from "@heroicons/react/16/solid";
+import { PrimaryButton } from "./PrimaryButton";
 
 export function ResearchConsent() {
   const hasBeenSet = useQuery(api.researchConsent.hasBeenSet, {});
@@ -54,14 +55,13 @@ export function ResearchConsent() {
                     consent form on Moodle.
                   </p>
 
-                  <a
-                    className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                  <PrimaryButton
                     href="https://go.epfl.ch/CS-250"
                     target="_blank"
                   >
                     Go to Moodle
                     <ArrowRightIcon className="w-5 h-5" />
-                  </a>
+                  </PrimaryButton>
                 </div>
               </Dialog.Panel>
             </Transition.Child>

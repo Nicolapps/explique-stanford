@@ -10,6 +10,7 @@ import { useMutation } from "@/usingSession";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import Markdown from "../Markdown";
+import { PrimaryButton } from "../PrimaryButton";
 
 const ATTEMPT_TIMEOUT_MS = 1000 * 60 * 1;
 
@@ -100,8 +101,7 @@ export default function QuizExercise({
       </div>
 
       <footer className="flex flex-col items-center my-8 gap-8">
-        <button
-          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+        <PrimaryButton
           disabled={selectedAnswerIndexes.includes(null) || disabled}
           onClick={async () => {
             await submit({
@@ -115,7 +115,7 @@ export default function QuizExercise({
         >
           Submit
           <ArrowRightIcon className="w-5 h-5" />
-        </button>
+        </PrimaryButton>
 
         {!succeeded && !isDue && timeoutSeconds !== null && (
           <div>

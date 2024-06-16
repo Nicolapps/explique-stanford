@@ -10,6 +10,7 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { ArrowRightIcon, SparklesIcon } from "@heroicons/react/16/solid";
 import Markdown from "../Markdown";
+import { PrimaryButton } from "../PrimaryButton";
 
 export default function ExplainExercise({
   hasQuiz,
@@ -55,8 +56,7 @@ export default function ExplainExercise({
 
                 {nextButton !== "hide" && hasQuiz && (
                   <div className="flex flex-col gap-2 items-center">
-                    <button
-                      className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                    <PrimaryButton
                       onClick={async () => {
                         await goToQuiz({ attemptId });
                       }}
@@ -64,7 +64,7 @@ export default function ExplainExercise({
                     >
                       Continue to the quiz
                       <ArrowRightIcon className="w-5 h-5" />
-                    </button>
+                    </PrimaryButton>
                   </div>
                 )}
               </div>
@@ -116,8 +116,7 @@ export default function ExplainExercise({
 
                   {nextButton !== "hide" && message.content !== "" && (
                     <div className="flex flex-col gap-2 items-center">
-                      <button
-                        className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
+                      <PrimaryButton
                         onClick={async () => {
                           await goToQuiz({ attemptId });
                         }}
@@ -125,7 +124,7 @@ export default function ExplainExercise({
                       >
                         Continue to the quiz
                         <ArrowRightIcon className="w-5 h-5" />
-                      </button>
+                      </PrimaryButton>
                     </div>
                   )}
                 </div>

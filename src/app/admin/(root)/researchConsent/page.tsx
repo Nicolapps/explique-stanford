@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@/usingSession";
 import { useState } from "react";
 import { api } from "../../../../../convex/_generated/api";
 import { toast } from "sonner";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 export default function ResearchConsentPage() {
   const jwt = useQuery(api.admin.identitiesJwt.default, {});
@@ -79,14 +80,9 @@ export default function ResearchConsentPage() {
           hint="Separate the addresses by a line return."
         />
 
-        <button
-          type="submit"
-          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
-          onClick={async () => {}}
-          disabled={jwt === undefined}
-        >
+        <PrimaryButton type="submit" disabled={jwt === undefined}>
           Submit
-        </button>
+        </PrimaryButton>
       </form>
     </>
   );
