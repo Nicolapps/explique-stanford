@@ -16,6 +16,8 @@ import Chance from "chance";
 import clsx from "clsx";
 import { toast } from "sonner";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
+import { PrimaryButton } from "./PrimaryButton";
+import { Button } from "./Button";
 
 type Question = {
   question: string;
@@ -459,9 +461,8 @@ export default function ExerciseForm({
           </label>
 
           {quizBatches && (
-            <button
+            <Button
               type="button"
-              className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
               onClick={() => {
                 setQuizBatches([
                   ...quizBatches,
@@ -485,7 +486,7 @@ export default function ExerciseForm({
             >
               <PlusIcon className="w-5 h-5" />
               New Batch
-            </button>
+            </Button>
           )}
         </header>
 
@@ -521,12 +522,7 @@ export default function ExerciseForm({
       <div className="h-36"></div>
 
       <div className="p-8 bg-white/60 backdrop-blur-xl fixed bottom-0 left-0 w-full flex justify-end shadow-2xl">
-        <button
-          type="submit"
-          className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700 overflow-hidden"
-        >
-          {submitLabel}
-        </button>
+        <PrimaryButton type="submit">{submitLabel}</PrimaryButton>
       </div>
     </form>
   );
@@ -580,9 +576,8 @@ function QuizBatch({
           </label>
         </div>
 
-        <button
+        <Button
           type="button"
-          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
           onClick={() => {
             onChange({
               randomize,
@@ -599,7 +594,7 @@ function QuizBatch({
         >
           <PlusIcon className="w-5 h-5" />
           New Question
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4">
