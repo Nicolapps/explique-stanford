@@ -16,6 +16,7 @@ import Chance from "chance";
 import clsx from "clsx";
 import { toast } from "sonner";
 import { PrimaryButton } from "./PrimaryButton";
+import { Button } from "./Button";
 
 type Question = {
   question: string;
@@ -458,9 +459,8 @@ export default function ExerciseForm({
           </label>
 
           {quizBatches && (
-            <button
+            <Button
               type="button"
-              className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
               onClick={() => {
                 setQuizBatches([
                   ...quizBatches,
@@ -484,7 +484,7 @@ export default function ExerciseForm({
             >
               <PlusIcon className="w-5 h-5" />
               New Batch
-            </button>
+            </Button>
           )}
         </header>
 
@@ -574,9 +574,8 @@ function QuizBatch({
           </label>
         </div>
 
-        <button
+        <Button
           type="button"
-          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 flex items-center gap-1"
           onClick={() => {
             onChange({
               randomize,
@@ -593,7 +592,7 @@ function QuizBatch({
         >
           <PlusIcon className="w-5 h-5" />
           New Question
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4">

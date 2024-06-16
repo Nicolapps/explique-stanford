@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useConvex } from "convex/react";
 import { useSessionId } from "@/components/SessionProvider";
 import { useIdentities } from "@/hooks/useIdentities";
+import { Button } from "@/components/Button";
 
 type ScoresQueryResult = {
   weeks: {
@@ -65,8 +66,7 @@ export default function ScoresPage() {
       <Title>
         <span className="flex-1">Scores</span>
         {data && (
-          <button
-            className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 text-base flex items-center gap-2"
+          <Button
             onClick={() => {
               const rows: string[][] = [
                 [
@@ -97,7 +97,7 @@ export default function ScoresPage() {
           >
             <ClipboardDocumentIcon className="w-5 h-5" />
             Copy
-          </button>
+          </Button>
         )}
       </Title>
       {data ? (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { formatTimestampHumanFormat } from "@/util/date";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { api } from "../../../../convex/_generated/api";
+import { Button } from "@/components/Button";
 
 export default function Admin() {
   const weeks = useQuery(api.admin.exercises.list, {});
@@ -14,12 +15,10 @@ export default function Admin() {
       <div className="flex mb-8 gap-4 flex-wrap items-center justify-between">
         <h1 className="font-semibold text-4xl tracking-tight">Weeks</h1>
 
-        <Link
-          href="/admin/weeks/new"
-          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200"
-        >
+        <Button href="/admin/weeks/new">
+          <PlusIcon className="w-5 h-5" />
           Add Week
-        </Link>
+        </Button>
       </div>
 
       {weeks?.map((week) => (

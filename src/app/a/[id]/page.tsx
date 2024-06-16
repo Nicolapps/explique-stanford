@@ -11,6 +11,7 @@ import ReadingExercise from "@/components/exercises/ReadingExercise";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Tooltip from "@/components/Tooltip";
+import { Button } from "@/components/Button";
 
 export default function Page({ params }: { params: { id: string } }) {
   const attemptId = params.id as Id<"attempts">;
@@ -181,19 +182,20 @@ function RestartButton({ exerciseId }: { exerciseId: Id<"exercises"> }) {
                   </div>
 
                   <div className="mt-4 flex gap-2 justify-end">
-                    <button
-                      className="inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    <Button
                       onClick={() => setIsModalOpen(false)}
+                      variant="secondary"
+                      size="sm"
                     >
                       Cancel
-                    </button>
-                    <Link
+                    </Button>
+                    <Button
                       href={`/a/new?exerciseId=${exerciseId}`}
-                      className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                      onClick={() => setIsModalOpen(false)}
+                      variant="danger"
+                      size="sm"
                     >
                       Restart
-                    </Link>
+                    </Button>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>

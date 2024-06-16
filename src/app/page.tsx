@@ -20,6 +20,7 @@ import { formatTimestampHumanFormat, timeFromNow } from "@/util/date";
 import Tooltip from "@/components/Tooltip";
 import Title from "@/components/typography";
 import { useIdentity } from "@/components/SessionProvider";
+import { Button } from "@/components/Button";
 function ExerciseLink({
   exercise,
 }: {
@@ -119,12 +120,9 @@ function Login() {
         <p>{identity ? identity.email : user.email}</p>
       </div>
       {user.isAdmin && (
-        <Link
-          href="/admin"
-          className="font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200"
-        >
+        <Button href="/admin" variant="danger">
           Admin
-        </Link>
+        </Button>
       )}
     </div>
   );
