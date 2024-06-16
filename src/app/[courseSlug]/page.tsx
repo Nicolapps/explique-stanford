@@ -27,6 +27,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import { ExerciseLink } from "@/components/ExerciseLink";
+import { TabBar } from "@/components/TabBar";
 
 function Login() {
   const router = useRouter();
@@ -193,24 +194,22 @@ export default function CoursePage() {
 
             <div className="bg-white shadow-[0_-20px_40px_-12px_rgb(0_0_0_/_0.1)] rounded-t-2xl p-8 md:p-14 w-full max-w-2xl mx-auto mt-8">
               <CourseSelector />
-              {user && user.isAdmin && (
-                <div className="mt-2 mb-8 text-center">
-                  <Link
-                    href={`/${courseSlug}/admin`}
-                    className="text-base font-medium px-4 py-2 rounded-lg bg-red-100 cursor-pointer hover:bg-red-200 inline-flex"
-                  >
-                    Admin
-                  </Link>
-                </div>
-              )}
             </div>
           </div>
         </div>
       </div>
       <div className="relative p-6 sm:p-10 flex justify-center shadow-[0_-10px_10px_-3px_rgba(0_0_0_/_0.08)]">
         <div className="max-w-6xl flex-1">
-          {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
+          {user?.isAdmin && (
+            <TabBar
+              items={[
+                { label: "Exercises", href: `/${courseSlug}` },
+                { label: "Admin", href: `/${courseSlug}/admin` },
+              ]}
+            />
+          )}
 
+          {user ? <ProjectGrid /> : <ProjectGridSkeleton />}
           <div className="h-10" />
         </div>
       </div>
