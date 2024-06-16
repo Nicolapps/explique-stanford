@@ -33,19 +33,28 @@ export default queryWithAuth({
         })),
     }));
 
-    // @TODO Update
-    const users = (await db.query("users").collect()).map((user) => ({
-      id: user._id,
-      email: user.email,
-      identifier: user.identifier,
-      completedExercises: user.completedExercises,
-      isAdmin: user.isAdmin,
-      earlyAccess: user.earlyAccess,
-    }));
+    const registrations = await db
+      .query("registrations")
+      .withIndex("by_course", (q) => q.eq("courseId", course._id))
+      .collect();
+
+    const users = await Promise.all(
+      registrations.map(async (registration) => {
+        const user = await db.get(registration.userId);
+        if (!user) throw new Error("User of registration not found");
+        return {
+          id: registration.userId,
+          email: user.email,
+          identifier: user.identifier,
+          completedExercises: registration.completedExercises,
+          role: registration.role,
+        };
+      }),
+    );
 
     return {
       weeks,
-      users: [...users],
+      users,
     };
   },
 });

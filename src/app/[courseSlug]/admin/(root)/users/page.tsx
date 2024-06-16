@@ -22,15 +22,14 @@ type ScoresQueryResult = {
     exercises: { id: Id<"exercises">; name: string }[];
   }[];
   users: {
-    id: string;
+    id: Id<"users">;
 
     email: string | null;
     identifier?: string;
     shownEmail: string;
 
     completedExercises: Id<"exercises">[];
-    isAdmin?: boolean;
-    earlyAccess?: boolean;
+    role: "admin" | "ta" | null;
   }[];
 };
 
@@ -86,7 +85,11 @@ export default function ScoresPage() {
                 ],
                 ...data.users.map((user) => [
                   user.shownEmail,
-                  user.isAdmin ? "Admin" : user.earlyAccess ? "TA" : "",
+                  user.role === "admin"
+                    ? "Admin"
+                    : user.role === "ta"
+                      ? "TA"
+                      : "",
                   ...data.weeks.flatMap((week) =>
                     week.exercises.map((exercise) =>
                       user.completedExercises.includes(exercise.id) ? "1" : "0",
@@ -158,11 +161,11 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
               {user.shownEmail.replace("@epfl.ch", "")}
             </td>
             <td className="pl-2">
-              {user.isAdmin ? (
+              {user.role === "admin" ? (
                 <span className="inline-block bg-red-200 px-2 py-1 rounded-full mr-2 text-red-900 uppercase tracking-wider font-semibold text-xs">
                   Admin
                 </span>
-              ) : user.earlyAccess ? (
+              ) : user.role === "ta" ? (
                 <span className="inline-block bg-orange-200 px-2 py-1 rounded-full mr-2 text-orange-900 uppercase tracking-wider font-semibold text-xs">
                   TA
                 </span>

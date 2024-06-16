@@ -75,7 +75,11 @@ export const list = queryWithAuth({
   },
   handler: async ({ db, session, storage }, { courseSlug }) => {
     if (!session) throw new ConvexError("Not logged in");
-    const { course } = await getCourseRegistration(db, session, courseSlug);
+    const { course, registration } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+    );
 
     const { user } = session;
 
@@ -87,7 +91,9 @@ export const list = queryWithAuth({
           .eq("courseId", course._id)
           .lte(
             "startDate",
-            user.earlyAccess || user.isAdmin ? Number.MAX_VALUE : now,
+            user.earlyAccess || registration.role === "admin"
+              ? Number.MAX_VALUE
+              : now,
           ),
       )
       .order("desc")
@@ -102,7 +108,7 @@ export const list = queryWithAuth({
           id: exercise._id,
           name: exercise.name,
           image: await getImageForExercise(db, storage, exercise),
-          completed: user.completedExercises.includes(exercise._id),
+          completed: registration.completedExercises.includes(exercise._id),
         });
       }
 
