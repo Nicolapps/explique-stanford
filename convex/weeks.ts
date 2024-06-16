@@ -2,17 +2,19 @@ import {
   ActionCtx,
   DatabaseWriter,
   internalMutation,
-  internalQuery,
 } from "./_generated/server";
 import { User } from "lucia";
-import { Doc } from "./_generated/dataModel";
+import { Doc, Id } from "./_generated/dataModel";
 import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 
 export async function validateDueDate(
   db: DatabaseWriter, // In order to avoid calling this from cached queries
   exercise: Doc<"exercises">,
-  user: User,
+  user: {
+    _id: Id<"users">;
+    extraTime?: true;
+  },
 ) {
   const now = Date.now();
 
@@ -21,7 +23,21 @@ export async function validateDueDate(
     throw new Error("Week not found");
   }
 
-  if (week.startDate > now && !user.earlyAccess && !user.isAdmin) {
+  const registration = await db
+    .query("registrations")
+    .withIndex("by_user_and_course", (q) =>
+      q.eq("userId", user._id).eq("courseId", week.courseId),
+    )
+    .first();
+  if (registration === null) {
+    throw new ConvexError("You are not enrolled in this class.");
+  }
+
+  if (
+    week.startDate > now &&
+    registration.role !== "admin" &&
+    registration.role !== "ta"
+  ) {
     throw new ConvexError("This exercise hasn’t been released yet.");
   }
 
@@ -35,39 +51,33 @@ export async function validateDueDateFromAction(
   exercise: Doc<"exercises">,
   user: User,
 ) {
-  const now = Date.now();
-
-  const week = await ctx.runQuery(internal.weeks.getWeekDateFields, {
+  await ctx.runMutation(internal.weeks.validateDueDateFromActionQuery, {
     id: exercise.weekId,
+    exerciseId: exercise._id,
+    userId: user._id,
   });
-  if (week === null) {
-    throw new Error("Week not found");
-  }
-
-  if (week.startDate > now && !user.earlyAccess && !user.isAdmin) {
-    throw new ConvexError("This exercise hasn’t been released yet.");
-  }
-
-  if (now >= week.endDate && !(user.extraTime && now < week.endDateExtraTime)) {
-    throw new ConvexError("This exercise due date has passed.");
-  }
 }
 
-export const getWeekDateFields = internalQuery({
+export const validateDueDateFromActionQuery = internalMutation({
+  // mutation as to avoid caching
+
   args: {
     id: v.id("weeks"),
+    exerciseId: v.id("exercises"),
+    userId: v.id("users"),
   },
-  handler: async ({ db }, { id }) => {
-    const week = await db.get(id);
-    if (week === null) {
-      return null;
+  handler: async ({ db }, { id, exerciseId, userId }) => {
+    const exercise = await db.get(exerciseId);
+    if (exercise === null) {
+      throw new Error("Exercise not found");
     }
 
-    return {
-      startDate: week.startDate,
-      endDate: week.endDate,
-      endDateExtraTime: week.endDateExtraTime,
-    };
+    const user = await db.get(userId);
+    if (user === null) {
+      throw new Error("User not found");
+    }
+
+    await validateDueDate(db, exercise, user);
   },
 });
 

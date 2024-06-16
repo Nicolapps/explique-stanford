@@ -44,8 +44,8 @@ export const get = queryWithAuth({
     const now = Date.now();
     if (
       week.startDate > now &&
-      !session.user.earlyAccess &&
-      !session.user.isAdmin
+      registration.role !== "admin" &&
+      registration.role !== "ta"
     ) {
       throw new ConvexError("This exercise hasn’t been released yet.");
     }
