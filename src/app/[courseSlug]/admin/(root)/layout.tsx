@@ -58,18 +58,6 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
           <PuzzlePieceIcon />
           Exercises
         </NavLink>
-        <NavLink href={`/${courseSlug}/admin/scores`}>
-          <TableCellsIcon />
-          Scores
-        </NavLink>
-        <NavLink href={`/${courseSlug}/admin/researchConsent`}>
-          <DocumentCheckIcon />
-          Consent
-        </NavLink>
-        <NavLink href={`/${courseSlug}/admin/groups`}>
-          <TagIcon />
-          Groups
-        </NavLink>
         <NavLink href={`/${courseSlug}/admin/users`}>
           <UserIcon />
           Users

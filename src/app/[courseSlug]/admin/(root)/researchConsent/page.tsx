@@ -8,6 +8,7 @@ import { api } from "../../../../../../convex/_generated/api";
 import { toast } from "sonner";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 
+// @TODO Remove this deprecated page
 export default function ResearchConsentPage() {
   const courseSlug = useCourseSlug();
   const jwt = useQuery(api.admin.identitiesJwt.default, { courseSlug });
