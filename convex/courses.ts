@@ -125,7 +125,7 @@ export const getMyRegistrations = queryWithAuth({
 export const getMostRecentRegistration = queryWithAuth({
   args: {},
   handler: async ({ db, session }) => {
-    if (!session) return null;
+    if (!session) return { error: "not_logged_in" };
 
     const mostRecentRegistration = await db
       .query("registrations")
@@ -133,6 +133,7 @@ export const getMostRecentRegistration = queryWithAuth({
       .order("desc")
       .first();
     if (!mostRecentRegistration) {
+      return { error: "not_enrolled" };
       throw new ConvexError(
         "You are not enrolled in any courses. Please contact your instructor.",
       );
