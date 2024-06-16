@@ -65,7 +65,7 @@ export default function Admin() {
                 className="block rounded-3xl shadow-[inset_0_0_0_2px_#bfdbfe] transition-shadow hover:shadow-[inset_0_0_0_2px_#0084c7]"
               >
                 <div className="relative pb-[57.14%]">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-sky-600 text-xl gap-2">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-sky-700 text-xl gap-2">
                     <PlusIcon className="w-6 h-6" />
                     <span>New Exercise</span>
                   </div>
