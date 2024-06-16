@@ -9,7 +9,7 @@ export function Button({
   type,
   target,
   variant = "primary",
-  size = "lg",
+  size = "base",
 }: React.PropsWithChildren<
   (
     | {
