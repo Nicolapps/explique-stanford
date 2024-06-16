@@ -6,8 +6,6 @@ declare namespace Lucia {
     email: string | null;
     name: string | null;
     extraTime?: true;
-    group: "A" | "B";
-    researchConsent?: true;
     identifier?: string;
   };
   type DatabaseSessionAttributes = {

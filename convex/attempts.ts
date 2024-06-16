@@ -223,16 +223,26 @@ export const isUsingExplainVariant = internalQuery({
     const exercise = await db.get(exerciseId);
     if (exercise === null) throw new Error("Unknown exercise");
 
+    const week = await db.get(exercise.weekId);
+    if (week === null) throw new Error("No week");
+
+    const registration = await db
+      .query("registrations")
+      .withIndex("by_user_and_course", (q) =>
+        q.eq("userId", userId).eq("courseId", week.courseId),
+      )
+      .first();
+    if (!registration) throw new Error("User not enrolled in the course.");
+
     const { controlGroup } = exercise;
     if (controlGroup === "all") return false;
     if (controlGroup === "none") return true;
 
-    const user = await db.get(userId);
-    if (user === null) throw new Error("Unknown user");
-
-    const { group } = user;
-
-    return group !== controlGroup;
+    // @TODO Remove this logic
+    return (
+      registration.researchGroup &&
+      registration.researchGroup.id !== controlGroup
+    );
   },
 });
 

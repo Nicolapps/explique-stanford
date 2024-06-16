@@ -30,8 +30,6 @@ export function getAuth(db: AuthDbWriter) {
         email: user.email,
         name: user.name,
         extraTime: user.extraTime,
-        group: user.group,
-        researchConsent: user.researchConsent,
         identifier: user.identifier,
       };
     },

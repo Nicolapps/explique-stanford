@@ -91,7 +91,6 @@ export async function getOrCreateUser(
     identifier,
     name: null,
     email: null,
-    group,
 
     // These will be filled out by Convex
     _id: "" as Id<"users">,
