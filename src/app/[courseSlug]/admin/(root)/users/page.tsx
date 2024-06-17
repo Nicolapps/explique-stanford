@@ -10,11 +10,13 @@ import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 import { useConvex } from "convex/react";
 import { useSessionId } from "@/components/SessionProvider";
-import { useIdentities } from "@/hooks/useIdentities";
+import { useIdentities, useIsUsingIdentities } from "@/hooks/useIdentities";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import { Textarea } from "@/components/Input";
-import { useQuery } from "@/usingSession";
+import { useMutation, useQuery } from "@/usingSession";
 import { Button } from "@/components/Button";
+import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { PrimaryButton } from "@/components/PrimaryButton";
 
 type ScoresQueryResult = {
   weeks: {
@@ -206,18 +208,24 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
 function AddUsers() {
   const [emails, setEmails] = useState("");
   const courseSlug = useCourseSlug();
-  const jwt = useQuery(api.admin.identitiesJwt.default, { courseSlug });
+  const convex = useConvex();
+  const sessionId = useSessionId();
+  const isUsingIdentities = useIsUsingIdentities();
+  const addUser = useMutation(api.admin.registrations.default);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (!jwt === undefined) return;
 
         const validatedEmails = emails
           .split("\n")
           .map((l) => l.trim())
           .filter((email) => !!email);
+
+        if (validatedEmails.length === 0) {
+          return;
+        }
 
         const invalidEmail = validatedEmails.find(
           (e) => !e.includes("@") || e.includes(" ") || e.includes(","),
@@ -227,8 +235,43 @@ function AddUsers() {
           return;
         }
 
-        // @TODO
-        toast.error("Not implemented");
+        async function sendForm() {
+          if (isUsingIdentities) {
+            const jwt = await convex.query(api.admin.identitiesJwt.default, {
+              sessionId,
+              courseSlug,
+            });
+
+            const resConvert = await fetch(
+              "/api/admin/computeIdentifiers?for=" + validatedEmails.join(","),
+              {
+                headers: {
+                  Authorization: `Bearer ${jwt}`,
+                },
+              },
+            );
+            if (resConvert.status !== 200) {
+              toast.error("Failed to retrieve the email addresses.");
+              return;
+            }
+            const identifiers = (await resConvert.json()) as string[];
+
+            await addUser({
+              courseSlug,
+              users: { identifiers },
+            });
+          } else {
+            await addUser({
+              courseSlug,
+              users: { emails: validatedEmails },
+            });
+          }
+        }
+
+        toast.promise(sendForm(), {
+          loading: "Adding the new users…",
+          success: "The new users have been added.",
+        });
       }}
     >
       <h2 className="font-medium text-2xl tracking-wide mb-6 mt-12">
@@ -237,18 +280,33 @@ function AddUsers() {
 
       <Textarea
         value={emails}
-        label="Email addresses"
+        label={
+          <>
+            Email addresses{" "}
+            <small className="font-normal color-gray-600">
+              (one address by line)
+            </small>
+          </>
+        }
         onChange={setEmails}
-        hint="Separate the addresses by a line return."
+        hint={
+          <>
+            {isUsingIdentities && (
+              <span className="flex gap-1 items-center">
+                <LockClosedIcon className="w-4 h-4" aria-hidden />
+                The personal data of the users never leave the EPFL servers.
+              </span>
+            )}
+          </>
+        }
+        required
       />
 
-      <button
-        disabled={jwt === undefined}
-        type="submit"
-        className="flex gap-1 justify-center items-center py-3 px-6 bg-gradient-to-b from-purple-500 to-purple-600 text-white sm:text-lg font-semibold rounded-2xl shadow-lg transition hover:shadow-xl disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none disabled:text-slate-700"
-      >
-        Submit
-      </button>
+      <div className="pb-8">
+        <PrimaryButton type="submit" disabled={!emails.trim()}>
+          Add Users
+        </PrimaryButton>
+      </div>
     </form>
   );
 }

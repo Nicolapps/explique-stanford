@@ -45,7 +45,7 @@ export function Textarea({
 }: {
   value: string;
   onChange: (value: string) => void;
-  label: string;
+  label: React.ReactNode;
   type?: string;
   required?: boolean;
   hint?: ReactNode;
