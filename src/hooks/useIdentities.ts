@@ -6,6 +6,10 @@ import { useCourseSlug } from "./useCourseSlug";
 
 export type Identities = Record<string, { email: string }>;
 
+export function useIsUsingIdentities(): boolean {
+  return window.location.host === "cs250.epfl.ch";
+}
+
 export function useIdentities(): Identities | undefined {
   const convex = useConvex();
   const sessionId = useSessionId();

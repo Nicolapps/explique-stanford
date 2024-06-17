@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import { useEffect, useRef } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { toast } from "sonner";
+import { useIsUsingIdentities } from "@/hooks/useIdentities";
 
 async function getTequilaLoginUrl() {
   const response = await fetch("/api/tequila");
@@ -20,6 +21,8 @@ async function getTequilaLoginUrl() {
 export default function Page() {
   const authUrlAction = useAction(api.auth.getLoginUrl);
 
+  const isUsingIdentities = useIsUsingIdentities();
+
   const executed = useRef(false);
   useEffect(() => {
     if (executed.current) {
@@ -30,8 +33,7 @@ export default function Page() {
     (async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const external = urlParams.has("external") ? true : undefined;
-      const legacy =
-        urlParams.has("legacy") || window.location.host !== "cs250.epfl.ch";
+      const legacy = urlParams.has("legacy") || !isUsingIdentities;
 
       if (external || legacy) {
         const redirectUrl = await authUrlAction({
@@ -42,6 +44,7 @@ export default function Page() {
         try {
           window.location.href = await getTequilaLoginUrl();
         } catch (e) {
+          console.error("Login error", e);
           toast.error(
             "An error occurred while trying to log in. Please try again.",
           );
