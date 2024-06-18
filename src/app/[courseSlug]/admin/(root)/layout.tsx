@@ -4,11 +4,9 @@ import { useCourseSlug } from "@/hooks/useCourseSlug";
 import { useQuery } from "@/usingSession";
 import { ChevronLeftIcon } from "@heroicons/react/16/solid";
 import {
-  DocumentCheckIcon,
-  TableCellsIcon,
   PuzzlePieceIcon,
-  TagIcon,
   UserIcon,
+  AcademicCapIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Link from "next/link";
@@ -55,6 +53,10 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
         </Link>
 
         <NavLink href={`/${courseSlug}/admin`}>
+          <AcademicCapIcon />
+          Course
+        </NavLink>
+        <NavLink href={`/${courseSlug}/admin/exercises`}>
           <PuzzlePieceIcon />
           Exercises
         </NavLink>
