@@ -1,11 +1,12 @@
 import { ConvexError, v } from "convex/values";
 import { getCourseRegistration } from "../courses";
 import { mutationWithAuth, queryWithAuth } from "../auth/withAuth";
-import { Id } from "../_generated/dataModel";
-import { DatabaseWriter } from "../_generated/server";
+import { Doc, Id } from "../_generated/dataModel";
+import { DatabaseReader, DatabaseWriter } from "../_generated/server";
 import { generateUserId } from "../auth/lucia";
+import { paginationOptsValidator } from "convex/server";
 
-export const list = queryWithAuth({
+export const listExercisesForTable = queryWithAuth({
   args: {
     courseSlug: v.string(),
   },
@@ -18,6 +19,7 @@ export const list = queryWithAuth({
     );
 
     const exercises = await db.query("exercises").collect();
+
     const weeks = (
       await db
         .query("weeks")
@@ -36,30 +38,76 @@ export const list = queryWithAuth({
         })),
     }));
 
+    return weeks;
+  },
+});
+
+async function formatListElement(
+  db: DatabaseReader,
+  registration: Doc<"registrations">,
+) {
+  const user = await db.get(registration.userId);
+  if (!user) throw new Error("User of registration not found");
+  return {
+    id: registration.userId,
+    email: user.email,
+    identifier: user.identifier,
+    completedExercises: registration.completedExercises,
+    role: registration.role,
+  };
+}
+
+export const listPaginated = queryWithAuth({
+  args: {
+    courseSlug: v.string(),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async ({ db, session }, { courseSlug, paginationOpts }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
+
+    const registrations = await db
+      .query("registrations")
+      .withIndex("by_course_and_role", (q) => q.eq("courseId", course._id))
+      .order("desc")
+      .paginate(paginationOpts);
+
+    return {
+      ...registrations,
+      page: await Promise.all(
+        registrations.page.map((registration) =>
+          formatListElement(db, registration),
+        ),
+      ),
+    };
+  },
+});
+
+export const listAll = queryWithAuth({
+  args: {
+    courseSlug: v.string(),
+  },
+  handler: async ({ db, session }, { courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
+
     const registrations = await db
       .query("registrations")
       .withIndex("by_course_and_role", (q) => q.eq("courseId", course._id))
       .order("desc")
       .collect();
 
-    const users = await Promise.all(
-      registrations.map(async (registration) => {
-        const user = await db.get(registration.userId);
-        if (!user) throw new Error("User of registration not found");
-        return {
-          id: registration.userId,
-          email: user.email,
-          identifier: user.identifier,
-          completedExercises: registration.completedExercises,
-          role: registration.role,
-        };
-      }),
+    return await Promise.all(
+      registrations.map((registration) => formatListElement(db, registration)),
     );
-
-    return {
-      weeks,
-      users,
-    };
   },
 });
 

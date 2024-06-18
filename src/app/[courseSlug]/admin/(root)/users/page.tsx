@@ -5,10 +5,14 @@ import { api } from "../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { CheckIcon, MinusIcon } from "@heroicons/react/16/solid";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  MinusIcon,
+} from "@heroicons/react/16/solid";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
-import { useConvex } from "convex/react";
+import { useConvex, usePaginatedQuery } from "convex/react";
 import { useSessionId } from "@/components/SessionProvider";
 import {
   Identities,
@@ -49,11 +53,12 @@ function CopyAllButton() {
   const sessionId = useSessionId();
   const identites = useIdentities();
   const courseSlug = useCourseSlug();
+  const weeks = useQuery(api.admin.users.listExercisesForTable, { courseSlug });
 
   async function copyAllResults() {
-    if (identites === undefined) return;
+    if (identites === undefined || weeks === undefined) return;
 
-    const data = await convex.query(api.admin.users.list, {
+    const users = await convex.query(api.admin.users.listAll, {
       courseSlug,
       sessionId,
     });
@@ -62,13 +67,13 @@ function CopyAllButton() {
       [
         "User",
         "Role",
-        ...data.weeks.flatMap((week) => week.exercises.map((e) => e.name)),
+        ...weeks.flatMap((week) => week.exercises.map((e) => e.name)),
         "Completed exercises",
       ],
-      ...data.users.map((user) => [
+      ...users.map((user) => [
         shownEmail(identites, user),
         user.role === "admin" ? "Admin" : user.role === "ta" ? "TA" : "",
-        ...data.weeks.flatMap((week) =>
+        ...weeks.flatMap((week) =>
           week.exercises.map((exercise) =>
             user.completedExercises.includes(exercise.id) ? "1" : "0",
           ),
@@ -82,7 +87,7 @@ function CopyAllButton() {
     navigator.clipboard.writeText(text);
   }
 
-  if (!identites) return null;
+  if (!identites || weeks === undefined) return null;
 
   return (
     <Button
@@ -103,93 +108,117 @@ function CopyAllButton() {
 function ScoresTable() {
   const identities = useIdentities();
   const courseSlug = useCourseSlug();
-  const data = useQuery(api.admin.users.list, { courseSlug });
+  const sessionId = useSessionId();
 
-  if (!data || !identities) {
+  const weeks = useQuery(api.admin.users.listExercisesForTable, { courseSlug });
+  const {
+    results: users,
+    status,
+    loadMore,
+  } = usePaginatedQuery(
+    api.admin.users.listPaginated,
+    { courseSlug, sessionId },
+    { initialNumItems: 20 },
+  );
+
+  if (!identities || weeks === undefined || users === undefined) {
     return <div className="h-96 bg-slate-200 rounded-xl animate-pulse" />;
   }
 
-  const { weeks, users } = data;
-
   return (
-    <table className="text-sm w-full divide-y divide-slate-300 pb-8">
-      <thead>
-        <tr>
-          <th
-            scope="col"
-            className="px-2 py-3 align-bottom text-left"
-            colSpan={2}
-          >
-            User
-          </th>
-          {weeks.map((week) => (
-            <React.Fragment key={week.id}>
-              {week.exercises.map((exercise) => (
-                <th
-                  scope="col"
-                  className={clsx("align-bottom px-2 py-3 h-24 relative")}
-                  key={exercise.id}
-                >
-                  <div className="text-left w-full h-40 [writing-mode:vertical-rl] flex items-center rotate-180 leading-tight font-medium">
-                    {exercise.name}
-                  </div>
-                </th>
-              ))}
-            </React.Fragment>
-          ))}
-          <th scope="col" className="px-2 py-3 align-bottom text-right">
-            #
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-gray-200">
-        {users.map((user) => (
-          <tr key={user.id}>
-            <td className="px-2 py-3">
-              {shownEmail(identities, user).replace("@epfl.ch", "")}
-            </td>
-            <td className="pl-2">
-              {user.role === "admin" ? (
-                <span className="inline-block bg-red-200 px-2 py-1 rounded-full mr-2 text-red-900 uppercase tracking-wider font-semibold text-xs">
-                  Admin
-                </span>
-              ) : user.role === "ta" ? (
-                <span className="inline-block bg-orange-200 px-2 py-1 rounded-full mr-2 text-orange-900 uppercase tracking-wider font-semibold text-xs">
-                  TA
-                </span>
-              ) : (
-                <MinusIcon className="w-4 h-4 text-slate-400" />
-              )}
-            </td>
+    <>
+      <table className="text-sm w-full divide-y divide-slate-300 pb-8">
+        <thead>
+          <tr>
+            <th
+              scope="col"
+              className="px-2 py-3 align-bottom text-left"
+              colSpan={2}
+            >
+              User
+            </th>
             {weeks.map((week) => (
               <React.Fragment key={week.id}>
-                {week.exercises.map((exercise, exerciseIndex) => (
-                  <td
-                    className={clsx(
-                      "px-2 py-3 text-center",
-                      exerciseIndex === 0 ? "border-l border-slate-300" : "",
-                      exerciseIndex === week.exercises.length - 1
-                        ? "border-r border-slate-300"
-                        : "",
-                    )}
+                {week.exercises.map((exercise) => (
+                  <th
+                    scope="col"
+                    className={clsx("align-bottom px-2 py-3 h-24 relative")}
                     key={exercise.id}
                   >
-                    {user.completedExercises.includes(exercise.id) ? (
-                      <CheckIcon className="w-4 h-4 inline-flex" />
-                    ) : (
-                      <span className="text-slate-400">—</span>
-                    )}
-                  </td>
+                    <div className="text-left w-full h-40 [writing-mode:vertical-rl] flex items-center rotate-180 leading-tight font-medium">
+                      {exercise.name}
+                    </div>
+                  </th>
                 ))}
               </React.Fragment>
             ))}
-            <td className="px-2 py-3 items-center text-right tabular-nums font-semibold">
-              {user.completedExercises.length}
-            </td>
+            <th scope="col" className="px-2 py-3 align-bottom text-right">
+              #
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td className="px-2 py-3">
+                {shownEmail(identities, user).replace("@epfl.ch", "")}
+              </td>
+              <td className="pl-2">
+                {user.role === "admin" ? (
+                  <span className="inline-block bg-red-200 px-2 py-1 rounded-full mr-2 text-red-900 uppercase tracking-wider font-semibold text-xs">
+                    Admin
+                  </span>
+                ) : user.role === "ta" ? (
+                  <span className="inline-block bg-orange-200 px-2 py-1 rounded-full mr-2 text-orange-900 uppercase tracking-wider font-semibold text-xs">
+                    TA
+                  </span>
+                ) : (
+                  <MinusIcon className="w-4 h-4 text-slate-400" />
+                )}
+              </td>
+              {weeks.map((week) => (
+                <React.Fragment key={week.id}>
+                  {week.exercises.map((exercise, exerciseIndex) => (
+                    <td
+                      className={clsx(
+                        "px-2 py-3 text-center",
+                        exerciseIndex === 0 ? "border-l border-slate-300" : "",
+                        exerciseIndex === week.exercises.length - 1
+                          ? "border-r border-slate-300"
+                          : "",
+                      )}
+                      key={exercise.id}
+                    >
+                      {user.completedExercises.includes(exercise.id) ? (
+                        <CheckIcon className="w-4 h-4 inline-flex" />
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                  ))}
+                </React.Fragment>
+              ))}
+              <td className="px-2 py-3 items-center text-right tabular-nums font-semibold">
+                {user.completedExercises.length}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {status === "CanLoadMore" && (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            onClick={() => loadMore(200)}
+          >
+            <div className="flex items-center gap-1">
+              <ChevronDownIcon className="w-4 h-4" aria-hidden /> Show More
+            </div>
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 
