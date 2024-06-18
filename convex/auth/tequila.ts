@@ -1,8 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import { DatabaseWriter, mutation } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
-import { generateIdFromEntropySize } from "lucia";
-import { initializeLucia } from "./lucia";
+import { generateUserId, initializeLucia } from "./lucia";
 import { ConvexMutationAdapter } from "./adapters/ConvexMutationAdapter";
 import * as jsrsasign from "jsrsasign";
 
@@ -53,7 +52,7 @@ async function getOrCreateUser(
 
   if (existingUser) return { luciaUserId: existingUser.id };
 
-  const luciaUserId = generateIdFromEntropySize(10);
+  const luciaUserId = generateUserId();
   await db.insert("users", {
     id: luciaUserId,
     identifier,

@@ -12,9 +12,8 @@ import {
   generateState,
 } from "arctic";
 import { internal } from "../_generated/api";
-import { initializeLucia } from "./lucia";
+import { generateUserId, initializeLucia } from "./lucia";
 import { ConvexMutationAdapter } from "./adapters/ConvexMutationAdapter";
-import { generateIdFromEntropySize } from "lucia";
 import { Doc, Id } from "../_generated/dataModel";
 
 const clientId = process.env.GOOGLE_CLIENT_ID ?? "";
@@ -156,7 +155,7 @@ async function getOrCreateUser(
     return { luciaUserId: existingUser.id };
   }
 
-  const luciaUserId = generateIdFromEntropySize(10);
+  const luciaUserId = generateUserId();
   await db.insert("users", {
     id: luciaUserId,
     googleId: profile.sub,

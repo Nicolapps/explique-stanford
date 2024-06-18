@@ -1,4 +1,9 @@
-import { Adapter, Lucia, RegisteredDatabaseUserAttributes } from "lucia";
+import {
+  Adapter,
+  Lucia,
+  RegisteredDatabaseUserAttributes,
+  generateIdFromEntropySize,
+} from "lucia";
 import { Id } from "../_generated/dataModel";
 
 declare module "lucia" {
@@ -45,4 +50,8 @@ export function initializeLucia(adapter: Adapter) {
       };
     },
   });
+}
+
+export function generateUserId(): string {
+  return generateIdFromEntropySize(10);
 }
