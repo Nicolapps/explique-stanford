@@ -11,15 +11,16 @@ export function useIsUsingIdentities(): boolean {
 }
 
 export function useIdentities(): Identities | undefined {
+  const isUsingIdentities = useIsUsingIdentities();
   const convex = useConvex();
   const sessionId = useSessionId();
   const courseSlug = useCourseSlug();
 
   const [identities, setIdentities] = useState<Identities | undefined>(
-    undefined,
+    isUsingIdentities ? undefined : {},
   );
   useEffect(() => {
-    if (identities) return;
+    if (identities || !isUsingIdentities) return;
 
     (async () => {
       const jwt = await convex.query(api.admin.identitiesJwt.default, {
