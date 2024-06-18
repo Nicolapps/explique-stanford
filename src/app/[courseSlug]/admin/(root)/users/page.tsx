@@ -204,7 +204,7 @@ function ScoresTable() {
               <div className="px-2 py-3 flex-1 truncate">
                 {shownEmail(identities, user).replace("@epfl.ch", "")}
               </div>
-              <div className="pl-2">
+              <div className="pl-2 flex items-center">
                 <RoleSelector value={user.role} userId={user.id} />
               </div>
             </div>
