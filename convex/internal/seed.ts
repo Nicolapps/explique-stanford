@@ -92,6 +92,12 @@ async function createSmallCourse({ db, scheduler }: MutationCtx) {
 }
 
 export default internalMutation(async (ctx) => {
+  const alreadyInitialized = (await ctx.db.query("courses").first()) !== null;
+  if (alreadyInitialized) {
+    console.warn("The database already contains courses, skipping seeding.");
+    return;
+  }
+
   const smallCourseId = await createSmallCourse(ctx);
 
   const adminIds: Id<"users">[] = [];
