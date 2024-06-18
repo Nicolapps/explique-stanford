@@ -8,6 +8,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   MinusIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/16/solid";
 import { toast } from "sonner";
 import { useConvex, usePaginatedQuery } from "convex/react";
@@ -25,6 +26,7 @@ import { LockClosedIcon, TableCellsIcon } from "@heroicons/react/20/solid";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Modal } from "@/components/Modal";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import { Id } from "../../../../../../convex/_generated/dataModel";
 
 export default function ScoresPage() {
   return (
@@ -254,15 +256,26 @@ function ScoresTable() {
           ))}
         </tbody>
       </table>
-      {status === "CanLoadMore" && (
+      {(status === "CanLoadMore" || status === "LoadingMore") && (
         <div className="flex justify-center">
           <button
             type="button"
-            className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-            onClick={() => loadMore(200)}
+            className="rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:bg-gray-50"
+            disabled={status !== "CanLoadMore"}
+            onClick={() => {
+              loadMore(200);
+            }}
           >
             <div className="flex items-center gap-1">
-              <ChevronDownIcon className="w-4 h-4" aria-hidden /> Show More
+              {status === "CanLoadMore" ? (
+                <ChevronDownIcon className="w-4 h-4" aria-hidden />
+              ) : (
+                <ArrowPathIcon
+                  className="w-4 h-4 animate-spin text-gray-500"
+                  aria-hidden
+                />
+              )}
+              Show More
             </div>
           </button>
         </div>
