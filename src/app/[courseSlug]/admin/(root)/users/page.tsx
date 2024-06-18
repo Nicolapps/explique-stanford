@@ -181,7 +181,7 @@ function ScoresTable() {
   } = usePaginatedQuery(
     api.admin.users.list,
     { courseSlug, sessionId },
-    { initialNumItems: 20 },
+    { initialNumItems: 15 },
   );
 
   if (!identities || weeks === undefined || users === undefined) {
@@ -189,55 +189,58 @@ function ScoresTable() {
   }
 
   return (
-    <>
-      <table className="text-sm w-full divide-y divide-slate-300 pb-8">
-        <thead>
-          <tr>
-            <th
-              scope="col"
-              className="px-2 py-3 align-bottom text-left"
-              colSpan={2}
+    <div className="mb-8">
+      <div className="text-sm grid grid-cols-[auto_1fr] mb-4 max-w-full">
+        <div className="w-72">
+          <div className="px-2 py-3 align-bottom text-left h-40 font-semibold flex items-end border-b border-b-slate-300">
+            User
+          </div>
+
+          {users.map((user) => (
+            <div
+              className="h-12 flex border-b-slate-200 border-b border-r border-r-slate-300"
+              key={user.id}
             >
-              User
-            </th>
+              <div className="px-2 py-3 flex-1 truncate">
+                {shownEmail(identities, user).replace("@epfl.ch", "")}
+              </div>
+              <div className="pl-2">
+                <RoleSelector value={user.role} userId={user.id} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="overflow-x-auto">
+          <div className="h-40 flex">
             {weeks.map((week) => (
               <React.Fragment key={week.id}>
                 {week.exercises.map((exercise) => (
-                  <th
-                    scope="col"
-                    className={clsx("align-bottom px-2 py-3 h-24 relative")}
+                  <div
+                    className="px-2 py-3 w-12 relative shrink-0 border-b border-b-slate-300"
                     key={exercise.id}
                   >
-                    <div className="text-left w-full h-40 [writing-mode:vertical-rl] flex items-center rotate-180 leading-tight font-medium">
+                    <div className="text-left h-full w-full [writing-mode:vertical-rl] flex items-center rotate-180 leading-tight font-medium">
                       {exercise.name}
                     </div>
-                  </th>
+                  </div>
                 ))}
               </React.Fragment>
             ))}
-            <th scope="col" className="px-2 py-3 align-bottom text-right">
+            <div className="px-2 py-3 flex items-end justify-end text-right w-20 shrink-0 border-b border-b-slate-300">
               #
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
+            </div>
+          </div>
+
           {users.map((user) => (
-            <tr key={user.id}>
-              <td className="px-2 py-3">
-                {shownEmail(identities, user).replace("@epfl.ch", "")}
-              </td>
-              <td className="pl-2">
-                <RoleSelector value={user.role} userId={user.id} />
-              </td>
+            <div className="h-12 flex" key={user.id}>
               {weeks.map((week) => (
                 <React.Fragment key={week.id}>
                   {week.exercises.map((exercise, exerciseIndex) => (
-                    <td
+                    <div
                       className={clsx(
-                        "px-2 py-3 text-center",
-                        exerciseIndex === 0 ? "border-l border-slate-300" : "",
+                        "px-2 py-3 text-center w-12 shrink-0 border-b-slate-200 border-b",
                         exerciseIndex === week.exercises.length - 1
-                          ? "border-r border-slate-300"
+                          ? "border-r border-r-slate-300"
                           : "",
                       )}
                       key={exercise.id}
@@ -247,17 +250,18 @@ function ScoresTable() {
                       ) : (
                         <span className="text-slate-400">—</span>
                       )}
-                    </td>
+                    </div>
                   ))}
                 </React.Fragment>
               ))}
-              <td className="px-2 py-3 items-center text-right tabular-nums font-semibold">
+              <div className="px-2 py-3 w-20 items-center text-right tabular-nums font-semibold border-b-slate-200 border-b shrink-0">
                 {user.completedExercises.length}
-              </td>
-            </tr>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
+
       {(status === "CanLoadMore" || status === "LoadingMore") && (
         <div className="flex justify-center">
           <button
@@ -282,7 +286,7 @@ function ScoresTable() {
           </button>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
