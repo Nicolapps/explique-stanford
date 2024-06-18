@@ -1,5 +1,7 @@
 import { validateAdminRequest } from "@/util/admin";
 import { getIdentifier } from "@/util/crypto";
+import { legacyIdentities } from "../../../../../drizzle/schema";
+import { db } from "../../../../../drizzle/db";
 
 /**
  * Computes the identifier for a given email address
@@ -14,10 +16,15 @@ export async function GET(req: Request) {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  return Response.json(
-    emails
-      .split(",")
-      .filter((e) => e.trim() !== "")
-      .map((email) => getIdentifier(email)),
-  );
+  const values = emails
+    .split(",")
+    .filter((e) => e.trim() !== "")
+    .map((email) => ({ email, identifier: getIdentifier(email) }));
+
+  await db
+    .insert(legacyIdentities)
+    .values(values)
+    .onConflictDoNothing({ target: legacyIdentities.identifier });
+
+  return Response.json(values.map((r) => r.identifier));
 }
