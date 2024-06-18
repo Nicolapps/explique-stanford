@@ -226,7 +226,7 @@ function ScoresTable() {
                 ))}
               </React.Fragment>
             ))}
-            <div className="px-2 py-3 flex items-end justify-end text-right w-20 shrink-0 border-b border-b-slate-300">
+            <div className="px-2 py-3 flex items-end justify-end text-right w-20 shrink-0 border-b border-b-slate-300 flex-grow">
               #
             </div>
           </div>
@@ -254,7 +254,7 @@ function ScoresTable() {
                   ))}
                 </React.Fragment>
               ))}
-              <div className="px-2 py-3 w-20 items-center text-right tabular-nums font-semibold border-b-slate-200 border-b shrink-0">
+              <div className="px-2 py-3 w-20 items-center text-right tabular-nums font-semibold border-b-slate-200 border-b shrink-0 flex-grow">
                 {user.completedExercises.length}
               </div>
             </div>
