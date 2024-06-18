@@ -18,7 +18,7 @@ export default function AdminExercisePage() {
           <div className="max-w-6xl flex-1">
             <div className="bg-white shadow-xl rounded-2xl p-8 md:p-14 w-full max-w-2xl mx-auto">
               {course ? (
-                <div className="flex flex-col justify-center text-center items-center">
+                <div className="flex flex-col justify-center text-center items-center h-24 sm:h-32">
                   <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
                     {course.code}
                   </span>
