@@ -14,6 +14,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as admin_course from "../admin/course.js";
 import type * as admin_exercises from "../admin/exercises.js";
 import type * as admin_identitiesJwt from "../admin/identitiesJwt.js";
 import type * as admin_image from "../admin/image.js";
@@ -44,6 +45,7 @@ import type * as weeks from "../weeks.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "admin/course": typeof admin_course;
   "admin/exercises": typeof admin_exercises;
   "admin/identitiesJwt": typeof admin_identitiesJwt;
   "admin/image": typeof admin_image;
