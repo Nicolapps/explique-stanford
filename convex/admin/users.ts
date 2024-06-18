@@ -57,7 +57,7 @@ async function formatListElement(
   };
 }
 
-export const listPaginated = queryWithAuth({
+export const list = queryWithAuth({
   args: {
     courseSlug: v.string(),
     paginationOpts: paginationOptsValidator,
@@ -84,30 +84,6 @@ export const listPaginated = queryWithAuth({
         ),
       ),
     };
-  },
-});
-
-export const listAll = queryWithAuth({
-  args: {
-    courseSlug: v.string(),
-  },
-  handler: async ({ db, session }, { courseSlug }) => {
-    const { course } = await getCourseRegistration(
-      db,
-      session,
-      courseSlug,
-      "admin",
-    );
-
-    const registrations = await db
-      .query("registrations")
-      .withIndex("by_course_and_role", (q) => q.eq("courseId", course._id))
-      .order("desc")
-      .collect();
-
-    return await Promise.all(
-      registrations.map((registration) => formatListElement(db, registration)),
-    );
   },
 });
 

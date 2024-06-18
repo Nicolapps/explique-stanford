@@ -2,15 +2,13 @@
 
 import Title from "@/components/typography";
 import { api } from "../../../../../../convex/_generated/api";
-import { Id } from "../../../../../../convex/_generated/dataModel";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import {
   CheckIcon,
   ChevronDownIcon,
   MinusIcon,
 } from "@heroicons/react/16/solid";
-import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 import { useConvex, usePaginatedQuery } from "convex/react";
 import { useSessionId } from "@/components/SessionProvider";
@@ -23,15 +21,17 @@ import { useCourseSlug } from "@/hooks/useCourseSlug";
 import { Textarea } from "@/components/Input";
 import { useMutation, useQuery } from "@/usingSession";
 import { Button } from "@/components/Button";
-import { LockClosedIcon } from "@heroicons/react/20/solid";
+import { LockClosedIcon, TableCellsIcon } from "@heroicons/react/20/solid";
 import { PrimaryButton } from "@/components/PrimaryButton";
+import { Modal } from "@/components/Modal";
+import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 
 export default function ScoresPage() {
   return (
     <>
       <Title>
         <span className="flex-1">Users</span>
-        <CopyAllButton />
+        <DownloadAllButton />
       </Title>
       <ScoresTable />
       <AddUsers />
@@ -48,20 +48,42 @@ function shownEmail(
     : user.email ?? "Unknown";
 }
 
-function CopyAllButton() {
+function DownloadAllButton() {
   const convex = useConvex();
   const sessionId = useSessionId();
   const identites = useIdentities();
   const courseSlug = useCourseSlug();
   const weeks = useQuery(api.admin.users.listExercisesForTable, { courseSlug });
 
+  const [spreadsheet, setSpreadsheet] = useState<string | null>(null);
+
   async function copyAllResults() {
     if (identites === undefined || weeks === undefined) return;
 
-    const users = await convex.query(api.admin.users.listAll, {
-      courseSlug,
-      sessionId,
-    });
+    async function getAllRegistrations() {
+      let continueCursor = null;
+      let isDone = false;
+      let page;
+
+      const results = [];
+
+      while (!isDone) {
+        ({ continueCursor, isDone, page } = await convex.query(
+          api.admin.users.list,
+          {
+            courseSlug,
+            sessionId,
+            paginationOpts: { numItems: 50, cursor: continueCursor },
+          },
+        ));
+        console.log("got", page.length);
+        results.push(...page);
+      }
+
+      return results;
+    }
+
+    const users = await getAllRegistrations();
 
     const rows: string[][] = [
       [
@@ -82,26 +104,53 @@ function CopyAllButton() {
       ]),
     ];
 
-    const text = rows.map((cols) => cols.join("\t")).join("\n");
-
-    navigator.clipboard.writeText(text);
+    setSpreadsheet(rows.map((cols) => cols.join("\t")).join("\n"));
   }
 
   if (!identites || weeks === undefined) return null;
 
   return (
-    <Button
-      onClick={() => {
-        toast.promise(copyAllResults(), {
-          loading: "Copying the table…",
-          success:
-            "The table has been copied to the clipboard. You can paste it in a spreadsheet.",
-        });
-      }}
-    >
-      <ClipboardDocumentIcon className="w-5 h-5" />
-      Copy
-    </Button>
+    <>
+      <Button
+        onClick={() => {
+          toast.promise(copyAllResults(), {
+            loading: "Downloading the table…",
+          });
+        }}
+      >
+        <TableCellsIcon className="w-5 h-5" />
+        To Spreadsheet
+      </Button>
+
+      <Modal
+        title="Results"
+        isOpen={spreadsheet !== null}
+        onClose={() => setSpreadsheet(null)}
+      >
+        <div className="font-mono my-4">
+          <Textarea
+            value={spreadsheet ?? ""}
+            readOnly
+            label=""
+            onChange={() => {}}
+          />
+        </div>
+
+        <div className="flex justify-center">
+          <PrimaryButton
+            onClick={() => {
+              navigator.clipboard.writeText(spreadsheet ?? "");
+              toast.success(
+                "Copied to clipboard. You can paste it in spreadsheet software.",
+              );
+            }}
+          >
+            <ClipboardDocumentIcon className="w-5 h-5" />
+            Copy to Clipboard
+          </PrimaryButton>
+        </div>
+      </Modal>
+    </>
   );
 }
 
@@ -116,7 +165,7 @@ function ScoresTable() {
     status,
     loadMore,
   } = usePaginatedQuery(
-    api.admin.users.listPaginated,
+    api.admin.users.list,
     { courseSlug, sessionId },
     { initialNumItems: 20 },
   );
