@@ -215,7 +215,7 @@ function AddUsers() {
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
 
         const validatedEmails = emails
@@ -235,43 +235,45 @@ function AddUsers() {
           return;
         }
 
-        async function sendForm() {
-          if (isUsingIdentities) {
-            const jwt = await convex.query(api.admin.identitiesJwt.default, {
-              sessionId,
-              courseSlug,
-            });
+        let users;
+        if (isUsingIdentities) {
+          const jwt = await convex.query(api.admin.identitiesJwt.default, {
+            sessionId,
+            courseSlug,
+          });
 
-            const resConvert = await fetch(
-              "/api/admin/computeIdentifiers?for=" + validatedEmails.join(","),
-              {
-                headers: {
-                  Authorization: `Bearer ${jwt}`,
-                },
+          const resConvert = await fetch(
+            "/api/admin/computeIdentifiers?for=" + validatedEmails.join(","),
+            {
+              headers: {
+                Authorization: `Bearer ${jwt}`,
               },
-            );
-            if (resConvert.status !== 200) {
-              toast.error("Failed to retrieve the email addresses.");
-              return;
-            }
-            const identifiers = (await resConvert.json()) as string[];
-
-            await addUser({
-              courseSlug,
-              users: { identifiers },
-            });
-          } else {
-            await addUser({
-              courseSlug,
-              users: { emails: validatedEmails },
-            });
+            },
+          );
+          if (resConvert.status !== 200) {
+            toast.error("Failed to retrieve the email addresses.");
+            return;
           }
+          const identifiers = (await resConvert.json()) as string[];
+          users = { identifiers };
+        } else {
+          users = { emails: validatedEmails };
         }
 
-        toast.promise(sendForm(), {
-          loading: "Adding the new users…",
-          success: "The new users have been added.",
+        const { added, ignored } = await addUser({
+          courseSlug,
+          users,
         });
+        toast.success(
+          (added === 1
+            ? `1 user has been added.`
+            : `${added} users have been added.`) +
+            (ignored === 0
+              ? ""
+              : ignored === 1
+                ? " 1 user was already registered."
+                : ` ${ignored} users were already registered.`),
+        );
       }}
     >
       <h2 className="font-medium text-2xl tracking-wide mb-6 mt-12">
