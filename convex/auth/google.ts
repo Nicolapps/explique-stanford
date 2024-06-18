@@ -58,6 +58,7 @@ type GoogleProfile = {
   picture?: string;
   email: string;
   email_verified: boolean;
+  hd?: string;
 };
 
 export const redirect = action({
@@ -72,7 +73,7 @@ export const redirect = action({
       throw new ConvexError("Invalid login request");
     }
 
-    let user: GoogleProfile;
+    let profile: GoogleProfile;
     try {
       const tokens = await google.validateAuthorizationCode(
         code,
@@ -86,7 +87,7 @@ export const redirect = action({
           },
         },
       );
-      user = await response.json();
+      profile = await response.json();
     } catch (e) {
       if (e instanceof OAuth2RequestError) {
         const { message, description } = e;
@@ -95,13 +96,13 @@ export const redirect = action({
       throw e;
     }
 
-    if (typeof user.email !== "string") {
+    if (typeof profile.email !== "string") {
       throw new ConvexError(
         "Can’t retrieve your account’s email address. Please contact support.",
       );
     }
 
-    if (user.email_verified !== true) {
+    if (profile.email_verified !== true) {
       throw new ConvexError(
         "Your account’s email address is not verified. Please verify your email address with Google and try again.",
       );
@@ -109,7 +110,7 @@ export const redirect = action({
 
     const sessionId: string = await ctx.runMutation(
       internal.auth.google.handleLogin,
-      user,
+      { profile },
     );
     return sessionId;
   },
@@ -149,6 +150,7 @@ async function getOrCreateUser(
         givenName: profile.given_name,
         familyName: profile.family_name,
         picture: profile.picture,
+        hd: profile.hd,
       },
     });
 
@@ -172,15 +174,9 @@ async function getOrCreateUser(
 
 export const handleLogin = internalMutation({
   args: {
-    sub: v.string(),
-    name: v.optional(v.string()),
-    given_name: v.optional(v.string()),
-    family_name: v.optional(v.string()),
-    picture: v.optional(v.string()),
-    email: v.string(),
-    email_verified: v.boolean(),
+    profile: v.any(),
   },
-  handler: async ({ db }, profile) => {
+  handler: async ({ db }, { profile }: { profile: GoogleProfile }) => {
     const lucia = initializeLucia(new ConvexMutationAdapter(db));
 
     const { luciaUserId } = await getOrCreateUser(db, profile);
