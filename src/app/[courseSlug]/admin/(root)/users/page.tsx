@@ -3,7 +3,7 @@
 import Title from "@/components/typography";
 import { api } from "../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../convex/_generated/dataModel";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 import { CheckIcon } from "@heroicons/react/16/solid";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
@@ -43,31 +43,35 @@ export default function ScoresPage() {
   const courseSlug = useCourseSlug();
 
   const [data, setData] = useState<ScoresQueryResult | undefined>(undefined);
-  useEffect(() => {
-    if (data || !identites) return;
 
-    (async () => {
-      const data = await convex.query(api.admin.scores.default, {
-        sessionId,
-        courseSlug,
-      });
-      setData({
-        ...data,
-        users: data.users
-          .map((user) => {
-            const identifier = user.identifier ?? "";
-            return {
-              ...user,
-              shownEmail:
-                identifier in identites
-                  ? identites[identifier].email
-                  : user.email ?? "Unknown",
-            };
-          })
-          .sort((a, b) => a.shownEmail.localeCompare(b.shownEmail)),
-      });
-    })();
-  }, [data, convex, sessionId, identites, courseSlug]);
+  const loadTable = useCallback(async () => {
+    if (identites === undefined) return;
+    setData(undefined);
+
+    const data = await convex.query(api.admin.scores.default, {
+      sessionId,
+      courseSlug,
+    });
+    setData({
+      ...data,
+      users: data.users
+        .map((user) => {
+          const identifier = user.identifier ?? "";
+          return {
+            ...user,
+            shownEmail:
+              identifier in identites
+                ? identites[identifier].email
+                : user.email ?? "Unknown",
+          };
+        })
+        .sort((a, b) => a.shownEmail.localeCompare(b.shownEmail)),
+    });
+  }, [convex, sessionId, courseSlug, identites]);
+
+  useEffect(() => {
+    loadTable();
+  }, [loadTable]);
 
   return (
     <>
@@ -119,7 +123,7 @@ export default function ScoresPage() {
       ) : (
         <div className="h-96 bg-slate-200 rounded-xl animate-pulse" />
       )}
-      <AddUsers />
+      <AddUsers onReloadTable={loadTable} />
     </>
   );
 }
@@ -205,7 +209,7 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
   );
 }
 
-function AddUsers() {
+function AddUsers({ onReloadTable }: { onReloadTable?: () => void }) {
   const [emails, setEmails] = useState("");
   const courseSlug = useCourseSlug();
   const convex = useConvex();
@@ -274,6 +278,7 @@ function AddUsers() {
                 ? " 1 user was already registered."
                 : ` ${ignored} users were already registered.`),
         );
+        onReloadTable?.();
       }}
     >
       <h2 className="font-medium text-2xl tracking-wide mb-6 mt-12">
