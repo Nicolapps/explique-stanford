@@ -22,11 +22,23 @@ import { useCourseSlug } from "@/hooks/useCourseSlug";
 import { Textarea } from "@/components/Input";
 import { useMutation, useQuery } from "@/usingSession";
 import { Button } from "@/components/Button";
-import { LockClosedIcon, TableCellsIcon } from "@heroicons/react/20/solid";
+import {
+  ChevronUpDownIcon,
+  LockClosedIcon,
+  TableCellsIcon,
+  CheckIcon as CheckIcon20,
+} from "@heroicons/react/20/solid";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { Modal } from "@/components/Modal";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { Id } from "../../../../../../convex/_generated/dataModel";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+  Transition,
+} from "@headlessui/react";
 
 export default function ScoresPage() {
   return (
@@ -215,17 +227,7 @@ function ScoresTable() {
                 {shownEmail(identities, user).replace("@epfl.ch", "")}
               </td>
               <td className="pl-2">
-                {user.role === "admin" ? (
-                  <span className="inline-block bg-red-200 px-2 py-1 rounded-full mr-2 text-red-900 uppercase tracking-wider font-semibold text-xs">
-                    Admin
-                  </span>
-                ) : user.role === "ta" ? (
-                  <span className="inline-block bg-orange-200 px-2 py-1 rounded-full mr-2 text-orange-900 uppercase tracking-wider font-semibold text-xs">
-                    TA
-                  </span>
-                ) : (
-                  <MinusIcon className="w-4 h-4 text-slate-400" />
-                )}
+                <RoleSelector value={user.role} userId={user.id} />
               </td>
               {weeks.map((week) => (
                 <React.Fragment key={week.id}>
@@ -281,6 +283,105 @@ function ScoresTable() {
         </div>
       )}
     </>
+  );
+}
+
+type Role = null | "ta" | "admin";
+function RoleBadge({ value }: { value: Role }) {
+  return value === "admin" ? (
+    <span className="inline-block bg-red-200 px-2 py-1 rounded-full mr-2 text-red-900 uppercase tracking-wider font-semibold text-xs">
+      Admin
+    </span>
+  ) : value === "ta" ? (
+    <span className="inline-block bg-orange-200 px-2 py-1 rounded-full mr-2 text-orange-900 uppercase tracking-wider font-semibold text-xs">
+      TA
+    </span>
+  ) : (
+    <MinusIcon className="w-4 h-4 text-slate-400" />
+  );
+}
+
+function RoleSelector({ value, userId }: { value: Role; userId: Id<"users"> }) {
+  const roles = [null, "ta", "admin"] as const;
+
+  const courseSlug = useCourseSlug();
+  const setRole = useMutation(api.admin.users.setRole);
+
+  return (
+    <div className="w-24 mr-1">
+      <Listbox
+        value={value ?? "student"}
+        onChange={(newValue) => {
+          setRole({ courseSlug, userId, role: newValue as Role });
+        }}
+      >
+        {({ open }) => (
+          <>
+            <div className="relative">
+              <ListboxButton className="relative w-full cursor-default rounded-md p-1 pr-6 text-left text-gray-900 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6 h-10">
+                <span className="block">
+                  <RoleBadge value={value} />
+                </span>
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </span>
+              </ListboxButton>
+
+              <Transition
+                show={open}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-30 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  {roles.map((role) => (
+                    <ListboxOption
+                      key={role}
+                      className={({ focus }) =>
+                        clsx(
+                          focus && "bg-gray-100",
+                          "relative cursor-default select-none py-2 pl-8 pr-4 text-gray-900 h-10",
+                        )
+                      }
+                      value={role}
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={clsx(
+                              selected ? "font-semibold" : "font-normal",
+                              "truncate flex items-center h-full",
+                            )}
+                          >
+                            <RoleBadge value={role} />
+                          </span>
+
+                          {selected ? (
+                            <span
+                              className={clsx(
+                                "text-purple-600 absolute inset-y-0 left-0 flex items-center pl-1.5",
+                              )}
+                            >
+                              <CheckIcon20
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </ListboxOption>
+                  ))}
+                </ListboxOptions>
+              </Transition>
+            </div>
+          </>
+        )}
+      </Listbox>
+    </div>
   );
 }
 

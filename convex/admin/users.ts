@@ -177,3 +177,41 @@ export const register = mutationWithAuth({
     return { added, ignored };
   },
 });
+
+export const setRole = mutationWithAuth({
+  args: {
+    courseSlug: v.string(),
+    userId: v.id("users"),
+    role: v.union(v.literal("admin"), v.literal("ta"), v.null()),
+  },
+  handler: async ({ db, session }, { courseSlug, userId, role }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
+
+    const registration = await db
+      .query("registrations")
+      .withIndex("by_user_and_course", (q) =>
+        q.eq("userId", userId).eq("courseId", course._id),
+      )
+      .first();
+    if (!registration) {
+      throw new ConvexError("This user is not enrolled in this course.");
+    }
+
+    if (registration.role === role) {
+      return;
+    }
+
+    if (userId === session?.user._id) {
+      throw new ConvexError("You cannot remove your own admin privileges.");
+    }
+
+    await db.patch(registration._id, {
+      role,
+    });
+  },
+});
