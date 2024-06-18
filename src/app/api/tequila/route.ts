@@ -27,7 +27,7 @@ interface TequilaFields {
 
 export async function GET(req: Request) {
   const flow = new ServerSideFlow({
-    service: "CS-250",
+    service: "explique.ai",
     request: [
       "uniqueid", // SCIPER
       "email",
