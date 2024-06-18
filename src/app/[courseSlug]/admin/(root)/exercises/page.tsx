@@ -4,12 +4,12 @@ import { useQuery } from "@/usingSession";
 import Link from "next/link";
 import { formatTimestampHumanFormat } from "@/util/date";
 import { PlusIcon } from "@heroicons/react/20/solid";
-import { api } from "../../../../../convex/_generated/api";
+import { api } from "../../../../../../convex/_generated/api";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import Title from "@/components/typography";
 import { ExerciseLink } from "@/components/ExerciseLink";
 
-export default function Admin() {
+export default function AdminExercisePage() {
   const courseSlug = useCourseSlug();
   const weeks = useQuery(api.admin.exercises.list, {
     courseSlug,
