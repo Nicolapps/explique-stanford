@@ -18,7 +18,8 @@ async function createCourse(
 ) {
   const existingCourse = await db
     .query("courses")
-    .withIndex("by_slug", (q) => q.eq("slug", course.slug));
+    .withIndex("by_slug", (q) => q.eq("slug", course.slug))
+    .first();
   if (existingCourse) {
     throw new ConvexError(`The course ${course.name} already exists.`);
   }
