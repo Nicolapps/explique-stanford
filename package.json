@@ -17,6 +17,7 @@
     "@heroicons/react": "^2.1.1",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@sentry/nextjs": "^7.102.1",
+    "@sindresorhus/slugify": "^2.2.1",
     "arctic": "^1.9.1",
     "better-sqlite3": "^9.4.3",
     "chance": "^1.1.11",

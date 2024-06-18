@@ -4,6 +4,8 @@ import Title from "@/components/typography";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import { useQuery } from "@/usingSession";
 import { api } from "../../../../../convex/_generated/api";
+import { Button } from "@/components/Button";
+import { PencilSquareIcon } from "@heroicons/react/20/solid";
 
 export default function AdminExercisePage() {
   const courseSlug = useCourseSlug();
@@ -11,7 +13,14 @@ export default function AdminExercisePage() {
 
   return (
     <>
-      <Title>Course</Title>
+      <Title>
+        <span className="flex-1">Course</span>
+
+        <Button href={`/${courseSlug}/admin/edit`}>
+          <PencilSquareIcon className="w-5 h-5" />
+          Edit
+        </Button>
+      </Title>
 
       <div className="bg-gradient-to-b from-purple-200 via-indigo-200 to-blue-200 rounded-lg shadow">
         <div className="p-6 sm:p-10 flex justify-center">

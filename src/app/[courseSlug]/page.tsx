@@ -1,7 +1,6 @@
 "use client";
 
 import { api } from "../../../convex/_generated/api";
-import Link from "next/link";
 import {
   CheckIcon,
   ChevronUpDownIcon,
