@@ -166,6 +166,7 @@ export default defineSchema(
     })
       .index("by_user", ["userId"])
       .index("by_course", ["courseId"])
+      .index("by_course_and_role", ["courseId", "role"])
       .index("by_user_and_course", ["userId", "courseId"]),
 
     // Lucia

@@ -5,12 +5,16 @@ import { api } from "../../../../../../convex/_generated/api";
 import { Id } from "../../../../../../convex/_generated/dataModel";
 import React, { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import { CheckIcon } from "@heroicons/react/16/solid";
+import { CheckIcon, MinusIcon } from "@heroicons/react/16/solid";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { toast } from "sonner";
 import { useConvex } from "convex/react";
 import { useSessionId } from "@/components/SessionProvider";
-import { useIdentities, useIsUsingIdentities } from "@/hooks/useIdentities";
+import {
+  Identities,
+  useIdentities,
+  useIsUsingIdentities,
+} from "@/hooks/useIdentities";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import { Textarea } from "@/components/Input";
 import { useMutation, useQuery } from "@/usingSession";
@@ -18,119 +22,97 @@ import { Button } from "@/components/Button";
 import { LockClosedIcon } from "@heroicons/react/20/solid";
 import { PrimaryButton } from "@/components/PrimaryButton";
 
-type ScoresQueryResult = {
-  weeks: {
-    id: Id<"weeks">;
-    name: string;
-    exercises: { id: Id<"exercises">; name: string }[];
-  }[];
-  users: {
-    id: Id<"users">;
-
-    email: string | null;
-    identifier?: string;
-    shownEmail: string;
-
-    completedExercises: Id<"exercises">[];
-    role: "admin" | "ta" | null;
-  }[];
-};
-
 export default function ScoresPage() {
+  return (
+    <>
+      <Title>
+        <span className="flex-1">Users</span>
+        <CopyAllButton />
+      </Title>
+      <ScoresTable />
+      <AddUsers />
+    </>
+  );
+}
+
+function shownEmail(
+  identities: Identities,
+  user: { identifier?: string; email: string | null },
+) {
+  return user.identifier !== undefined && user.identifier in identities
+    ? identities[user.identifier].email
+    : user.email ?? "Unknown";
+}
+
+function CopyAllButton() {
   const convex = useConvex();
   const sessionId = useSessionId();
   const identites = useIdentities();
   const courseSlug = useCourseSlug();
 
-  const [data, setData] = useState<ScoresQueryResult | undefined>(undefined);
-
-  const loadTable = useCallback(async () => {
+  async function copyAllResults() {
     if (identites === undefined) return;
-    setData(undefined);
 
-    const data = await convex.query(api.admin.scores.default, {
-      sessionId,
+    const data = await convex.query(api.admin.users.list, {
       courseSlug,
+      sessionId,
     });
-    setData({
-      ...data,
-      users: data.users
-        .map((user) => {
-          const identifier = user.identifier ?? "";
-          return {
-            ...user,
-            shownEmail:
-              identifier in identites
-                ? identites[identifier].email
-                : user.email ?? "Unknown",
-          };
-        })
-        .sort((a, b) => a.shownEmail.localeCompare(b.shownEmail)),
-    });
-  }, [convex, sessionId, courseSlug, identites]);
 
-  useEffect(() => {
-    loadTable();
-  }, [loadTable]);
+    const rows: string[][] = [
+      [
+        "User",
+        "Role",
+        ...data.weeks.flatMap((week) => week.exercises.map((e) => e.name)),
+        "Completed exercises",
+      ],
+      ...data.users.map((user) => [
+        shownEmail(identites, user),
+        user.role === "admin" ? "Admin" : user.role === "ta" ? "TA" : "",
+        ...data.weeks.flatMap((week) =>
+          week.exercises.map((exercise) =>
+            user.completedExercises.includes(exercise.id) ? "1" : "0",
+          ),
+        ),
+        user.completedExercises.length.toString(),
+      ]),
+    ];
+
+    const text = rows.map((cols) => cols.join("\t")).join("\n");
+
+    navigator.clipboard.writeText(text);
+  }
+
+  if (!identites) return null;
 
   return (
-    <>
-      <Title>
-        <span className="flex-1">Users</span>
-        {data && (
-          <Button
-            onClick={() => {
-              const rows: string[][] = [
-                [
-                  "User",
-                  "Role",
-                  ...data.weeks.flatMap((week) =>
-                    week.exercises.map((e) => e.name),
-                  ),
-                  "Completed exercises",
-                ],
-                ...data.users.map((user) => [
-                  user.shownEmail,
-                  user.role === "admin"
-                    ? "Admin"
-                    : user.role === "ta"
-                      ? "TA"
-                      : "",
-                  ...data.weeks.flatMap((week) =>
-                    week.exercises.map((exercise) =>
-                      user.completedExercises.includes(exercise.id) ? "1" : "0",
-                    ),
-                  ),
-                  user.completedExercises.length.toString(),
-                ]),
-              ];
-
-              const text = rows.map((cols) => cols.join("\t")).join("\n");
-
-              navigator.clipboard.writeText(text);
-              toast.success("Copied to clipboard");
-            }}
-          >
-            <ClipboardDocumentIcon className="w-5 h-5" />
-            Copy
-          </Button>
-        )}
-      </Title>
-      {data ? (
-        <div className="pb-8">
-          <ScoresTable {...data} />
-        </div>
-      ) : (
-        <div className="h-96 bg-slate-200 rounded-xl animate-pulse" />
-      )}
-      <AddUsers onReloadTable={loadTable} />
-    </>
+    <Button
+      onClick={() => {
+        toast.promise(copyAllResults(), {
+          loading: "Copying the table…",
+          success:
+            "The table has been copied to the clipboard. You can paste it in a spreadsheet.",
+        });
+      }}
+    >
+      <ClipboardDocumentIcon className="w-5 h-5" />
+      Copy
+    </Button>
   );
 }
 
-function ScoresTable({ weeks, users }: ScoresQueryResult) {
+function ScoresTable() {
+  const identities = useIdentities();
+  const courseSlug = useCourseSlug();
+  const data = useQuery(api.admin.users.list, { courseSlug });
+
+  if (!data || !identities) {
+    return <div className="h-96 bg-slate-200 rounded-xl animate-pulse" />;
+  }
+
+  const { weeks, users } = data;
+
   return (
-    <table className="text-sm w-full divide-y divide-slate-300">
+    <table className="text-sm w-full divide-y divide-slate-300 pb-8">
       <thead>
         <tr>
           <th
@@ -138,7 +120,7 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
             className="px-2 py-3 align-bottom text-left"
             colSpan={2}
           >
-            Student
+            User
           </th>
           {weeks.map((week) => (
             <React.Fragment key={week.id}>
@@ -164,7 +146,7 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
         {users.map((user) => (
           <tr key={user.id}>
             <td className="px-2 py-3">
-              {user.shownEmail.replace("@epfl.ch", "")}
+              {shownEmail(identities, user).replace("@epfl.ch", "")}
             </td>
             <td className="pl-2">
               {user.role === "admin" ? (
@@ -175,7 +157,9 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
                 <span className="inline-block bg-orange-200 px-2 py-1 rounded-full mr-2 text-orange-900 uppercase tracking-wider font-semibold text-xs">
                   TA
                 </span>
-              ) : null}
+              ) : (
+                <MinusIcon className="w-4 h-4 text-slate-400" />
+              )}
             </td>
             {weeks.map((week) => (
               <React.Fragment key={week.id}>
@@ -209,13 +193,13 @@ function ScoresTable({ weeks, users }: ScoresQueryResult) {
   );
 }
 
-function AddUsers({ onReloadTable }: { onReloadTable?: () => void }) {
+function AddUsers() {
   const [emails, setEmails] = useState("");
   const courseSlug = useCourseSlug();
   const convex = useConvex();
   const sessionId = useSessionId();
   const isUsingIdentities = useIsUsingIdentities();
-  const addUser = useMutation(api.admin.registrations.default);
+  const addUser = useMutation(api.admin.users.register);
 
   return (
     <form
@@ -238,6 +222,8 @@ function AddUsers({ onReloadTable }: { onReloadTable?: () => void }) {
           toast.error(`Invalid email address: ${invalidEmail}`);
           return;
         }
+
+        setEmails("");
 
         let users;
         if (isUsingIdentities) {
@@ -278,7 +264,6 @@ function AddUsers({ onReloadTable }: { onReloadTable?: () => void }) {
                 ? " 1 user was already registered."
                 : ` ${ignored} users were already registered.`),
         );
-        onReloadTable?.();
       }}
     >
       <h2 className="font-medium text-2xl tracking-wide mb-6 mt-12">
