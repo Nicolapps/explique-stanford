@@ -1,8 +1,34 @@
-import { internalMutation } from "../_generated/server";
+import {
+  DatabaseWriter,
+  MutationCtx,
+  QueryCtx,
+  internalMutation,
+} from "../_generated/server";
 import { internal } from "../_generated/api";
+import { generateUserId } from "../auth/lucia";
+import { Id } from "../_generated/dataModel";
+import { ConvexError } from "convex/values";
 
-export default internalMutation(async ({ db, scheduler }) => {
-  const courseId = await db.insert("courses", {
+async function createCourse(
+  db: DatabaseWriter,
+  course: {
+    name: string;
+    code: string;
+    slug: string;
+  },
+) {
+  const existingCourse = await db
+    .query("courses")
+    .withIndex("by_slug", (q) => q.eq("slug", course.slug));
+  if (existingCourse) {
+    throw new ConvexError(`The course ${course.name} already exists.`);
+  }
+
+  return await db.insert("courses", course);
+}
+
+async function createSmallCourse({ db, scheduler }: MutationCtx) {
+  const courseId = await createCourse(db, {
     name: "Introduction to Video Game Development",
     code: "GDE-101",
     slug: "gde101",
@@ -61,4 +87,36 @@ export default internalMutation(async ({ db, scheduler }) => {
     image: undefined,
     imagePrompt: undefined,
   });
+
+  return courseId;
+}
+
+export default internalMutation(async (ctx) => {
+  const smallCourseId = await createSmallCourse(ctx);
+
+  const adminIds: Id<"users">[] = [];
+  for (const email of [
+    "nicolas.ettlin@epfl.ch",
+    "ola.svensson@epfl.ch",
+    "miltiadis.stouras@epfl.ch",
+    "julie.terrassier@epfl.ch",
+    "juliane.mercoli@epfl.ch",
+  ]) {
+    adminIds.push(
+      await ctx.db.insert("users", {
+        email,
+        id: generateUserId(),
+        name: null,
+      }),
+    );
+  }
+
+  for (const userId of adminIds) {
+    await ctx.db.insert("registrations", {
+      courseId: smallCourseId,
+      userId,
+      role: "admin",
+      completedExercises: [],
+    });
+  }
 });
