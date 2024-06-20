@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { HandThumbDownIcon, PaperAirplaneIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  HandThumbDownIcon,
+  PaperAirplaneIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import {
   CheckCircleIcon,
@@ -173,7 +177,11 @@ export default function ExplainExercise({
                     ) : (
                       <>
                         <Markdown text={message.content} />
-                        <ReportMessage attemptId={attemptId} messageId={message.id} isReported={message.isReported} />
+                        <ReportMessage
+                          attemptId={attemptId}
+                          messageId={message.id}
+                          isReported={message.isReported}
+                        />
                       </>
                     )
                   ) : (
@@ -203,22 +211,29 @@ export default function ExplainExercise({
   );
 }
 
-
-function ReportMessage({attemptId, messageId, isReported}: {attemptId: Id<"attempts">, messageId: Id<"messages">, isReported: boolean}) {
+function ReportMessage({
+  attemptId,
+  messageId,
+  isReported,
+}: {
+  attemptId: Id<"attempts">;
+  messageId: Id<"messages">;
+  isReported: boolean;
+}) {
   const reportMessage = useMutation(api.chat.reportMessage);
   const unreportMessage = useMutation(api.chat.unreportMessage);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reason, setReason] = useState("");
-  
+
   return (
     <>
       <div className="flex items-center justify-end box-content p-1">
         <button
           className={clsx(
-                      "w-8 h-8 rounded-full flex items-center justify-center shadow-md absolute bottom-0 -right-10",
-                      isReported && "bg-purple-600 text-white",
-                      !isReported && "bg-white text-purple-600",
-                    )}
+            "w-8 h-8 rounded-full flex items-center justify-center shadow-md absolute bottom-0 -right-10",
+            isReported && "bg-purple-600 text-white",
+            !isReported && "bg-white text-purple-600",
+          )}
           type="button"
           title="Report"
           onClick={(e) => {
@@ -236,28 +251,14 @@ function ReportMessage({attemptId, messageId, isReported}: {attemptId: Id<"attem
         onClose={() => setIsModalOpen(false)}
         title="Why are you reporting this message?"
       >
-        <div className="flex items-center justify-end box-content p-1">
-          <button
-            className="w-7 h-7 rounded-full flex items-center justify-center absolute top-3 right-3"
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              setIsModalOpen(false);
-              setReason('');
-            }}
-          >
-            <XMarkIcon className="w-7 h-7" />
-          </button>
-        </div>
-
-        <form 
+        <form
           className="mt-5"
           onSubmit={(e) => {
             e.preventDefault();
             if (reason.trim()) {
               reportMessage({ messageId, reason });
               setIsModalOpen(false);
-              setReason('');
+              setReason("");
             }
           }}
         >
@@ -268,7 +269,18 @@ function ReportMessage({attemptId, messageId, isReported}: {attemptId: Id<"attem
             onChange={(value) => setReason(value)}
             required
           />
-          <div className="flex justify-center">
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              onClick={() => {
+                setIsModalOpen(false);
+                setReason("");
+              }}
+              variant="secondary"
+              size="sm"
+            >
+              Cancel
+            </Button>
             <Button type="submit" size="sm">
               Report Message
             </Button>
@@ -278,7 +290,6 @@ function ReportMessage({attemptId, messageId, isReported}: {attemptId: Id<"attem
     </>
   );
 }
-
 
 function NewMessage({ attemptId }: { attemptId: Id<"attempts"> }) {
   const sendMessage = useMutation(api.chat.sendMessage);
