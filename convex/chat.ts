@@ -82,10 +82,12 @@ export const getMessages = queryWithAuth({
       .query("reports")
       .withIndex("by_attempt", (x) => x.eq("attemptId", attemptId))
       .collect();
-    
+
     const result = [];
     for (const message of rows) {
-      const isReported = reportedMessages.some((x) => x.messageId === message._id);
+      const isReported = reportedMessages.some(
+        (x) => x.messageId === message._id,
+      );
 
       result.push({
         id: message._id,
@@ -241,19 +243,24 @@ export const reportMessage = mutationWithAuth({
   },
   handler: async (ctx, { messageId, reason }) => {
     const message = await ctx.db.get(messageId);
-    if (message === null)
-      throw new ConvexError("Message not found")
+    if (message === null) throw new ConvexError("Message not found");
 
-    await getAttemptIfAuthorized(
+    const attempt = await getAttemptIfAuthorized(
       ctx.db,
       ctx.session,
       message.attemptId,
     );
 
+    const exercise = await ctx.db.get(attempt.exerciseId);
+    if (exercise === null) throw new ConvexError("Exercise not found");
+    const week = await ctx.db.get(exercise.weekId);
+    if (week === null) throw new ConvexError("Week not found");
+
     await ctx.db.insert("reports", {
       attemptId: message.attemptId,
       messageId: messageId,
-      reason: reason
+      courseId: week.courseId,
+      reason: reason,
     });
   },
 });
@@ -263,19 +270,16 @@ export const unreportMessage = mutationWithAuth({
     messageId: v.id("messages"),
   },
   handler: async (ctx, { messageId }) => {
-    const message = await ctx.db.get(messageId)
-    if (message === null)
-      throw new ConvexError("Message not found");
+    const message = await ctx.db.get(messageId);
+    if (message === null) throw new ConvexError("Message not found");
 
-    await getAttemptIfAuthorized(
-      ctx.db,
-      ctx.session,
-      message.attemptId,
-    );
+    await getAttemptIfAuthorized(ctx.db, ctx.session, message.attemptId);
 
-    const report = await ctx.db.query("reports").withIndex("by_message", (x) => x.eq("messageId", messageId)).first();
-    if (report === null)
-      throw new ConvexError("No report");
+    const report = await ctx.db
+      .query("reports")
+      .withIndex("by_message", (x) => x.eq("messageId", messageId))
+      .first();
+    if (report === null) throw new ConvexError("No report");
 
     await ctx.db.delete(report._id);
   },

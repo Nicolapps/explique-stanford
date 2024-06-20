@@ -1,24 +1,37 @@
-import { queryWithAuth } from "../withAuth";
-import { validateAdminSession } from "./exercises";
-
+import { v } from "convex/values";
+import { queryWithAuth } from "../auth/withAuth";
+import { getCourseRegistration } from "../courses";
 
 export const list = queryWithAuth({
-    args: {},
-    handler: async ({ db, session }) => {
-      validateAdminSession(session);
-      const result = [];
-      for (const report of await db.query("reports").collect()) {
-        const message = await db.get(report.messageId);
+  args: {
+    courseSlug: v.string(),
+  },
+  handler: async ({ db, session }, { courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      db,
+      session,
+      courseSlug,
+      "admin",
+    );
 
-        result.push({
-            id: report._id,
-            attemptId: report.attemptId,
-            messageId: report.messageId,
-            message: message?.content,
-            reason: report.reason,
-          })
-      }
-  
-      return result;
-    },
-  });
+    const reports = await db
+      .query("reports")
+      .withIndex("by_course", (q) => q.eq("courseId", course._id))
+      .collect();
+
+    const result = [];
+    for (const report of reports) {
+      const message = await db.get(report.messageId);
+
+      result.push({
+        id: report._id,
+        attemptId: report.attemptId,
+        messageId: report.messageId,
+        message: message?.content,
+        reason: report.reason,
+      });
+    }
+
+    return result;
+  },
+});
