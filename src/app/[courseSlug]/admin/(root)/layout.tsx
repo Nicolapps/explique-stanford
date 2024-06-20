@@ -65,7 +65,7 @@ export default function AdminRootLayout({ children }: { children: ReactNode }) {
           <UserIcon />
           Users
         </NavLink>
-        <NavLink href="/admin/reports">
+        <NavLink href={`/${courseSlug}/admin/reports`}>
           <ExclamationCircleIcon />
           Reports
         </NavLink>
