@@ -18,6 +18,7 @@ import { PrimaryButton } from "../PrimaryButton";
 import Input from "../Input";
 import { Button } from "../Button";
 import { Modal } from "@/components/Modal";
+import { toast } from "sonner";
 
 export default function ExplainExercise({
   hasQuiz,
@@ -236,10 +237,14 @@ function ReportMessage({
           )}
           type="button"
           title="Report"
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
-            !isReported && setIsModalOpen(true);
-            isReported && unreportMessage({ messageId });
+            if (isReported) {
+              await unreportMessage({ messageId });
+              toast.success("Your message report has been removed.");
+            } else {
+              setIsModalOpen(true);
+            }
           }}
         >
           <HandThumbDownIcon className="w-5 h-5" />
@@ -253,12 +258,13 @@ function ReportMessage({
       >
         <form
           className="mt-5"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             if (reason.trim()) {
-              reportMessage({ messageId, reason });
               setIsModalOpen(false);
               setReason("");
+              await reportMessage({ messageId, reason });
+              toast.success("The message has been reported. Thank you!");
             }
           }}
         >
