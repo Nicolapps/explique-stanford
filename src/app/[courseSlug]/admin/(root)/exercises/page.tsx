@@ -8,6 +8,7 @@ import { api } from "../../../../../../convex/_generated/api";
 import { useCourseSlug } from "@/hooks/useCourseSlug";
 import Title from "@/components/typography";
 import { ExerciseLink } from "@/components/ExerciseLink";
+import { Button } from "@/components/Button";
 
 export default function AdminExercisePage() {
   const courseSlug = useCourseSlug();
@@ -20,12 +21,10 @@ export default function AdminExercisePage() {
       <Title>
         <span className="flex-1">Weeks</span>
 
-        <Link
-          href={`/${courseSlug}/admin/weeks/new`}
-          className="font-medium px-4 py-2 rounded-lg bg-blue-100 cursor-pointer hover:bg-blue-200 text-base flex items-center gap-2 tracking-normal"
-        >
+        <Button href={`/${courseSlug}/admin/weeks/new`}>
+          <PlusIcon className="w-5 h-5" />
           Add Week
-        </Link>
+        </Button>
       </Title>
 
       <div className="grid gap-12 pb-8">
