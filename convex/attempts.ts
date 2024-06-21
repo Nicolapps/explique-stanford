@@ -27,7 +27,11 @@ export const get = queryWithAuth({
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
 
-    const week = await db.get(exercise.weekId);
+    const weekId = exercise.weekId;
+    if (weekId === null) {
+      throw new ConvexError("This exercise has been deleted");
+    }
+    const week = await db.get(weekId);
     if (week === null) throw new Error("No week");
 
     const course = await db.get(week.courseId);
@@ -227,7 +231,12 @@ export const isUsingExplainVariant = internalQuery({
     const exercise = await db.get(exerciseId);
     if (exercise === null) throw new Error("Unknown exercise");
 
-    const week = await db.get(exercise.weekId);
+    const weekId = exercise.weekId;
+    if (weekId === null) {
+      throw new ConvexError("This exercise has been deleted");
+    }
+
+    const week = await db.get(weekId);
     if (week === null) throw new Error("No week");
 
     const registration = await db

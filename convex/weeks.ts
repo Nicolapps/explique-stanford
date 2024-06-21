@@ -18,7 +18,11 @@ export async function validateDueDate(
 ) {
   const now = Date.now();
 
-  const week = await db.get(exercise.weekId);
+  const weekId = exercise.weekId;
+  if (weekId === null) {
+    throw new ConvexError("The exercise has been deleted");
+  }
+  const week = await db.get(weekId);
   if (week === null) {
     throw new Error("Week not found");
   }
@@ -51,8 +55,13 @@ export async function validateDueDateFromAction(
   exercise: Doc<"exercises">,
   user: User,
 ) {
+  const id = exercise.weekId;
+  if (id === null) {
+    throw new ConvexError("The exercise has been deleted");
+  }
+
   await ctx.runMutation(internal.weeks.validateDueDateFromActionQuery, {
-    id: exercise.weekId,
+    id,
     exerciseId: exercise._id,
     userId: user._id,
   });

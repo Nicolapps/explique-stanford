@@ -24,10 +24,15 @@ export const get = queryWithAuth({
 
     const exercise = await db.get(id);
     if (!exercise) {
-      return null;
+      throw new ConvexError("Exercise not found");
     }
 
-    return exercise;
+    const { weekId } = exercise;
+    if (weekId === null) {
+      throw new ConvexError("The exercise has been deleted");
+    }
+
+    return { ...exercise, weekId };
   },
 });
 
@@ -97,9 +102,20 @@ export const updateRow = internalMutation({
       throw new ConvexError("Exercise not found");
     }
 
+    const oldWeekId = existing.weekId;
+    const newWeekId = row.weekId;
+
+    if (newWeekId === null) {
+      throw new ConvexError("Invalid data");
+    }
+
+    if (oldWeekId === null) {
+      throw new ConvexError("Can’t unpublish this exercise");
+    }
+
     // Verify that the exercise stays in the same course
-    const oldWeek = await db.get(existing.weekId);
-    const newWeek = await db.get(row.weekId);
+    const oldWeek = await db.get(oldWeekId);
+    const newWeek = await db.get(newWeekId);
     if (!oldWeek || !newWeek || newWeek.courseId !== oldWeek.courseId) {
       throw new ConvexError("The course of an exercise cannot be changed");
     }
@@ -169,9 +185,14 @@ export const create = actionWithAuth({
       "admin",
     );
 
+    const { weekId } = exercise;
+    if (weekId === null) {
+      throw new ConvexError("Invalid week ID");
+    }
+
     // Validate the week ID
     const week = await ctx.runQuery(internal.admin.weeks.getInternal, {
-      id: exercise.weekId,
+      id: weekId,
     });
     if (!week || week.courseId !== course._id) {
       throw new ConvexError("Invalid week");
@@ -191,7 +212,11 @@ export const courseSlugOfExercise = internalQuery({
       throw new ConvexError("Exercise not found");
     }
 
-    const week = await ctx.db.get(exercise.weekId);
+    const weekId = exercise.weekId;
+    if (weekId === null) {
+      throw new ConvexError("This exercise has been deleted");
+    }
+    const week = await ctx.db.get(weekId);
     if (!week) {
       throw new ConvexError("Week not found");
     }

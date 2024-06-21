@@ -21,7 +21,13 @@ export const list = queryWithAuth({
     if (!exercise) {
       throw new ConvexError("Exercise not found");
     }
-    const week = await ctx.db.get(exercise.weekId);
+
+    const weekId = exercise.weekId;
+    if (weekId === null) {
+      throw new ConvexError("The exercise has been deleted");
+    }
+
+    const week = await ctx.db.get(weekId);
     if (!week) {
       throw new Error("Week not found");
     }

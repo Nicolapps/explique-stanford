@@ -83,7 +83,12 @@ export const submit = mutationWithAuth({
     const exercise = await db.get(attempt.exerciseId);
     if (exercise === null) throw new Error("No exercise");
 
-    const week = await db.get(exercise.weekId);
+    const weekId = exercise.weekId;
+    if (weekId === null) {
+      throw new ConvexError("This exercise has been deleted");
+    }
+
+    const week = await db.get(weekId);
     if (week === null) throw new Error("No week");
 
     const registration = await db

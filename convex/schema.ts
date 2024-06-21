@@ -13,7 +13,7 @@ export const exerciseAdminSchema = {
       prompt: v.string(), // the system prompt of the feedback part
     }),
   ),
-  weekId: v.id("weeks"),
+  weekId: v.union(v.id("weeks"), v.null()), // null = unpublished exercise
   text: v.string(), // the text the users need to read for the reading exercise
   quiz: v.union(
     v.object({
