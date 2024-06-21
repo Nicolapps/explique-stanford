@@ -28,7 +28,7 @@ export default function AdminExercisePage() {
         </Link>
       </Title>
 
-      <div className="grid gap-12">
+      <div className="grid gap-12 pb-8">
         {weeks?.map((week) => (
           <div key={week._id}>
             <h2 className="text-3xl font-medium flex mb-4 gap-3 flex-wrap items-baseline">

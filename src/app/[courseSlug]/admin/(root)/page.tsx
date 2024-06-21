@@ -12,7 +12,7 @@ export default function AdminExercisePage() {
   const course = useQuery(api.admin.course.get, { courseSlug });
 
   return (
-    <>
+    <div className="pb-8">
       <Title>
         <span className="flex-1">Course</span>
 
@@ -42,6 +42,6 @@ export default function AdminExercisePage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
