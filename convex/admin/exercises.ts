@@ -8,7 +8,11 @@ import {
 import OpenAI from "openai";
 import { internal } from "../_generated/api";
 import { exerciseAdminSchema } from "../schema";
-import { actionWithAuth, queryWithAuth } from "../auth/withAuth";
+import {
+  actionWithAuth,
+  mutationWithAuth,
+  queryWithAuth,
+} from "../auth/withAuth";
 import { COMPLETION_VALID_MODELS } from "../chat";
 import { getCourseRegistration } from "../courses";
 import { Id } from "../_generated/dataModel";
@@ -318,3 +322,38 @@ function validateQuiz(quiz: Quiz) {
     }
   }
 }
+
+export const softDelete = mutationWithAuth({
+  args: {
+    id: v.id("exercises"),
+    courseSlug: v.string(),
+  },
+  handler: async (ctx, { id, courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      ctx.db,
+      ctx.session,
+      courseSlug,
+      "admin",
+    );
+
+    const exercise = await ctx.db.get(id);
+    if (!exercise) {
+      throw new ConvexError("Exercise not found");
+    }
+
+    const weekId = exercise.weekId;
+    if (weekId === null) {
+      throw new ConvexError("The exercise has already been deleted");
+    }
+
+    const week = await ctx.db.get(weekId);
+    if (!week) {
+      throw new Error("Week not found");
+    }
+    if (week.courseId !== course._id) {
+      throw new ConvexError("Exercise not found");
+    }
+
+    await ctx.db.patch(exercise._id, { weekId: null });
+  },
+});

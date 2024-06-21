@@ -144,3 +144,35 @@ export const update = mutationWithAuth({
     await scheduleWeekChangesInvalidation(ctx, id);
   },
 });
+
+export const remove = mutationWithAuth({
+  args: {
+    id: v.id("weeks"),
+    courseSlug: v.string(),
+  },
+  handler: async (ctx, { id, courseSlug }) => {
+    const { course } = await getCourseRegistration(
+      ctx.db,
+      ctx.session,
+      courseSlug,
+      "admin",
+    );
+
+    const week = await ctx.db.get(id);
+    if (!week || week.courseId !== course._id) {
+      throw new ConvexError("Week not found");
+    }
+
+    // Soft delete the exercises
+    // @TODO Only query the exercises from this course
+    const exercises = await ctx.db
+      .query("exercises")
+      .withIndex("by_week_id", (q) => q.eq("weekId", id))
+      .collect();
+    for (const exercise of exercises) {
+      await ctx.db.patch(exercise._id, { weekId: null });
+    }
+
+    await ctx.db.delete(id);
+  },
+});

@@ -87,7 +87,7 @@ export default defineSchema(
     exercises: defineTable({
       ...exerciseAdminSchema,
       assistantId: v.string(),
-    }),
+    }).index("by_week_id", ["weekId"]),
     images: defineTable({
       storageId: v.id("_storage"),
       thumbnails: v.array(
