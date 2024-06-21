@@ -82,9 +82,8 @@ function CourseSelector() {
             <div className="relative">
               <ListboxButton
                 className={clsx(
-                  "w-full cursor-default rounded-2xl bg-white py-1.5 px-10 text-left text-gray-900 ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-purple-500 sm:text-sm sm:leading-6 h-24 sm:h-32",
-                  !open && "ring-white",
-                  open && "ring-2 ring-purple-500",
+                  "w-full cursor-default rounded-2xl py-1.5 px-10 text-left text-gray-900 ring-inset focus:outline-none focus:ring-4 sm:text-sm sm:leading-6 h-24 sm:h-32",
+                  open && "ring-4",
                 )}
               >
                 <h1 className="flex flex-col justify-center text-center items-center">
@@ -117,7 +116,7 @@ function CourseSelector() {
                         clsx(
                           focus ? "bg-purple-600 text-white" : "",
                           !focus ? "text-gray-900" : "",
-                          "relative cursor-default select-none py-2 pl-3 pr-9",
+                          "relative cursor-default select-none py-2 pl-9 pr-4",
                         )
                       }
                       value={course.slug}
@@ -147,7 +146,7 @@ function CourseSelector() {
                             <span
                               className={clsx(
                                 focus ? "text-white" : "text-indigo-600",
-                                "absolute inset-y-0 right-0 flex items-center pr-4",
+                                "absolute inset-y-0 left-0 flex items-center pl-4",
                               )}
                             >
                               <CheckIcon
