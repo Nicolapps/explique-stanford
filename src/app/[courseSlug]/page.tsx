@@ -5,6 +5,7 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   QuestionMarkCircleIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
   CheckIcon as CheckIconSmall,
@@ -283,11 +284,27 @@ function ProjectGrid() {
             <div className="grid gap-6 md:grid-cols-2">
               {week.exercises.map((exercise) => (
                 <ExerciseLink
+                  key={exercise.id}
                   href={`/e/${exercise.id}`}
                   name={exercise.name}
                   image={exercise.image}
-                  completed={exercise.completed}
-                  key={exercise.id}
+                  corner={
+                    <div
+                      className={clsx(
+                        "w-24 h-24 tr-corner flex text-white rounded-tr-3xl",
+                        exercise.completed &&
+                          "bg-gradient-to-b from-green-500 to-green-600",
+                        !exercise.completed && "bg-gray-500",
+                      )}
+                    >
+                      {exercise.completed && (
+                        <CheckIcon className="absolute top-4 right-4 w-6 h-6" />
+                      )}
+                      {!exercise.completed && (
+                        <XMarkIcon className="absolute top-4 right-4 w-6 h-6" />
+                      )}
+                    </div>
+                  }
                 />
               ))}
             </div>

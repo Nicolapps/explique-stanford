@@ -10,10 +10,18 @@ import Title from "@/components/typography";
 import { ExerciseLink } from "@/components/ExerciseLink";
 import { DropdownMenu, DropdownMenuItem } from "@/components/DropdownMenu";
 import { Button } from "@/components/Button";
-import { Doc } from "../../../../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
+
+type Exercise = {
+  id: Id<"exercises">;
+  name: string;
+  image: {
+    thumbnails: { type: string; sizes?: string; src: string }[];
+  } | null;
+};
 
 export default function AdminExercisePage() {
   const courseSlug = useCourseSlug();
@@ -43,18 +51,12 @@ function Week({
   week,
 }: {
   week: Doc<"weeks"> & {
-    exercises: {
-      id: string;
-      name: string;
-      image: {
-        thumbnails: { type: string; sizes?: string; src: string }[];
-      } | null;
-    }[];
+    exercises: Exercise[];
   };
 }) {
   const courseSlug = useCourseSlug();
-  const deleteWeek = useMutation(api.admin.weeks.remove);
 
+  const deleteWeek = useMutation(api.admin.weeks.remove);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   return (
@@ -88,12 +90,7 @@ function Week({
 
       <div className="mt-4 grid gap-6 md:grid-cols-2">
         {week.exercises.map((exercise) => (
-          <ExerciseLink
-            href={`/${courseSlug}/admin/exercises/${exercise.id}`}
-            name={exercise.name}
-            image={exercise.image}
-            key={exercise.id}
-          />
+          <ExerciseLinkWithMenu exercise={exercise} key={exercise.id} />
         ))}
 
         <Link
@@ -149,5 +146,83 @@ function Week({
         </div>
       </Modal>
     </div>
+  );
+}
+
+function ExerciseLinkWithMenu({ exercise }: { exercise: Exercise }) {
+  const courseSlug = useCourseSlug();
+
+  const deleteExercise = useMutation(api.admin.exercises.softDelete);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  return (
+    <>
+      <ExerciseLink
+        href={`/${courseSlug}/admin/exercises/${exercise.id}`}
+        name={exercise.name}
+        image={exercise.image}
+        corner={
+          <div className="p-4">
+            <div className="pointer-events-auto">
+              <DropdownMenu variant="overlay">
+                <DropdownMenuItem
+                  href={`/${courseSlug}/admin/exercises/${exercise.id}`}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setIsDeleteModalOpen(true);
+                  }}
+                  variant="danger"
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenu>
+            </div>
+          </div>
+        }
+      />
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title={`Delete “${exercise.name}”?`}
+      >
+        <div className="mt-2">
+          <p className="text-sm text-gray-500">
+            Are you sure that you want to delete the exercise{" "}
+            <strong className="font-semibold text-gray-600">
+              “{exercise.name}”
+            </strong>
+            ? This action cannot be undone.
+          </p>
+        </div>
+
+        <div className="mt-4 flex gap-2 justify-end">
+          <Button
+            onClick={() => setIsDeleteModalOpen(false)}
+            variant="secondary"
+            size="sm"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={async () => {
+              setIsDeleteModalOpen(false);
+              await deleteExercise({
+                id: exercise.id,
+                courseSlug,
+              });
+              toast.success("Exercise deleted successfully");
+            }}
+            variant="danger"
+            size="sm"
+          >
+            Delete
+          </Button>
+        </div>
+      </Modal>
+    </>
   );
 }

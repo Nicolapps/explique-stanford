@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Menu,
   MenuButton,
@@ -10,15 +8,26 @@ import {
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import Link from "next/link";
-import React, { useState } from "react";
-import { Modal } from "./Modal";
-import { Button } from "./Button";
+import React from "react";
 
-export function DropdownMenu({ children }: React.PropsWithChildren<{}>) {
+export function DropdownMenu({
+  children,
+  variant = "ghost",
+}: React.PropsWithChildren<{
+  variant?: "ghost" | "overlay";
+}>) {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <MenuButton className="flex items-center rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-100">
+        <MenuButton
+          className={clsx(
+            "w-10 h-10 flex items-center justify-center rounded-full focus:outline-none",
+            variant == "ghost" &&
+              "text-slate-400 hover:text-slate-600 focus:ring-2 focus:text-slate-600 transition-colors",
+            variant == "overlay" &&
+              "bg-black/30 hover:bg-black/40 focus:bg-black/40 backdrop-blur-xl text-white/80 hover:text-white focus:ring-4 focus:text-white transition-colors",
+          )}
+        >
           <span className="sr-only">Open options</span>
           <EllipsisVerticalIcon className="h-5 w-5" aria-hidden="true" />
         </MenuButton>
