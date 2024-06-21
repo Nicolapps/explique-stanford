@@ -16,12 +16,12 @@ export default function NewWeek() {
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
       <div className="max-w-6xl flex-1">
-        <Title backHref={`/${courseSlug}/admin`}>New Week</Title>
+        <Title backHref={`/${courseSlug}/admin/exercises`}>New Week</Title>
 
         <WeekForm
           onSubmit={async (state) => {
             await create({ courseSlug, ...state });
-            router.push(`/${courseSlug}/admin`);
+            router.push(`/${courseSlug}/admin/exercises`);
           }}
           initialState={{
             name: "",
