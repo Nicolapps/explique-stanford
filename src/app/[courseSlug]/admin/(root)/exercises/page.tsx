@@ -14,6 +14,7 @@ import { Doc, Id } from "../../../../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
+import { Select, SelectWithNone } from "@/components/Input";
 
 type Exercise = {
   id: Id<"exercises">;
@@ -155,6 +156,13 @@ function ExerciseLinkWithMenu({ exercise }: { exercise: Exercise }) {
   const deleteExercise = useMutation(api.admin.exercises.softDelete);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
+  const [destinationCourse, setDestinationCourse] =
+    useState<Id<"courses"> | null>(null);
+  const [destinationWeek, setDestinationWeek] = useState<Id<"weeks"> | null>(
+    null,
+  );
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+
   return (
     <>
       <ExerciseLink
@@ -166,9 +174,11 @@ function ExerciseLinkWithMenu({ exercise }: { exercise: Exercise }) {
             <div className="pointer-events-auto">
               <DropdownMenu variant="overlay">
                 <DropdownMenuItem
-                  href={`/${courseSlug}/admin/exercises/${exercise.id}`}
+                  onClick={() => {
+                    setIsDuplicateModalOpen(true);
+                  }}
                 >
-                  Edit
+                  Duplicate
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
@@ -183,6 +193,17 @@ function ExerciseLinkWithMenu({ exercise }: { exercise: Exercise }) {
           </div>
         }
       />
+
+      <Modal
+        isOpen={isDuplicateModalOpen}
+        onClose={() => setIsDuplicateModalOpen(false)}
+        title={`Duplicate “${exercise.name}”`}
+      >
+        <DuplicationForm
+          exercise={exercise}
+          onClose={() => setIsDuplicateModalOpen(false)}
+        />
+      </Modal>
 
       <Modal
         isOpen={isDeleteModalOpen}
@@ -223,6 +244,100 @@ function ExerciseLinkWithMenu({ exercise }: { exercise: Exercise }) {
           </Button>
         </div>
       </Modal>
+    </>
+  );
+}
+
+function DuplicationForm({
+  onClose,
+  exercise,
+}: {
+  onClose: () => void;
+  exercise: Exercise;
+}) {
+  const courseSlug = useCourseSlug();
+  const courses = useQuery(api.courses.getMyRegistrations, {})?.filter(
+    (course) => course.isAdmin,
+  );
+  const [selectedCourse, setSelectedCourse] = useState<Id<"courses"> | null>(
+    null,
+  );
+
+  const selectedCourseSlug = selectedCourse
+    ? courses?.find((c) => c.id === selectedCourse)?.slug
+    : null;
+  const weeks = useQuery(
+    api.admin.weeks.list,
+    selectedCourseSlug ? { courseSlug: selectedCourseSlug } : "skip",
+  );
+
+  const [selectedWeek, setSelectedWeek] = useState<Id<"weeks"> | null>(null);
+
+  const duplicate = useMutation(api.admin.exercises.duplicate);
+
+  return (
+    <>
+      <div className="mt-2">
+        {courses !== undefined && true ? (
+          <SelectWithNone
+            label="Course"
+            value={selectedCourse}
+            onChange={(v) => {
+              if (v !== selectedCourse) {
+                setSelectedCourse(v);
+                setSelectedWeek(null);
+              }
+            }}
+            values={courses.map((course) => ({
+              value: course.id,
+              label: course.name,
+            }))}
+          />
+        ) : (
+          <div className="h-16 bg-slate-200 rounded animate-pulse" />
+        )}
+
+        {selectedCourse !== null && (
+          <>
+            {weeks === undefined ? (
+              <div className="h-16 bg-slate-200 rounded animate-pulse" />
+            ) : (
+              <SelectWithNone
+                label="Week"
+                value={selectedWeek}
+                onChange={(v) => setSelectedWeek(v)}
+                values={weeks!.map((week) => ({
+                  value: week.id,
+                  label: week.name,
+                }))}
+              />
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="mt-4 flex gap-2 justify-end">
+        <Button onClick={onClose} variant="secondary" size="sm">
+          Cancel
+        </Button>
+        <Button
+          onClick={async () => {
+            onClose();
+            await duplicate({
+              courseSlug,
+              id: exercise.id,
+
+              weekId: selectedWeek!,
+              courseId: selectedCourse!,
+            });
+            toast.success("Exercise duplicated successfully");
+          }}
+          size="sm"
+          disabled={selectedWeek === null || selectedCourse === null}
+        >
+          Duplicate
+        </Button>
+      </div>
     </>
   );
 }

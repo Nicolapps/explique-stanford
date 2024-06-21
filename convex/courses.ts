@@ -111,9 +111,11 @@ export const getMyRegistrations = queryWithAuth({
         continue;
       }
       results.push({
+        id: course._id,
         code: course.code,
         slug: course.slug,
         name: course.name,
+        isAdmin: registration.role === "admin",
       });
     }
 

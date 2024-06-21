@@ -74,22 +74,25 @@ export function Textarea({
   );
 }
 
-export function Select<T extends string>({
-  value,
-  onChange,
-  label,
-  values,
-  hint,
-}: {
+type SelectProps<T> = {
   value: T;
   onChange: (value: T) => void;
   label: string;
   values: {
     value: T;
     label: string;
+    disabled?: boolean;
   }[];
   hint?: ReactNode;
-}) {
+};
+
+export function Select<T extends string>({
+  value,
+  onChange,
+  label,
+  values,
+  hint,
+}: SelectProps<T>) {
   const id = useId();
   return (
     <label
@@ -101,11 +104,11 @@ export function Select<T extends string>({
       <select
         id={id}
         className="mt-1 p-2 w-full border border-slate-300 rounded-md font-sans h-10 form-select focus:ring-2 focus:ring-inherit focus:border-inherit focus:outline-none"
-        value={value}
+        value={value ?? undefined}
         onChange={(e) => onChange(e.target.value as T)}
       >
-        {values.map(({ value, label }) => (
-          <option key={value} value={value}>
+        {values.map(({ value, label, disabled }) => (
+          <option key={value} value={value} disabled={disabled}>
             {label}
           </option>
         ))}
@@ -113,5 +116,30 @@ export function Select<T extends string>({
 
       {hint && <p className="text-slate-500 mt-2">{hint}</p>}
     </label>
+  );
+}
+
+export function SelectWithNone<T extends string>({
+  values,
+  value,
+  ...props
+}: Omit<SelectProps<T>, "value"> & {
+  value: T | null;
+}) {
+  const noneValue = `none-07d23f86-f645-46a4-be04-9e79dfbd73cf` as T;
+
+  return (
+    <Select
+      value={value === null ? noneValue : value}
+      values={[
+        {
+          value: noneValue,
+          label: "",
+          disabled: true,
+        },
+        ...values,
+      ]}
+      {...props}
+    />
   );
 }

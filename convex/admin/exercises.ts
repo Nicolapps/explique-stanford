@@ -357,3 +357,79 @@ export const softDelete = mutationWithAuth({
     await ctx.db.patch(exercise._id, { weekId: null });
   },
 });
+
+export const duplicate = mutationWithAuth({
+  args: {
+    courseSlug: v.string(),
+    id: v.id("exercises"),
+
+    weekId: v.id("weeks"),
+    courseId: v.id("courses"),
+  },
+  handler: async (ctx, { courseSlug, id, weekId, courseId }) => {
+    const { course } = await getCourseRegistration(
+      ctx.db,
+      ctx.session,
+      courseSlug,
+      "admin",
+    );
+
+    const exercise = await ctx.db.get(id);
+    if (!exercise) {
+      throw new ConvexError("Exercise not found");
+    }
+
+    // Do I have admin rights over this exercise?
+    const oldWeekId = exercise.weekId;
+    if (oldWeekId === null) {
+      throw new ConvexError("The exercise has been deleted");
+    }
+    const oldWeek = await ctx.db.get(oldWeekId);
+    if (!oldWeek) {
+      throw new Error("Week not found");
+    }
+    if (oldWeek.courseId !== course._id) {
+      throw new ConvexError("Exercise not found");
+    }
+
+    // Am I an admin of the course?
+    const newWeek = await ctx.db.get(weekId);
+    if (!newWeek) {
+      throw new ConvexError("Week not found");
+    }
+
+    const registration = await ctx.db
+      .query("registrations")
+      .withIndex("by_user_and_course", (q) =>
+        q.eq("userId", ctx.session!.user._id).eq("courseId", newWeek.courseId),
+      )
+      .filter((q) => q.eq(q.field("role"), "admin"))
+      .first();
+    if (!registration) {
+      throw new ConvexError("You are not an admin of the new course");
+    }
+
+    const newExerciseId = await ctx.db.insert("exercises", {
+      ...{ ...exercise, _id: undefined, _creationTime: undefined },
+      weekId,
+    });
+
+    if (exercise.image) {
+      const oldImage = await ctx.db.get(exercise.image);
+      if (!oldImage) {
+        throw new Error("Image not found");
+      }
+
+      const newImageId = await ctx.db.insert("images", {
+        ...{
+          ...oldImage,
+          _id: undefined,
+          _creationTime: undefined,
+          exerciseId: newExerciseId,
+        },
+      });
+
+      await ctx.db.patch(newExerciseId, { image: newImageId });
+    }
+  },
+});
