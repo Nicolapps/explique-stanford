@@ -490,11 +490,9 @@ function AddUsers() {
         required
       />
 
-      <div className="pb-8">
-        <PrimaryButton type="submit" disabled={!emails.trim()}>
-          Add Users
-        </PrimaryButton>
-      </div>
+      <PrimaryButton type="submit" disabled={!emails.trim()}>
+        Add Users
+      </PrimaryButton>
     </form>
   );
 }

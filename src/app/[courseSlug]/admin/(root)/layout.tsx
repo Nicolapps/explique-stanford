@@ -9,37 +9,17 @@ import {
   AcademicCapIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
-import clsx from "clsx";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
 import { ReactNode } from "react";
 import { api } from "../../../../../convex/_generated/api";
-
-function NavLink({ href, children }: { href: string; children: ReactNode }) {
-  const pathname = usePathname();
-
-  return (
-    <Link
-      className={clsx(
-        "flex [&>svg]:w-6 [&>svg]:h-6 [&>svg]:mr-2 items-center h-12 px-4 transition-colors rounded-full",
-        "hover:bg-slate-200 hover:text-slate-800 font-medium [&>svg]:transition-colors",
-        pathname === href
-          ? "bg-slate-200 text-slate-900 font-semibold [&>svg]:text-slate-600"
-          : "text-slate-700 [&>svg]:text-slate-400",
-      )}
-      href={href}
-    >
-      {children}
-    </Link>
-  );
-}
+import { NavLink } from "@/components/NavLink";
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
   const courseSlug = useCourseSlug();
   const registration = useQuery(api.courses.getRegistration, { courseSlug });
 
   return (
-    <div className="bg-slate-100 h-full flex flex-col md:flex-row md:justify-center p-6 sm:p-10 gap-10">
+    <div className="bg-slate-100 h-min-full flex flex-col md:flex-row md:justify-center p-6 sm:p-10 gap-10">
       <nav className="md:w-48 flex flex-col gap-2">
         <Link
           className="flex items-center gap-1 h-10 text-slate-600 hover:text-slate-900 transition-colors rounded focus:outline-none focus:ring-4"

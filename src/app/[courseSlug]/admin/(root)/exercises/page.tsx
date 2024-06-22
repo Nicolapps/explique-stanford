@@ -14,7 +14,7 @@ import { Doc, Id } from "../../../../../../convex/_generated/dataModel";
 import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
-import { Select, SelectWithNone } from "@/components/Input";
+import { SelectWithNone } from "@/components/Input";
 
 type Exercise = {
   id: Id<"exercises">;
@@ -41,7 +41,7 @@ export default function AdminExercisePage() {
         </Button>
       </Title>
 
-      <div className="grid gap-12 pb-8">
+      <div className="grid gap-12">
         {weeks?.map((week) => <Week week={week} key={week._id} />)}
       </div>
     </>
