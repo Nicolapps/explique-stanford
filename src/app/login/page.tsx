@@ -36,9 +36,7 @@ export default function Page() {
       const legacy = urlParams.has("legacy") || !isUsingIdentities;
 
       if (external || legacy) {
-        const { url, state, codeVerifier } = await generateGoogleAuthUrl({
-          external,
-        });
+        const { url, state, codeVerifier } = await generateGoogleAuthUrl();
 
         localStorage.setItem("googleState", state);
         localStorage.setItem("googleCodeVerifier", codeVerifier);

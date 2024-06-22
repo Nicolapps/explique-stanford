@@ -33,10 +33,8 @@ const google = new Google(clientId, clientSecret, redirectUri);
 const hostedDomain = process.env.GOOGLE_HOSTED_DOMAIN ?? null;
 
 export const getLoginUrl = action({
-  args: {
-    external: v.optional(v.literal(true)),
-  },
-  async handler(ctx, { external }) {
+  args: {},
+  async handler() {
     const state = generateState();
     const codeVerifier = generateCodeVerifier();
 
