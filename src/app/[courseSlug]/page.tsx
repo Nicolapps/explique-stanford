@@ -65,7 +65,7 @@ function CourseSelector() {
 
   if (!user || !courses) {
     return (
-      <div className="w-full mx-auto h-24 sm:h-32 rounded-xl bg-slate-200 animate-pulse"></div>
+      <div className="w-full mx-auto h-28 sm:h-32 rounded-xl bg-slate-200 animate-pulse"></div>
     );
   }
 
@@ -82,7 +82,7 @@ function CourseSelector() {
             <div className="relative">
               <ListboxButton
                 className={clsx(
-                  "w-full cursor-default rounded-2xl py-1.5 px-10 text-left text-gray-900 ring-inset focus:outline-none focus:ring-4 sm:text-sm sm:leading-6 h-24 sm:h-32",
+                  "w-full cursor-default rounded-2xl py-1.5 px-6 sm:px-10 text-left text-gray-900 ring-inset focus:outline-none focus:ring-4 sm:text-sm sm:leading-6 h-28 sm:h-32",
                   open && "ring-4",
                 )}
               >
@@ -90,11 +90,11 @@ function CourseSelector() {
                   <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
                     {user.course.code}
                   </span>
-                  <span className="block text-balance text-3xl sm:text-4xl font-semibold tracking-tight text-gray-800">
+                  <span className="block text-balance text-xl sm:text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-gray-800">
                     {user.course.name}
                   </span>
                 </h1>
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center sm:pr-2">
                   <ChevronUpDownIcon
                     className="h-6 w-6 text-gray-400"
                     aria-hidden="true"
@@ -191,7 +191,7 @@ export default function CoursePage() {
               <Login />
             </div>
 
-            <div className="bg-white shadow-[0_-20px_40px_-12px_rgb(0_0_0_/_0.1)] rounded-t-2xl p-8 md:p-14 w-full max-w-2xl mx-auto mt-8">
+            <div className="bg-white shadow-[0_-20px_40px_-12px_rgb(0_0_0_/_0.1)] rounded-t-2xl p-2 sm:p-8 md:p-14 w-full max-w-2xl mx-auto mt-8">
               <CourseSelector />
             </div>
           </div>
