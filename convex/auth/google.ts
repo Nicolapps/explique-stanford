@@ -168,7 +168,7 @@ async function getOrCreateUser(
   }
 
   const luciaUserId = generateUserId();
-  await db.insert("users", {
+  const userId = await db.insert("users", {
     id: luciaUserId,
     googleId: profile.sub,
     email: profile.email,
@@ -179,7 +179,22 @@ async function getOrCreateUser(
       picture: profile.picture,
     },
   });
+  await autoJoin(db, userId);
   return { luciaUserId };
+}
+
+export async function autoJoin(db: DatabaseWriter, userId: Id<"users">) {
+  if (!process.env.AUTO_JOIN_COURSE) return;
+
+  const firstCourse = await db.query("courses").first();
+  if (!firstCourse) return;
+
+  await db.insert("registrations", {
+    userId,
+    courseId: firstCourse._id,
+    role: null,
+    completedExercises: [],
+  });
 }
 
 export const handleLogin = internalMutation({

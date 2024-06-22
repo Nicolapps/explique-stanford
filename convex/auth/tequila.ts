@@ -4,6 +4,7 @@ import { Id } from "../_generated/dataModel";
 import { generateUserId, initializeLucia } from "./lucia";
 import { ConvexMutationAdapter } from "./adapters/ConvexMutationAdapter";
 import * as jsrsasign from "jsrsasign";
+import { autoJoin } from "./google";
 
 function validateToken(jwt: string): string | false {
   const jwtKey = process.env.JWT_PUBLIC_KEY;
@@ -53,12 +54,13 @@ async function getOrCreateUser(
   if (existingUser) return { luciaUserId: existingUser.id };
 
   const luciaUserId = generateUserId();
-  await db.insert("users", {
+  const userId = await db.insert("users", {
     id: luciaUserId,
     identifier,
     email: null,
     name: null,
   });
+  await autoJoin(db, userId);
   return { luciaUserId };
 }
 
