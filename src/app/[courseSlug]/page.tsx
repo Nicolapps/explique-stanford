@@ -175,6 +175,10 @@ function CourseSelector() {
   );
 }
 
+function isDefined<T>(argument: T | false): argument is T {
+  return argument !== false;
+}
+
 export default function CoursePage() {
   const courseSlug = useCourseSlug();
   const user = useQuery(api.courses.getRegistration, { courseSlug });
@@ -199,12 +203,19 @@ export default function CoursePage() {
       </div>
       <div className="relative p-6 sm:p-10 flex justify-center shadow-[0_-10px_10px_-3px_rgba(0_0_0_/_0.08)]">
         <div className="max-w-6xl flex-1">
-          {user?.isAdmin && (
+          {(user?.isAdmin || user?.isSuperadmin) && (
             <TabBar
               items={[
                 { label: "Exercises", href: `/${courseSlug}` },
-                { label: "Admin", href: `/${courseSlug}/admin` },
-              ]}
+                user.isAdmin && {
+                  label: "Admin",
+                  href: `/${courseSlug}/admin`,
+                },
+                user.isSuperadmin && {
+                  label: "Superadmin",
+                  href: `/superadmin`,
+                },
+              ].filter(isDefined)}
             />
           )}
 
