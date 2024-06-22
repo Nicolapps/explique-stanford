@@ -187,6 +187,7 @@ export default defineSchema(
       googleMetadata: v.optional(v.any()),
       identifier: v.optional(v.string()),
       extraTime: v.optional(v.literal(true)),
+      superadmin: v.optional(v.literal(true)),
     })
       .index("by_lucia_id", ["id"])
       .index("by_email", ["email"])

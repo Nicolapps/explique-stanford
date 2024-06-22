@@ -85,6 +85,7 @@ export const getRegistration = queryWithAuth({
       name,
       email,
       isAdmin: registration.role === "admin",
+      isSuperadmin: ctx.session.user.superadmin === true,
       group:
         registration.role === "admin" && registration.researchGroup
           ? registration.researchGroup.id

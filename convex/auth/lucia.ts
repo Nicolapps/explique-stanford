@@ -26,6 +26,7 @@ interface DatabaseUserAttributes {
   name: string | null;
   extraTime?: true;
   identifier?: string;
+  superadmin?: true;
 }
 
 export function initializeLucia(adapter: Adapter) {
@@ -47,6 +48,7 @@ export function initializeLucia(adapter: Adapter) {
         name: databaseUserAttributes.name,
         extraTime: databaseUserAttributes.extraTime,
         identifier: databaseUserAttributes.identifier,
+        superadmin: databaseUserAttributes.superadmin,
       };
     },
   });
