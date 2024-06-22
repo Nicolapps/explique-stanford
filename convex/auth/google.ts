@@ -30,6 +30,8 @@ const scopes = [
 
 const google = new Google(clientId, clientSecret, redirectUri);
 
+const hostedDomain = process.env.GOOGLE_HOSTED_DOMAIN ?? null;
+
 export const getLoginUrl = action({
   args: {
     external: v.optional(v.literal(true)),
@@ -41,6 +43,10 @@ export const getLoginUrl = action({
     const url = await google.createAuthorizationURL(state, codeVerifier, {
       scopes,
     });
+
+    if (hostedDomain !== null) {
+      url.searchParams.set("hd", hostedDomain);
+    }
 
     return {
       url: url.toString(),
@@ -105,6 +111,12 @@ export const redirect = action({
     if (profile.email_verified !== true) {
       throw new ConvexError(
         "Your account’s email address is not verified. Please verify your email address with Google and try again.",
+      );
+    }
+
+    if (hostedDomain !== null && profile.hd !== hostedDomain) {
+      throw new ConvexError(
+        "Your account is not part of the correct organization. Please contact support.",
       );
     }
 
