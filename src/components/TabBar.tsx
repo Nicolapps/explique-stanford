@@ -9,7 +9,7 @@ function TabBarLink({ href, label }: { href: string; label: React.ReactNode }) {
     <Link
       href={href}
       className={clsx(
-        "flex items-center justify-center px-6 py-1 relative font-medium text-lg tracking-tight text-slate-700 rounded-full focus:ring-4 focus:outline-none",
+        "flex items-center justify-center px-4 py-1 relative font-medium text-lg tracking-tight text-slate-700 rounded-full focus:ring-4 focus:outline-none",
       )}
       aria-selected={isActive}
     >
@@ -22,7 +22,7 @@ function TabBarLink({ href, label }: { href: string; label: React.ReactNode }) {
           isActive && "font-semibold text-slate-700",
         )}
       >
-        {label}
+        <div className="w-full text-center truncate">{label}</div>
       </span>
     </Link>
   );
