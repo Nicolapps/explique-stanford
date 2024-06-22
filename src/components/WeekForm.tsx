@@ -2,11 +2,12 @@ import { formatDateTime } from "@/util/date";
 import { useState } from "react";
 import Input from "./Input";
 import { PrimaryButton } from "./PrimaryButton";
+import { toast } from "sonner";
 
 export type State = {
   name: string;
   startDate: string;
-  duration: string;
+  endDate: string;
 };
 
 export default function WeekForm({
@@ -25,34 +26,23 @@ export default function WeekForm({
 }) {
   const [name, setName] = useState(initialState.name);
   const [startDate, setStartDate] = useState(initialState.startDate);
-  const [duration, setDuration] = useState(initialState.duration);
-
-  let endDate: Date | null = null;
-  let endDateExtraTime: Date | null = null;
-  if (startDate && /^\d+$/.test(duration)) {
-    const timeIncrement = parseInt(duration) * 24 * 60 * 60 * 1000;
-
-    endDate = new Date(startDate);
-    endDate.setTime(endDate.getTime() + timeIncrement);
-
-    endDateExtraTime = new Date(startDate);
-    endDateExtraTime.setTime(
-      endDateExtraTime.getTime() + (timeIncrement * 4) / 3,
-    );
-  }
+  const [endDate, setEndDate] = useState(initialState.startDate);
 
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
 
-        if (!endDate || !endDateExtraTime) throw new Error("Invalid state");
+        if (startDate >= endDate) {
+          toast.error("The end date must be after the start date");
+          return;
+        }
 
         onSubmit({
           name,
           startDate: +new Date(startDate),
-          endDate: +endDate,
-          endDateExtraTime: +endDateExtraTime,
+          endDate: +new Date(endDate),
+          endDateExtraTime: +new Date(endDate) + 1000 * 60 * 60 * 24, // + 1 day,
         });
       }}
     >
@@ -65,40 +55,21 @@ export default function WeekForm({
         required
       />
 
-      <div className="grid md:grid-cols-2 gap-x-6 items-center">
-        <div>
-          <Input
-            value={startDate}
-            onChange={setStartDate}
-            label="Release"
-            type="datetime-local"
-            required
-          />
+      <Input
+        value={startDate}
+        onChange={setStartDate}
+        label="Release"
+        type="datetime-local"
+        required
+      />
 
-          <Input
-            value={duration}
-            onChange={setDuration}
-            label="Duration (days)"
-            type="number"
-            min="1"
-            max="365"
-            step="1"
-            required
-          />
-        </div>
-
-        <div>
-          {endDate && endDateExtraTime && (
-            <div className="mb-4 border p-4 rounded bg-slate-50">
-              <p>
-                Due date: <strong>{formatDateTime(endDate)}</strong>
-                <br />(<strong>{formatDateTime(endDateExtraTime)}</strong> for
-                students with extra time)
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <Input
+        value={endDate}
+        onChange={setEndDate}
+        label="Deadline"
+        type="datetime-local"
+        required
+      />
 
       <PrimaryButton type="submit">{submitLabel}</PrimaryButton>
     </form>

@@ -23,7 +23,7 @@ export default function EditWeek() {
 
   return (
     <div className="bg-slate-100 h-full p-10 flex justify-center">
-      <div className="max-w-6xl flex-1">
+      <div className="max-w-xl flex-1">
         <Title backHref={`/${courseSlug}/admin/exercises`}>Edit Week</Title>
 
         {week === null && <p>Not found</p>}
