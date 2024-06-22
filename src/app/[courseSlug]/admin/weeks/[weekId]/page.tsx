@@ -40,11 +40,7 @@ export default function EditWeek() {
             initialState={{
               name: week.name,
               startDate: toDatetimeLocalString(new Date(week.startDate)),
-              duration: (
-                (new Date(week.endDate).getTime() -
-                  new Date(week.startDate).getTime()) /
-                (1000 * 60 * 60 * 24)
-              ).toString(),
+              endDate: toDatetimeLocalString(new Date(week.endDate)),
             }}
             submitLabel="Save"
           />

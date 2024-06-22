@@ -26,7 +26,7 @@ export default function NewWeek() {
           initialState={{
             name: "",
             startDate: "",
-            duration: "7",
+            endDate: "",
           }}
           submitLabel="Create"
         />
