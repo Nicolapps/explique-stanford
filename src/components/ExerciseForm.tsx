@@ -343,6 +343,7 @@ export default function ExerciseForm({
                   value={feedback.model}
                   onChange={(m) => setFeedback({ ...feedback, model: m })}
                   values={[
+                    "gpt-4o",
                     "gpt-4-1106-preview",
                     "gpt-4",
                     "gpt-4-0314",

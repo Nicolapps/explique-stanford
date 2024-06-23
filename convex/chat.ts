@@ -11,8 +11,6 @@ import { internal } from "./_generated/api";
 import { Session, mutationWithAuth, queryWithAuth } from "./auth/withAuth";
 import { Id } from "./_generated/dataModel";
 import { TextContentBlock } from "openai/resources/beta/threads/messages";
-import { report } from "process";
-import { isNull } from "util";
 
 export const COMPLETION_VALID_MODELS = [
   "gpt-4-1106-preview",
