@@ -52,7 +52,9 @@ export function ExerciseLink({
               image && "bg-gradient-to-t via-black/25 from-black/70",
             )}
           >
-            <h2 className="font-semibold text-2xl text-shadow-lg">{name}</h2>
+            <h2 className="font-semibold text-2xl text-shadow-lg [text-wrap:balance]">
+              {name}
+            </h2>
           </Link>
         </div>
 

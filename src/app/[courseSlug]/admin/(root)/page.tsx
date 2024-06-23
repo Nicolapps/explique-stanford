@@ -31,7 +31,7 @@ export default function AdminExercisePage() {
                   <span className="block sm:text-xl font-bold tracking-wider text-gray-500 sm:mb-1">
                     {course.code}
                   </span>
-                  <span className="block text-balance text-xl sm:text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-gray-800">
+                  <span className="block [text-wrap:balance] text-xl sm:text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-gray-800">
                     {course.name}
                   </span>
                 </div>
