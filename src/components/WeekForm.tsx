@@ -26,7 +26,7 @@ export default function WeekForm({
 }) {
   const [name, setName] = useState(initialState.name);
   const [startDate, setStartDate] = useState(initialState.startDate);
-  const [endDate, setEndDate] = useState(initialState.startDate);
+  const [endDate, setEndDate] = useState(initialState.endDate);
 
   return (
     <form
