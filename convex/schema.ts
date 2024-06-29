@@ -155,16 +155,6 @@ export default defineSchema(
       details: v.optional(v.any()),
     }).index("by_type", ["type"]),
 
-    groupAssignments: defineTable({
-      identifier: v.string(),
-      group: v.union(v.literal("A"), v.literal("B")),
-      researchConsent: v.optional(v.literal(true)),
-      positionInGroup: v.optional(v.number()),
-      groupLength: v.optional(v.number()),
-    })
-      .index("byIdentifier", ["identifier"])
-      .index("byGroup", ["group"]),
-
     registrations: defineTable({
       userId: v.id("users"),
       courseId: v.id("courses"),
@@ -213,13 +203,6 @@ export default defineSchema(
       .index("by_lucia_id", ["id"])
       .index("by_user_id", ["userId"])
       .index("by_expires_at", ["expiresAt"]),
-    auth_keys: defineTable({
-      id: v.string(),
-      hashed_password: v.union(v.string(), v.null()),
-      user_id: v.string(),
-    })
-      .index("byId", ["id"])
-      .index("byUserId", ["user_id"]),
   },
   {
     schemaValidation: true,
