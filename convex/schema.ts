@@ -3,9 +3,11 @@ import { v } from "convex/values";
 
 export const exerciseAdminSchema = {
   name: v.string(),
+  weekId: v.union(v.id("weeks"), v.null()), // null = soft-deleted exercise
+
   instructions: v.string(), // instructions for the chatbot in the explanation part
-  model: v.string(), // OpenAI model used for the chatbot
   chatCompletionsApi: v.optional(v.literal(true)), // whether to use the chat completions API instead of the assistants API
+  model: v.string(), // OpenAI model used for the chatbot
   feedback: v.optional(
     // whether to provide some feedback after the explanation
     v.object({
@@ -13,8 +15,9 @@ export const exerciseAdminSchema = {
       prompt: v.string(), // the system prompt of the feedback part
     }),
   ),
-  weekId: v.union(v.id("weeks"), v.null()), // null = unpublished exercise
+
   text: v.string(), // the text the users need to read for the reading exercise
+
   quiz: v.union(
     v.object({
       batches: v.array(
@@ -55,6 +58,7 @@ export default defineSchema(
       code: v.string(),
       slug: v.string(),
     }).index("by_slug", ["slug"]),
+
     attempts: defineTable({
       status: v.union(
         v.literal("exercise"),
@@ -68,10 +72,12 @@ export default defineSchema(
     })
       .index("by_key", ["userId", "exerciseId"])
       .index("by_status", ["status"]),
+
     quizSubmissions: defineTable({
       attemptId: v.id("attempts"),
       answers: v.array(v.number()),
     }).index("attemptId", ["attemptId"]),
+
     weeks: defineTable({
       courseId: v.id("courses"),
 
@@ -84,10 +90,12 @@ export default defineSchema(
       // are invalidated.
       cacheInvalidation: v.optional(v.number()),
     }).index("by_course_and_start_date", ["courseId", "startDate"]),
+
     exercises: defineTable({
       ...exerciseAdminSchema,
       assistantId: v.string(),
     }).index("by_week_id", ["weekId"]),
+
     images: defineTable({
       storageId: v.id("_storage"),
       thumbnails: v.array(
@@ -103,6 +111,7 @@ export default defineSchema(
       quality: v.union(v.literal("standard"), v.literal("hd")),
       exerciseId: v.id("exercises"),
     }).index("by_exercise_id", ["exerciseId"]),
+
     messages: defineTable({
       attemptId: v.id("attempts"),
       system: v.boolean(),
@@ -116,6 +125,7 @@ export default defineSchema(
         ),
       ),
     }).index("by_attempt", ["attemptId"]),
+
     reports: defineTable({
       attemptId: v.id("attempts"),
       messageId: v.id("messages"),
@@ -125,6 +135,7 @@ export default defineSchema(
       .index("by_attempt", ["attemptId"])
       .index("by_message", ["messageId"])
       .index("by_course", ["courseId"]),
+
     logs: defineTable({
       type: v.union(
         v.literal("attemptStarted"),
