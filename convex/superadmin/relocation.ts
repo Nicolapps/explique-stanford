@@ -269,7 +269,7 @@ export const saveImportedCoures = internalMutation({
     for (const week of weeks) {
       const weekId = await db.insert("weeks", {
         ...week.object,
-        // courseId,
+        courseId,
       });
       for (const exercise of week.exercises) {
         const exerciseId = await db.insert("exercises", {
