@@ -129,7 +129,12 @@ export const update = mutationWithAuth({
       throw new ConvexError("Week not found");
     }
 
-    await ctx.db.patch(id, weekDetails);
+    await ctx.db.replace(id, {
+      courseId: week.courseId,
+      cacheInvalidation: week.cacheInvalidation,
+
+      ...weekDetails,
+    });
     await scheduleWeekChangesInvalidation(ctx, id);
   },
 });
